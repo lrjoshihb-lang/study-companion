@@ -138,6 +138,23 @@ body {
 .feedback-incorrect { background: var(--redlt); color: var(--red); }
 #more-system, #more-automation, #more-setup { display: none !important; }
 @media (min-width: 600px) { body { max-width: 640px; margin: 0 auto; } .stat-row { grid-template-columns: repeat(4, 1fr); } }
+
+/* ── VOICE FEEDBACK ANIMATIONS ── */
+@keyframes pulse-anim {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+#voiceCmdBtn.listening {
+  background: var(--blue, #0066ff) !important;
+  color: white !important;
+  box-shadow: 0 0 12px rgba(0, 102, 255, 0.5);
+}
+
+#voiceStopBtn:hover {
+  background: #ff2222 !important;
+  box-shadow: 0 0 8px rgba(255, 34, 34, 0.5);
+}
 </style>
 </head>
 <body>
@@ -153,7 +170,19 @@ body {
 
 <!-- ── PAGE 1: HOME ─────────────────────────────────────── -->
 <div id="page-home" class="page active">
-  <button class="mic-btn" id="voiceCmdBtn" onclick="toggleVoiceCommand()" style="margin:14px auto">🎤</button>
+  <div style="text-align:center; margin:14px auto;">
+    <button class="mic-btn" id="voiceCmdBtn" onclick="toggleVoiceCommand()">🎤</button>
+    <div id="voiceFeedback" style="
+      display: none;
+      font-size: 13px;
+      color: var(--blue, #0066ff);
+      margin-top: 8px;
+      font-weight: 600;
+      animation: pulse-anim 1.5s infinite;
+    ">
+      🎤 Listening…
+    </div>
+  </div>
      <p style="text-align:center;font-size:11px;color:var(--txt2);margin-bottom:10px">Try: "Read Science chapter 3" or "Quiz me on History chapter 2"</p>
   <div class="stat-row" id="stat-row">
     <div class="stat-pill"><div class="num" id="st-total">—</div><div class="lbl">Total Chapters</div></div>
@@ -720,6 +749,7 @@ function gasRunProxy_(successFn, failureFn) {
 window.google = { script: { run: gasRunProxy_(null, null) } };
 let appData = null;
 let synth = window.speechSynthesis;
+let voiceStopBtn = null;  // Track the manual stop button
 let speech = null, isPlaying = false, spRate = 0.8;
 let currentLang = 'en', askLang = 'en', quizLang = 'en';
 let currentListenFilter = 'all', currentProgressFilter = 'all';
@@ -1197,20 +1227,84 @@ function toggleVoiceCommand() {
   if (!SpeechRecognition) { toast('Voice input not supported on this browser'); return; }
   if (synth) synth.cancel();
   const btn = document.getElementById('voiceCmdBtn');
-  if (vcListening) { if (window.vcRecognition) window.vcRecognition.stop(); return; }
+  
+  if (vcListening) { 
+    console.log('VOICE_STOP: User clicked stop button');
+    if (window.vcRecognition) window.vcRecognition.stop(); 
+    if (voiceStopBtn) voiceStopBtn.style.display = 'none';
+    return; 
+  }
+  
+  console.log('VOICE_START: Initializing speech recognition');
   window.vcRecognition = new SpeechRecognition();
   window.vcRecognition.lang = 'en-IN';
   window.vcRecognition.continuous = true;
   window.vcRecognition.interimResults = false;
-  window.vcRecognition.onstart = () => { vcListening = true; btn.classList.add('listening'); };
-  window.vcRecognition.onend = () => { vcListening = false; btn.classList.remove('listening'); };
+  window.vcRecognition.maxAlternatives = 1;
+  
+  window.vcRecognition.onstart = () => { 
+    console.log('VOICE_LISTENING: Recognition started');
+    vcListening = true; 
+    btn.classList.add('listening');
+    
+    if (!voiceStopBtn) {
+      voiceStopBtn = document.createElement('button');
+      voiceStopBtn.className = 'mic-btn';
+      voiceStopBtn.id = 'voiceStopBtn';
+      voiceStopBtn.textContent = '⏹️ Stop Listening';
+      voiceStopBtn.style.cssText = `
+        display: block;
+        margin: 10px auto;
+        font-size: 13px;
+        padding: 8px 14px;
+        background: var(--red, #ff4444);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      `;
+      voiceStopBtn.onclick = toggleVoiceCommand;
+      btn.parentElement.appendChild(voiceStopBtn);
+    } else {
+      voiceStopBtn.style.display = 'block';
+    }
+    
+    const feedbackEl = document.getElementById('voiceFeedback');
+    if (feedbackEl) feedbackEl.style.display = 'block';
+  };
+  
+  window.vcRecognition.onend = () => { 
+    console.log('VOICE_ENDED: Recognition ended');
+    vcListening = false; 
+    btn.classList.remove('listening');
+    if (voiceStopBtn) voiceStopBtn.style.display = 'none';
+    
+    const feedbackEl = document.getElementById('voiceFeedback');
+    if (feedbackEl) feedbackEl.style.display = 'none';
+  };
+  
+  window.vcRecognition.onerror = (e) => {
+    console.error('VOICE_ERROR:', e.error);
+    toast('Voice error: ' + e.error);
+    vcListening = false;
+    btn.classList.remove('listening');
+    if (voiceStopBtn) voiceStopBtn.style.display = 'none';
+  };
+  
   window.vcRecognition.onresult = (e) => {
-    const last = e.results[e.results.length - 1];
-    if (last.isFinal) {
+    const results = e.results;
+    const lastResult = results[results.length - 1];
+    
+    if (lastResult.isFinal) {
+      const transcript = lastResult[0].transcript;
+      const confidence = lastResult[0].confidence;
+      console.log('VOICE_HEARD:', transcript, '(confidence: ' + (confidence*100).toFixed(0) + '%)');
+      
       window.vcRecognition.stop();
-      handleVoiceCommand(last[0].transcript);
+      handleVoiceCommand(transcript);
     }
   };
+  
   window.vcRecognition.start();
 }
 
@@ -1223,24 +1317,42 @@ function speakVC_(text) {
 }
 
 function handleVoiceCommand(transcript) {
-  if (!appData || !appData.trackerChapters) { toast('Data not loaded yet, try again'); return; }
+  if (!appData || !appData.trackerChapters) { 
+    console.error('VOICE_FAIL: Data not loaded');
+    toast('Data not loaded yet, try again'); 
+    return; 
+  }
+  
   const t = transcript.toLowerCase();
-  console.log('VOICE HEARD:', transcript);
+  console.log('VOICE_PROCESSING:', {input: transcript, lowercase: t});
 
- let intent = null;
-if (/\bpractice\b|\boral\b/.test(t)) intent = 'practicequiz';
-else if (/\bquiz\b|\btest\b/.test(t)) intent = 'quiz';
-else if (/\bread\b|\blisten\b|\bsummary\b/.test(t)) intent = 'listen';
+  let intent = null;
+  if (/\b(practice|oral|answer|spoken)\b/.test(t)) {
+    intent = 'practicequiz';
+    console.log('  Intent: PRACTICE QUIZ');
+  } else if (/\b(quiz|test|mcq|multiple)\b/.test(t)) {
+    intent = 'quiz';
+    console.log('  Intent: DAILY MCQ QUIZ');
+  } else if (/\b(read|listen|summary|explain)\b/.test(t)) {
+    intent = 'listen';
+    console.log('  Intent: LISTEN/READ CHAPTER');
+  } else {
+    console.warn('  Intent: NONE DETECTED');
+  }
 
-  const chMatch = t.match(/chapter\s*(\d+)|ch\s*(\d+)/);
+  const chMatch = t.match(/chapter\s*(\d+)|ch\s*(\d+)|chapter\s+(\w+)/);
   const chNum = chMatch ? Number(chMatch[1] || chMatch[2]) : null;
+  console.log('  Chapter:', chNum || 'not found');
 
   const subjectNames = ['english','mathematics','maths','science','civics','economics','geography','history','sanskrit','social science'];
   let subject = subjectNames.find(s => t.includes(s));
   if (subject === 'maths') subject = 'mathematics';
+  console.log('  Subject:', subject || 'not found');
 
   if (!intent || !chNum || !subject) {
-    speakVC_('Sorry, please say something like: read Science chapter 3, or quiz me on History chapter 2.');
+    const msg = 'Sorry, please say something like: read Science chapter 3, or quiz me on History chapter 2.';
+    console.warn('VOICE_INCOMPLETE:', {intent, chNum, subject});
+    speakVC_(msg);
     toast('Could not understand — try: "read Science chapter 3"');
     return;
   }
@@ -1252,30 +1364,41 @@ else if (/\bread\b|\blisten\b|\bsummary\b/.test(t)) intent = 'listen';
   );
 
   if (!match) {
+    console.warn('VOICE_NOT_FOUND: Chapter', subject, chNum, 'not in tracker');
     speakVC_("I couldn't find that chapter.");
     toast('Chapter not found — check subject/chapter number');
     return;
   }
 
+  console.log('VOICE_MATCH_FOUND:', {subject: match.subject, chNum: match.chNum, title: match.title});
   const dropdownSubject = SOCIAL_SCIENCE_SUBJECTS.includes(match.subject) ? 'Social Science' : match.subject;
 
- if (intent === 'listen') {
+  if (intent === 'listen') {
+    console.log('VOICE_ACTION: Loading Listen page');
     showPage('listen');
     document.getElementById('listen-subj').value = dropdownSubject;
     loadListenUnits();
     document.getElementById('listen-unit').value = match.subject + '|' + match.chNum + '|' + match.title + '|' + (match.book || '');
     voiceAutoPlay = true;
     loadChapterContent();
+    
   } else if (intent === 'quiz') {
+    console.log('VOICE_ACTION: Loading Daily MCQ Quiz page');
     showPage('quiz');
     document.getElementById('webmcq-subj').value = dropdownSubject;
     loadWebMcqUnits();
     document.getElementById('webmcq-unit').value = match.subject + '|' + match.chNum + '|' + match.title;
+    console.log('VOICE_ACTION: Calling startWebMCQ()');
     startWebMCQ();
+    
   } else if (intent === 'practicequiz') {
+    console.log('VOICE_ACTION: Loading Practice Quiz page');
     showPage('quiz');
-    document.getElementById('quizChSelect').value = match.subject + '|' + match.chNum + '|' + match.title + '|' + (match.book || '');
+    const qOption = match.subject + '|' + match.chNum + '|' + match.title + '|' + (match.book || '');
+    console.log('  Setting quizChSelect to:', qOption);
+    document.getElementById('quizChSelect').value = qOption;
     enableQuizBtn();
+    console.log('VOICE_ACTION: Calling startQuiz()');
     startQuiz();
   }
 }
@@ -1299,35 +1422,67 @@ function setQuizLang(lang, btn) {
 
 function startQuiz() {
   const val = document.getElementById('quizChSelect').value;
-  if (!val) return;
+  if (!val) {
+    console.error('QUIZ_FAIL: No chapter selected');
+    toast('Select a chapter first');
+    return;
+  }
+  
   const [subject, chNum, title, book] = val.split('|');
   quizChapter = { subject, chNum, title };
+  console.log('QUIZ_START: Practice Quiz', {subject, chNum, title});
 
   const startBtn = document.getElementById('startQuizBtn');
-  startBtn.disabled = true; startBtn.textContent = 'Generating questions…';
+  startBtn.disabled = true;
+  startBtn.textContent = '⏳ Generating questions…';
 
   const instruction = 'Generate exactly 5 short-answer (not multiple choice) practice questions with their model answers for this chapter' +
     '. Format strictly as:\nQ1: question\nA1: model answer\nQ2: question\nA2: model answer\n(continue through Q5/A5)';
 
+  const requestStartTime = Date.now();
+  
   google.script.run
     .withSuccessHandler(res => {
-      startBtn.disabled = false; startBtn.textContent = '▶ Start Quiz';
-      if (!res.success) { toast('Could not generate questions'); return; }
+      const elapsed = ((Date.now() - requestStartTime) / 1000).toFixed(1);
+      console.log('QUIZ_RESPONSE:', {elapsed_sec: elapsed, success: res.success});
+      
+      startBtn.disabled = false;
+      startBtn.textContent = '▶ Start Quiz';
+      
+      if (!res.success) {
+        console.error('QUIZ_GENERATION_FAILED:', res);
+        if (res.debug) console.error('  Backend debug:', res.debug);
+        toast('Could not generate questions. Check console for details.');
+        return;
+      }
+      
       quizQuestions = parseGeneratedQuestions_(res.answer);
-      if (quizQuestions.length === 0) { toast('No questions generated, try again'); return; }
+      console.log('QUIZ_PARSED:', quizQuestions.length + ' questions');
+      
+      if (quizQuestions.length === 0) {
+        console.error('QUIZ_PARSE_FAILED: No questions extracted');
+        toast('No questions generated, try again');
+        return;
+      }
+      
       quizIndex = 0;
       document.getElementById('quizSetup').style.display = 'none';
       document.getElementById('quizContainer').style.display = 'block';
+      
       const badge = document.getElementById('quizGroundBadge');
       if (badge) {
         badge.textContent = res.source ? '📎 Grounded in ' + res.source : '⚠️ General knowledge (chapter not yet generated — for tighter accuracy, generate it in More first)';
         badge.style.color = res.source ? 'var(--green)' : 'var(--amber)';
       }
+      
+      console.log('QUIZ_READY:', quizQuestions.length + ' questions loaded');
       showQuestion();
     })
     .withFailureHandler(e => {
-      startBtn.disabled = false; startBtn.textContent = '▶ Start Quiz';
-      toast('Error: ' + e.message);
+      console.error('QUIZ_API_ERROR:', e.message || e);
+      startBtn.disabled = false;
+      startBtn.textContent = '▶ Start Quiz';
+      toast('Error: ' + (e.message || 'Network error. Check console.'));
     })
     .askAI(instruction, quizLang, 1500, subject, chNum, title, book);
 }
@@ -1370,9 +1525,15 @@ function submitAnswer() {
   fb.style.display = 'block';
   fb.className = 'feedback-box';
   fb.textContent = 'Checking your answer…';
+  console.log('ANSWER_SUBMIT:', {q_idx: quizIndex, q_text: q.question.substring(0,40)});
+
+  const gradeStartTime = Date.now();
 
   google.script.run
     .withSuccessHandler(res => {
+      const elapsed = ((Date.now() - gradeStartTime) / 1000).toFixed(1);
+      console.log('GRADE_RESPONSE:', {elapsed_sec: elapsed});
+      
       const isCorrect = res.success && res.answer.toUpperCase().startsWith('CORRECT');
       fb.className = 'feedback-box ' + (isCorrect ? 'feedback-correct' : 'feedback-incorrect');
       fb.textContent = res.answer;
@@ -1388,7 +1549,10 @@ function submitAnswer() {
         synth.speak(utterance);
       }
     })
-    .withFailureHandler(e => { fb.textContent = 'Error: ' + e.message; })
+    .withFailureHandler(e => {
+      console.error('GRADE_ERROR:', e.message || e);
+      fb.textContent = 'Error: ' + e.message;
+    })
     .checkOralAnswer(q.question, q.answer, studentAnswer, quizLang);
 }
 
@@ -1622,21 +1786,64 @@ function loadWebMcqUnits() {
 }
 function startWebMCQ() {
   const val = document.getElementById('webmcq-unit').value;
-  if (!val) { toast('Choose a chapter first'); return; }
+  if (!val) {
+    console.error('WEBMCQ_FAIL: No chapter selected');
+    toast('Choose a chapter first');
+    return;
+  }
+  
   const [subject, chNum, title] = val.split('|');
+  console.log('WEBMCQ_START: Web MCQ Quiz', {subject, chNum, title});
+  
   const btn = document.getElementById('startWebMcqBtn');
-  btn.disabled = true; btn.textContent = 'Generating…';
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating…';
+  
+  const requestStartTime = Date.now();
+  const timeoutId = setTimeout(() => {
+    if (btn.disabled) {
+      console.warn('WEBMCQ_TIMEOUT: Request taking >5 seconds (normal for free tier)');
+      btn.textContent = '⏳ Still generating (can take 10-30s on free tier)…';
+    }
+  }, 5000);
 
   google.script.run
     .withSuccessHandler(res => {
-      btn.disabled = false; btn.textContent = '▶ Start MCQ Quiz';
-      if (!res.success) { toast(res.error || 'Failed to generate'); return; }
-      webMcqData = res; renderWebMCQ();
+      clearTimeout(timeoutId);
+      const elapsed = ((Date.now() - requestStartTime) / 1000).toFixed(1);
+      console.log('WEBMCQ_RESPONSE:', {elapsed_sec: elapsed, success: res.success});
+      
+      btn.disabled = false;
+      btn.textContent = '▶ Start MCQ Quiz';
+      
+      if (!res.success) {
+        console.error('WEBMCQ_GENERATION_FAILED:', res);
+        if (res.debug) console.error('  Backend debug:', res.debug);
+        
+        let errMsg = res.error || 'Failed to generate';
+        if (errMsg.includes('429')) errMsg = 'API rate limit (try again in 30s)';
+        if (errMsg.includes('timeout')) errMsg = 'Request timeout (try again)';
+        
+        toast(errMsg + ' — check console for details');
+        return;
+      }
+      
+      console.log('WEBMCQ_LOADED:', res.questions.length + ' questions', 
+        '| grounded:', res.grounded ? 'YES' : 'NO');
+      
+      webMcqData = res;
+      renderWebMCQ();
       document.getElementById('webMcqSetup').style.display = 'none';
       document.getElementById('webMcqContainer').style.display = 'block';
       document.getElementById('webMcqResults').style.display = 'none';
     })
-    .withFailureHandler(e => { btn.disabled = false; btn.textContent = '▶ Start MCQ Quiz'; toast('Error: ' + e.message); })
+    .withFailureHandler(e => {
+      clearTimeout(timeoutId);
+      console.error('WEBMCQ_API_ERROR:', e.message || e);
+      btn.disabled = false;
+      btn.textContent = '▶ Start MCQ Quiz';
+      toast('Error: ' + (e.message || 'Network error. Check console.'));
+    })
     .generateWebMCQQuiz(subject, Number(chNum), title);
 }
 function renderWebMCQ() {
