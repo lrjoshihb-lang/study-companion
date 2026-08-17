@@ -721,6 +721,7 @@ let synth = window.speechSynthesis;
 let speech = null, isPlaying = false, spRate = 0.8;
 let currentLang = 'en', askLang = 'en', quizLang = 'en';
 let currentListenFilter = 'all', currentProgressFilter = 'all';
+let voiceAutoPlay = false;
 
 const STATUS_OPTIONS = ['Not Started','In Progress','Completed'];
 const SUBJECTS_ORDER = ['English','Mathematics','Science','Social Science','Sanskrit'];
@@ -1033,6 +1034,7 @@ function loadChapterContent() {
       const friendly = friendlySourceLabel_(res.enSrc);
       tagEl.textContent = friendly.text;
       tagEl.style.color = friendly.color;
+      if (voiceAutoPlay) { voiceAutoPlay = false; togglePlay(); }
     })
     .withFailureHandler(e => { document.getElementById('summary-text').textContent = 'Error: ' + e.message; })
     .getChapterOnDemand(subject, chNum, title);
@@ -1186,7 +1188,80 @@ function toggleAskMic() {
   window.askRecognition.onresult = (e) => { document.getElementById('ask-question').value = e.results[0][0].transcript; };
   window.askRecognition.start();
 }
+// ── VOICE COMMANDS (Home page) ────────────────────────────
+let vcListening = false;
+function toggleVoiceCommand() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) { toast('Voice input not supported on this browser'); return; }
+  if (synth) synth.cancel();
+  const btn = document.getElementById('voiceCmdBtn');
+  if (vcListening) { if (window.vcRecognition) window.vcRecognition.stop(); return; }
+  window.vcRecognition = new SpeechRecognition();
+  window.vcRecognition.lang = 'en-IN';
+  window.vcRecognition.onstart = () => { vcListening = true; btn.classList.add('listening'); };
+  window.vcRecognition.onend = () => { vcListening = false; btn.classList.remove('listening'); };
+  window.vcRecognition.onresult = (e) => { handleVoiceCommand(e.results[0][0].transcript); };
+  window.vcRecognition.start();
+}
 
+function speakVC_(text) {
+  if (!synth) return;
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-IN';
+  synth.speak(u);
+}
+
+function handleVoiceCommand(transcript) {
+  if (!appData || !appData.trackerChapters) { toast('Data not loaded yet, try again'); return; }
+  const t = transcript.toLowerCase();
+
+  let intent = null;
+  if (/\bquiz\b|\btest\b/.test(t)) intent = 'quiz';
+  else if (/\bread\b|\blisten\b|\bsummary\b/.test(t)) intent = 'listen';
+
+  const chMatch = t.match(/chapter\s*(\d+)|ch\s*(\d+)/);
+  const chNum = chMatch ? Number(chMatch[1] || chMatch[2]) : null;
+
+  const subjectNames = ['english','mathematics','maths','science','civics','economics','geography','history','sanskrit','social science'];
+  let subject = subjectNames.find(s => t.includes(s));
+  if (subject === 'maths') subject = 'mathematics';
+
+  if (!intent || !chNum || !subject) {
+    speakVC_('Sorry, please say something like: read Science chapter 3, or quiz me on History chapter 2.');
+    toast('Could not understand — try: "read Science chapter 3"');
+    return;
+  }
+
+  const relevantSubjects = (subject === 'social science') ? SOCIAL_SCIENCE_SUBJECTS : [subject];
+  const match = appData.trackerChapters.find(ch =>
+    relevantSubjects.some(rs => ch.subject.toLowerCase() === rs.toLowerCase()) &&
+    Number(ch.chNum) === chNum
+  );
+
+  if (!match) {
+    speakVC_("I couldn't find that chapter.");
+    toast('Chapter not found — check subject/chapter number');
+    return;
+  }
+
+  const dropdownSubject = SOCIAL_SCIENCE_SUBJECTS.includes(match.subject) ? 'Social Science' : match.subject;
+
+  if (intent === 'listen') {
+    showPage('listen');
+    document.getElementById('listen-subj').value = dropdownSubject;
+    loadListenUnits();
+    document.getElementById('listen-unit').value = match.subject + '|' + match.chNum + '|' + match.title + '|' + (match.book || '');
+    voiceAutoPlay = true;
+    loadChapterContent();
+  } else if (intent === 'quiz') {
+    showPage('quiz');
+    document.getElementById('webmcq-subj').value = dropdownSubject;
+    loadWebMcqUnits();
+    document.getElementById('webmcq-unit').value = match.subject + '|' + match.chNum + '|' + match.title;
+    startWebMCQ();
+  }
+}
 // ── PRACTICE QUIZ (oral / typed answer, AI graded) ─────────
 // NOTE: this whole block was missing from the uploaded file, which is why
 // "Select Chapter" never enabled the Start Quiz button — the onchange/onclick
