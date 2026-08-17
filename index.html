@@ -2543,6 +2543,43 @@ function handlePastPaperFile(event) {
     reader.readAsDataURL(file);
   }
 }
+  function renderBehindList(weakList) {
+  const container = document.getElementById('behind-list');
+  const badge = document.getElementById('behind-badge');
+
+  if (!container) return;
+
+  if (!weakList || weakList.length === 0) {
+    if (badge) {
+      badge.textContent = 'All Clear! 🎉';
+      badge.style.background = 'var(--green)';
+    }
+    container.innerHTML = '<p style="font-size:12px;color:var(--txt2);text-align:center;padding:10px;">Great job! No chapters need revision right now.</p>';
+    return;
+  }
+
+  if (badge) {
+    badge.textContent = weakList.length + ' Needs Review';
+    badge.style.background = 'var(--red)';
+  }
+
+  let html = '';
+  weakList.forEach(item => {
+    html += `
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border);">
+        <div>
+          <div style="font-size:13px; font-weight:700; color:var(--txt);">${item.title}</div>
+          <div style="font-size:11px; color:var(--red); font-weight:600;">Last Score: ${item.score}% (${item.date})</div>
+        </div>
+        <button class="btn btn-sm btn-amber" onclick="switchPage('quiz');">
+          🎯 Re-Quiz
+        </button>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
 </script>
 </body>
 </html>
