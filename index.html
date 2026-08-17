@@ -2580,6 +2580,34 @@ function handlePastPaperFile(event) {
 
   container.innerHTML = html;
 }
+  let mockTimerInterval = null;
+let mockTimeRemaining = 600;
+
+function startMockExamTimer() {
+  clearInterval(mockTimerInterval);
+  mockTimeRemaining = 600;
+
+  const timerDisplay = document.getElementById('mockTimerDisplay');
+  mockTimerInterval = setInterval(() => {
+    mockTimeRemaining--;
+    const mins = Math.floor(mockTimeRemaining / 60);
+    const secs = mockTimeRemaining % 60;
+    
+    if (timerDisplay) {
+      timerDisplay.textContent = `⏱️ Time Left: ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    if (mockTimeRemaining <= 0) {
+      clearInterval(mockTimerInterval);
+      toast('Time up! Submitting your exam automatically...');
+      submitMockExam();
+    }
+  }, 1000);
+}
+
+function stopMockExamTimer() {
+  clearInterval(mockTimerInterval);
+}
 </script>
 </body>
 </html>
