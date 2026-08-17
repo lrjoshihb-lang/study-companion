@@ -1259,7 +1259,7 @@ else if (/\bread\b|\blisten\b|\bsummary\b/.test(t)) intent = 'listen';
 
   const dropdownSubject = SOCIAL_SCIENCE_SUBJECTS.includes(match.subject) ? 'Social Science' : match.subject;
 
-  if (intent === 'listen') {
+ if (intent === 'listen') {
     showPage('listen');
     document.getElementById('listen-subj').value = dropdownSubject;
     loadListenUnits();
@@ -1272,6 +1272,11 @@ else if (/\bread\b|\blisten\b|\bsummary\b/.test(t)) intent = 'listen';
     loadWebMcqUnits();
     document.getElementById('webmcq-unit').value = match.subject + '|' + match.chNum + '|' + match.title;
     startWebMCQ();
+  } else if (intent === 'practicequiz') {
+    showPage('quiz');
+    document.getElementById('quizChSelect').value = match.subject + '|' + match.chNum + '|' + match.title + '|' + (match.book || '');
+    enableQuizBtn();
+    startQuiz();
   }
 }
 // ── PRACTICE QUIZ (oral / typed answer, AI graded) ─────────
