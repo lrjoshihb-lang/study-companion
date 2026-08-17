@@ -1444,6 +1444,33 @@ function startQuiz() {
 
   const startBtn = document.getElementById('startQuizBtn');
   startBtn.disabled = true;
+  startBtn.textContent = '⏳ Checking question bank…';
+
+  // Tier -1 (Session 3): check the pre-generated bank BEFORE calling the AI.
+  // If this chapter's bank exists, the quiz loads instantly at zero API cost.
+  google.script.run
+    .withSuccessHandler(bankRes => {
+      if (bankRes.success && bankRes.questions.length >= 5) {
+        console.log('QUIZ_FROM_BANK:', bankRes.questions.length + ' questions (0 API calls)');
+        startBtn.disabled = false;
+        startBtn.textContent = '▶ Start Quiz';
+        quizQuestions = bankRes.questions;
+        quizIndex = 0;
+        document.getElementById('quizSetup').style.display = 'none';
+        document.getElementById('quizContainer').style.display = 'block';
+        const badge = document.getElementById('quizGroundBadge');
+        if (badge) { badge.textContent = '📚 ' + bankRes.source; badge.style.color = 'var(--green)'; }
+        showQuestion();
+        return;
+      }
+      // Not in the bank yet — fall back to live AI generation, exactly as before.
+      startQuizViaAI_(subject, chNum, title, book, startBtn);
+    })
+    .withFailureHandler(() => startQuizViaAI_(subject, chNum, title, book, startBtn))
+    .getPracticeQuizBank(subject, Number(chNum), title);
+}
+
+function startQuizViaAI_(subject, chNum, title, book, startBtn) {
   startBtn.textContent = '⏳ Generating questions…';
 
   const instruction = 'Generate exactly 5 short-answer (not multiple choice) practice questions with their model answers for this chapter' +
@@ -1649,7 +1676,32 @@ function startTalkQuiz() {
   if (!currentChapter) return;
   const { subject, chNum, title, book } = currentChapter;
   const btn = document.getElementById('talkStartBtn');
-  btn.disabled = true; btn.textContent = 'Generating questions…';
+  btn.disabled = true; btn.textContent = 'Checking question bank…';
+
+  // Tier -1 (Session 3): bank check before any AI call — same pattern as startQuiz().
+  google.script.run
+    .withSuccessHandler(bankRes => {
+      if (bankRes.success && bankRes.questions.length >= 5) {
+        console.log('TALK_FROM_BANK:', bankRes.questions.length + ' questions (0 API calls)');
+        btn.disabled = false; btn.textContent = '🎙️ Start';
+        talkQuestions = bankRes.questions;
+        talkIndex = 0;
+        document.getElementById('talk-setup').style.display = 'none';
+        document.getElementById('talk-container').style.display = 'block';
+        const badge = document.getElementById('talkGroundBadge');
+        badge.textContent = '📚 ' + bankRes.source;
+        badge.style.color = 'var(--green)';
+        showTalkQuestion();
+        return;
+      }
+      startTalkQuizViaAI_(subject, chNum, title, book, btn);
+    })
+    .withFailureHandler(() => startTalkQuizViaAI_(subject, chNum, title, book, btn))
+    .getPracticeQuizBank(subject, Number(chNum), title);
+}
+
+function startTalkQuizViaAI_(subject, chNum, title, book, btn) {
+  btn.textContent = 'Generating questions…';
 
   const instruction = 'Generate exactly 5 short-answer (not multiple choice) practice questions with their model answers for this chapter' +
     '. Format strictly as:\nQ1: question\nA1: model answer\nQ2: question\nA2: model answer\n(continue through Q5/A5)';
