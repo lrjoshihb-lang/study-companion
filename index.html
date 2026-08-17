@@ -575,130 +575,51 @@ body {
     </div>
     <div class="card-body collapsed" id="more-manual-body">
       <select class="notes-unit-select" id="manualChSelect">
-        <option value="">— Choose chapter —</option>
+       <option value="">— Choose chapter —</option>
       </select>
-      <label class="lbl-tag">English Summary</label>
-      <textarea class="text-input" id="manualEn" rows="3" style="resize:vertical"></textarea>
-      <div id="manualOptionalFields" style="display:none">
-        <label class="lbl-tag">Hindi Summary <span>(optional — auto-translated nightly if left blank)</span></label>
-        <textarea class="text-input" id="manualHi" rows="2" style="resize:vertical"></textarea>
-        <label class="lbl-tag">Kannada Summary <span>(optional)</span></label>
-        <textarea class="text-input" id="manualKn" rows="2" style="resize:vertical"></textarea>
-      </div>
-      <button class="btn btn-amber btn-sm" onclick="toggleOptionalFields()" style="margin-bottom:10px">+ Add Hindi/Kannada</button>
-      <button class="btn btn-success btn-full" onclick="submitManualSummary()">💾 Save Summary</button>
-      <div id="manual-msg" style="display:none;margin-top:8px;font-size:12px"></div>
-    </div>
-  </div>
-
-  <div class="card" id="more-translate">
-    <div class="card-head purple collapsible" onclick="toggleMoreCard('more-translate')">
-      <span>🌍 Translation Tools</span>
-      <span class="chevron-white" id="more-translate-chevron">▼</span>
-    </div>
-    <div class="card-body collapsed" id="more-translate-body">
-      <p style="font-size:12px;color:var(--txt2);margin-bottom:10px">
-        Run this if you've added English summaries manually and want Hindi/Kannada filled in immediately.
-      </p>
-      <button class="btn btn-purple btn-full" onclick="runTranslateMissing()">🌍 Translate Missing Now</button>
-      <div id="translate-msg" style="display:none;margin-top:8px;font-size:12px"></div>
-
-      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
-        <p style="font-size:12px;color:var(--txt2);margin-bottom:10px">
-          If a chapter's Hindi/Kannada shows the wrong or "no summary yet" text even though English is filled in, use this to clean it up and refill it correctly.
-        </p>
-        <button class="btn btn-primary btn-full" onclick="runFixStaleTranslations()">🧹 Fix Mismatched Translations</button>
-        <div id="fix-stale-msg" style="display:none;margin-top:8px;font-size:12px"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card" id="more-bulk">
-    <div class="card-head red collapsible" onclick="toggleMoreCard('more-bulk')">
-      <span>⚡ Bulk Content Generator</span>
-      <span class="chevron-white" id="more-bulk-chevron">▼</span>
-    </div>
-    <div class="card-body collapsed" id="more-bulk-body">
-      <p style="font-size:12px;color:var(--txt2);margin-bottom:10px">
-        Fills in missing chapter summaries and practice question sets (PYQ) using AI. Safe to click repeatedly; already-completed chapters are skipped automatically. Runs on <span id="bulk-provider" style="font-weight:600">—</span>.
-      </p>
-      <div id="bulk-progress" style="margin-bottom:10px">
-        <div class="prog-label"><span id="bulk-progress-label">Loading status…</span></div>
-        <div class="prog-track"><div class="prog-fill" id="bulk-progress-fill" style="width:0%"></div></div>
-      </div>
-
-      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt);margin-bottom:10px;cursor:pointer">
-        <input type="checkbox" id="usePdfToggle">
-        Ground in actual chapter PDF from Drive (reduces AI guessing — requires one-time setup, see below)
-      </label>
-      <div id="pdf-setup-status" style="font-size:11px;color:var(--txt2);margin-bottom:10px"></div>
-
-      <button class="btn btn-red btn-full" id="bulkGenBtn" onclick="bulkGenerateBatch()">⚡ Generate Next 5 Chapters</button>
-
-      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
-        <label class="lbl-tag">Or generate one specific chapter</label>
-        <select class="notes-subj-select" id="bulk-single-subj" onchange="loadBulkSingleUnits()">
-          <option value="">— Choose subject —</option>
-        </select>
-        <select class="notes-unit-select" id="bulk-single-unit">
-          <option value="">— Choose chapter —</option>
-        </select>
-        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt);margin-bottom:10px;cursor:pointer">
-          <input type="checkbox" id="overwriteManualToggle">
-          Overwrite even if a hand-typed summary already exists (off by default — protects manual work)
-        </label>
-        <button class="btn btn-amber btn-full" id="bulkSingleBtn" onclick="generateSingleChapterUI()">Generate This Chapter</button>
-      </div>
-
-      <div id="bulk-log" style="margin-top:10px;font-size:11px;color:var(--txt2);max-height:160px;overflow-y:auto"></div>
-      <p style="font-size:10px;color:var(--txt2);margin-top:10px">
-        Note: PYQ entries generated here are AI-produced practice questions in the CBSE style — not verified past-year board papers. They're labeled "AI Generated" / "AI Practice Set" in the sheet so you can tell them apart from any real PYQs you add manually.
-      </p>
-    </div>
-  </div>
-
-  <div class="card" id="more-relink">
-    <div class="card-head navy collapsible" onclick="toggleMoreCard('more-relink')">
-      <span>🔗 Relink Chapter PDFs</span>
-      <span class="chevron-white" id="more-relink-chevron">▼</span>
-    </div>
-    <div class="card-body collapsed" id="more-relink-body">
-      <p style="font-size:12px;color:var(--txt2);margin-bottom:10px">
-        Scans your Drive book folders and writes a fresh, working hyperlink into each STUDY TRACKER chapter title — fixes broken links (e.g. from files that were deleted and re-uploaded) and fills in links for chapters that never had one. Safe to re-run anytime.
-      </p>
-      <button class="btn btn-primary btn-full" id="relinkBtn" onclick="relinkChapterPdfsUI()">🔗 Relink All Chapter PDFs</button>
-      <div id="relink-result" style="margin-top:10px;font-size:12px;color:var(--txt2)"></div>
-    </div>
-  </div>
-
-  <div class="card" id="more-setup">
-    <div class="card-head red collapsible" onclick="toggleMoreCard('more-setup')">
-      <span>🚀 Setup Checklist</span>
-      <span class="chevron-white" id="more-setup-chevron">▼</span>
-    </div>
-    <div class="card-body collapsed" id="more-setup-body">
-      <div style="font-size:13px;line-height:2;color:var(--txt2)">
-        ☐ Extensions → Apps Script → paste Code.gs<br>
-        ☐ Create Index.html file → paste this file<br>
-        ☐ Project Settings → Script Properties → add GROQ_API_KEY, PARENT_EMAIL, CHILD_EMAIL<br>
-        ☐ Run <code style="background:var(--bg);padding:1px 5px;border-radius:4px">setupSystem()</code> → triggers + confirmation email<br>
-        ☐ Deploy → New deployment → Web app → Execute as Me, Access Anyone<br>
-      </div>
+      <label class="lbl-tag">Summary Content</label>
+      <textarea class="text-input" id="manualSummaryText" rows="4" placeholder="Type or paste chapter summary here..."></textarea>
+      <button class="btn btn-amber btn-full" onclick="saveManualSummary()">💾 Save Summary</button>
     </div>
   </div>
 </div>
 
+<!-- ── BOTTOM NAVIGATION ────────────────────────────────── -->
 <nav class="bottom-nav">
-  <button class="nav-btn active" id="nav-home"     onclick="showPage('home')"><span class="icon">🏠</span>Home</button>
-  <button class="nav-btn" id="nav-listen"   onclick="showPage('listen')"><span class="icon">🎧</span>Listen</button>
-  <button class="nav-btn" id="nav-progress" onclick="showPage('progress')"><span class="icon">📈</span>Progress</button>
-  <button class="nav-btn" id="nav-ask"      onclick="showPage('ask')"><span class="icon">🤖</span>Ask</button>
-  <button class="nav-btn" id="nav-quiz"     onclick="showPage('quiz')"><span class="icon">📝</span>Quiz</button>
-  <button class="nav-btn" id="nav-ref"      onclick="showPage('ref')"><span class="icon">📐</span>Ref</button>
-  <button class="nav-btn" id="nav-more"     onclick="showPage('more')"><span class="icon">⋯</span>More</button>
+  <button class="nav-btn active" onclick="showPage('home', this)">
+    <span class="icon">🏠</span>
+    <span>Home</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('listen', this)">
+    <span class="icon">🎧</span>
+    <span>Listen</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('progress', this)">
+    <span class="icon">📊</span>
+    <span>Progress</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('ask', this)">
+    <span class="icon">🤖</span>
+    <span>Ask AI</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('quiz', this)">
+    <span class="icon">📝</span>
+    <span>Quiz</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('ref', this)">
+    <span class="icon">📚</span>
+    <span>Ref</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('more', this)">
+    <span class="icon">⚙️</span>
+    <span>More</span>
+  </button>
 </nav>
 
 <div class="toast" id="toast"></div>
+
+</body>
+</html>
 <script>
 // ── GLOBALS ───────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════
