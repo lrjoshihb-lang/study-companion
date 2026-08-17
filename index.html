@@ -1200,9 +1200,17 @@ function toggleVoiceCommand() {
   if (vcListening) { if (window.vcRecognition) window.vcRecognition.stop(); return; }
   window.vcRecognition = new SpeechRecognition();
   window.vcRecognition.lang = 'en-IN';
+  window.vcRecognition.continuous = true;
+  window.vcRecognition.interimResults = false;
   window.vcRecognition.onstart = () => { vcListening = true; btn.classList.add('listening'); };
   window.vcRecognition.onend = () => { vcListening = false; btn.classList.remove('listening'); };
-  window.vcRecognition.onresult = (e) => { handleVoiceCommand(e.results[0][0].transcript); };
+  window.vcRecognition.onresult = (e) => {
+    const last = e.results[e.results.length - 1];
+    if (last.isFinal) {
+      window.vcRecognition.stop();
+      handleVoiceCommand(last[0].transcript);
+    }
+  };
   window.vcRecognition.start();
 }
 
@@ -1219,9 +1227,10 @@ function handleVoiceCommand(transcript) {
   const t = transcript.toLowerCase();
   console.log('VOICE HEARD:', transcript);
 
-  let intent = null;
-  if (/\bquiz\b|\btest\b/.test(t)) intent = 'quiz';
-  else if (/\bread\b|\blisten\b|\bsummary\b/.test(t)) intent = 'listen';
+ let intent = null;
+if (/\bpractice\b|\boral\b/.test(t)) intent = 'practicequiz';
+else if (/\bquiz\b|\btest\b/.test(t)) intent = 'quiz';
+else if (/\bread\b|\blisten\b|\bsummary\b/.test(t)) intent = 'listen';
 
   const chMatch = t.match(/chapter\s*(\d+)|ch\s*(\d+)/);
   const chNum = chMatch ? Number(chMatch[1] || chMatch[2]) : null;
