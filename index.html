@@ -2538,18 +2538,20 @@ function startMockExamTimer() {
 }
 
 function stopMockExamTimer() {
-  clearInterval(mockTimerInterval);
+    clearInterval(mockTimerInterval);
 }
-  <!-- Timed Mock Test Button & Timer -->
+</script>
+
+<!-- Timed Mock Test Button & Timer -->
 <div style="margin-top: 15px; text-align: center;">
-  <button id="btnStartMockExam" onclick="launchMockExam()" style="background-color: #d9534f; color: white; padding: 12px 20px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; width: 100%;">
-    ⏱️ Start 10-Min Timed Mock Test
+  <button id="btnStartMockExam" onclick="launchMockExam()" style="background-color: #d9534f; color: white; padding: 12px 20px; font-weight: bold; border: none;">
+    ⏱ Start 10-Min Timed Mock Test
   </button>
 </div>
 
-<div id="mockTimerDisplay" style="display: none; background: #fff3cd; color: #856404; padding: 10px; font-weight: bold; text-align: center; font-size: 1.1em; border-radius: 5px; margin-top: 10px;">
-  ⏱️ Time Left: 10:00
+<div id="mockTimerDisplay" style="display: none; background: #fff3cd; color: #856404; padding: 10px; font-weight: bold; text-align: center; font-size: 1.1em;">
+  ⏱ Time Left: 10:00
 </div>
-</script>
+
 </body>
 </html>
