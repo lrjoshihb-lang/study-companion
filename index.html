@@ -1217,6 +1217,7 @@ function speakVC_(text) {
 function handleVoiceCommand(transcript) {
   if (!appData || !appData.trackerChapters) { toast('Data not loaded yet, try again'); return; }
   const t = transcript.toLowerCase();
+  toast('Heard: "' + transcript + '"', 4000);
 
   let intent = null;
   if (/\bquiz\b|\btest\b/.test(t)) intent = 'quiz';
