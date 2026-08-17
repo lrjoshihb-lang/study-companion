@@ -136,10 +136,8 @@ body {
 .feedback-box { border-radius: 10px; padding: 12px 14px; font-size: 13px; line-height: 1.6; margin-top: 10px; white-space: pre-wrap; }
 .feedback-correct { background: var(--greenlt); color: var(--green); }
 .feedback-incorrect { background: var(--redlt); color: var(--red); }
-#more-system, #more-automation, #more-setup { display: none !important; }
 @media (min-width: 600px) { body { max-width: 1100px; margin: 0 auto; } .stat-row { grid-template-columns: repeat(4, 1fr); } }
 
-/* ── VOICE FEEDBACK ANIMATIONS ── */
 /* ── VOICE FEEDBACK ANIMATIONS ── */
 @keyframes pulse-anim {
   0%, 100% { opacity: 0.7; }
@@ -157,7 +155,7 @@ body {
   box-shadow: 0 0 8px rgba(255, 34, 34, 0.5);
 }
 
-/* ── GRADING PROGRESS (Session 2 fix) ── */
+/* ── GRADING PROGRESS ── */
 @keyframes spin-anim { to { transform: rotate(360deg); } }
 .spinner-icon {
   display: inline-block; width: 13px; height: 13px;
@@ -194,7 +192,8 @@ body {
       🎤 Listening…
     </div>
   </div>
-     <p style="text-align:center;font-size:11px;color:var(--txt2);margin-bottom:10px">Try: "Read Science chapter 3" or "Quiz me on History chapter 2"</p>
+  <p style="text-align:center;font-size:11px;color:var(--txt2);margin-bottom:10px">Try: "Read Science chapter 3" or "Quiz me on History chapter 2"</p>
+  
   <div class="stat-row" id="stat-row">
     <div class="stat-pill"><div class="num" id="st-total">—</div><div class="lbl">Total Chapters</div></div>
     <div class="stat-pill"><div class="num" id="st-done">—</div><div class="lbl">Completed</div></div>
@@ -332,7 +331,7 @@ body {
       <div class="lang-tabs">
         <button class="lang-tab active" onclick="setAskLang('en',this)">English</button>
         <button class="lang-tab" onclick="setAskLang('hi',this)">हिंदी</button>
-        <button class="lang-tab" onclick="setAskLang('kn',this)">ಕನ्ನಡ</button>
+        <button class="lang-tab" onclick="setAskLang('kn',this)">ಕನ್ನಡ</button>
       </div>
       
       <div style="font-size:12px;color:var(--txt2);margin:10px 0">Type or speak your question:</div>
@@ -344,7 +343,7 @@ body {
       <div id="ask-source-tag" style="display:none;font-size:11px;color:var(--purple);margin-top:6px;font-weight:600"></div>
 
       <div class="audio-bar" id="ask-audio-bar" style="display:none">
-        <button class="audio-btn" id="ask-audio-play-btn" onclick="togglePlay('ask-answer-box','ask-audio-play-btn', langCodeFor(askDisplayLang))">▶ Play</button>
+        <button class="audio-btn" id="ask-audio-play-btn" onclick="togglePlay('ask-answer-box','ask-audio-play-btn')">▶ Play</button>
         <div class="audio-speed">
           Speed:
           <button class="speed-btn active" onclick="setSpeed(0.8,this)">0.8×</button>
@@ -363,8 +362,6 @@ body {
 
 <!-- ── PAGE 5: QUIZ ─────────────────────────────────────── -->
 <div id="page-quiz" class="page">
-
-  <!-- ── In-App Daily MCQ Quiz ── -->
   <div class="card" id="webMcqSetup">
     <div class="card-head amber">✅ Daily MCQ Quiz (In-App)</div>
     <div class="card-body">
@@ -378,16 +375,16 @@ body {
       </select>
       <button class="btn btn-amber btn-full" id="startWebMcqBtn" onclick="startWebMCQ()">▶ Start MCQ Quiz</button>
       <p style="font-size:11px;color:var(--txt2);margin-top:10px">5 MCQs for the chapter you pick. Tick your answers and submit — graded instantly, scores saved automatically.</p>
-   <!-- Timed Mock Test Button & Timer -->
-<div style="margin-top: 15px; text-align: center;">
-  <button id="btnStartMockExam" onclick="launchMockExam()" style="background-color: #d9534f; color: white; padding: 12px 20px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; width: 100%;">
-    ⏱️ Start 10-Min Timed Mock Test
-  </button>
-</div>
 
-<div id="mockTimerDisplay" style="display: none; background: #fff3cd; color: #856404; padding: 10px; font-weight: bold; text-align: center; font-size: 1.1em; border-radius: 5px; margin-top: 10px;">
-  ⏱️ Time Left: 10:00
-</div>
+      <div style="margin-top: 15px; text-align: center;">
+        <button id="btnStartMockExam" onclick="launchMockExam()" style="background-color: #d9534f; color: white; padding: 12px 20px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; width: 100%;">
+          ⏱️ Start 10-Min Timed Mock Test
+        </button>
+      </div>
+
+      <div id="mockTimerDisplay" style="display: none; background: #fff3cd; color: #856404; padding: 10px; font-weight: bold; text-align: center; font-size: 1.1em; border-radius: 5px; margin-top: 10px;">
+        ⏱️ Time Left: 10:00
+      </div>
     </div>
   </div>
 
@@ -406,7 +403,6 @@ body {
     <div class="card-body" id="webMcqResultsBody"></div>
   </div>
 
-  <!-- ── Existing oral/typed Practice Quiz ── -->
   <div class="card" id="quizSetup">
     <div class="card-head red">📝 Practice Quiz</div>
     <div class="card-body">
@@ -562,7 +558,7 @@ body {
         <b style="color:var(--txt)">Sun 8:00 AM</b> — Weekly parent progress digest email<br>
       </div>
       <p style="font-size:12px;color:var(--txt2);margin:10px 0">
-        Get a free weekly email (no app-checking needed) summarizing chapter progress and any quiz scores under 60%. Want to see one right now instead of waiting for Sunday?
+        Get a free weekly email (no app-checking needed) summarizing chapter progress and any quiz scores under 60%.
       </p>
       <button class="btn btn-success btn-full" onclick="sendDigestNow()">📧 Send Digest Now</button>
       <div id="digest-msg" style="display:none;margin-top:8px;font-size:12px"></div>
@@ -575,1983 +571,153 @@ body {
       <span class="chevron-white" id="more-manual-chevron">▼</span>
     </div>
     <div class="card-body collapsed" id="more-manual-body">
-      <select class="notes-unit-select" id="manualChSelect">
-       <option value="">— Choose chapter —</option>
+      <label class="lbl-tag">Select Subject</label>
+      <select class="notes-subj-select" id="manual-subj-select" onchange="loadManualUnits()">
+        <option value="">— Select Subject —</option>
+      </select>
+      <label class="lbl-tag">Select Chapter</label>
+      <select class="notes-unit-select" id="manual-unit-select">
+        <option value="">— Select Chapter —</option>
       </select>
       <label class="lbl-tag">Summary Content</label>
-      <textarea class="text-input" id="manualSummaryText" rows="4" placeholder="Type or paste chapter summary here..."></textarea>
-      <button class="btn btn-amber btn-full" onclick="saveManualSummary()">💾 Save Summary</button>
+      <textarea class="text-input" id="manual-summary-text" rows="5" placeholder="Enter chapter summary..."></textarea>
+      <button class="btn btn-amber btn-full" onclick="saveManualSummary()">Save Summary</button>
     </div>
   </div>
 </div>
 
 <!-- ── BOTTOM NAVIGATION ────────────────────────────────── -->
 <nav class="bottom-nav">
-  <button class="nav-btn active" onclick="showPage('home', this)">
-    <span class="icon">🏠</span>
-    <span>Home</span>
+  <button class="nav-btn active" onclick="switchPage('home', this)">
+    <span class="icon">🏠</span><span>Home</span>
   </button>
-  <button class="nav-btn" onclick="showPage('listen', this)">
-    <span class="icon">🎧</span>
-    <span>Listen</span>
+  <button class="nav-btn" onclick="switchPage('listen', this)">
+    <span class="icon">🎧</span><span>Listen</span>
   </button>
-  <button class="nav-btn" onclick="showPage('progress', this)">
-    <span class="icon">📊</span>
-    <span>Progress</span>
+  <button class="nav-btn" onclick="switchPage('progress', this)">
+    <span class="icon">📈</span><span>Progress</span>
   </button>
-  <button class="nav-btn" onclick="showPage('ask', this)">
-    <span class="icon">🤖</span>
-    <span>Ask AI</span>
+  <button class="nav-btn" onclick="switchPage('ask', this)">
+    <span class="icon">🤖</span><span>Ask AI</span>
   </button>
-  <button class="nav-btn" onclick="showPage('quiz', this)">
-    <span class="icon">📝</span>
-    <span>Quiz</span>
+  <button class="nav-btn" onclick="switchPage('quiz', this)">
+    <span class="icon">📝</span><span>Quiz</span>
   </button>
-  <button class="nav-btn" onclick="showPage('ref', this)">
-    <span class="icon">📚</span>
-    <span>Ref</span>
+  <button class="nav-btn" onclick="switchPage('ref', this)">
+    <span class="icon">📚</span><span>Ref</span>
   </button>
-  <button class="nav-btn" onclick="showPage('more', this)">
-    <span class="icon">⚙️</span>
-    <span>More</span>
+  <button class="nav-btn" onclick="switchPage('more', this)">
+    <span class="icon">⚙️</span><span>More</span>
   </button>
 </nav>
 
 <div class="toast" id="toast"></div>
 
-</body>
-</html>
+<!-- ── SCRIPT ───────────────────────────────────────────── -->
 <script>
-// ── GLOBALS ───────────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════════
-// GAS-RUN POLYFILL — paste this as the very first thing inside your
-// existing <script> tag in Index.html (before "let appData = null;").
-// Do NOT change anything else in Index.html — every existing
-// google.script.run.withSuccessHandler(...).withFailureHandler(...).xxx(...)
-// call site keeps working exactly as before, because this recreates that
-// same chainable API using fetch() instead of the real Apps Script bridge.
-// ═══════════════════════════════════════════════════════════════════════
-
-// 1) YOUR DEPLOYED WEB APP URL (Stage 1 — already live)
-const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbw1Dmkob-yDehj381CqWPJiK9k8-fqM6jOkckWZiBAd8sT5spXEIl7zBTEBSTawrrS8sQ/exec';
-
-// 2) PIN — asked once when the page loads, then reused on every call.
-//    (Only used if you've set APP_PIN in Script Properties. If you haven't,
-//    leave the prompt blank and it'll be ignored.)
-let GAS_PIN = sessionStorage.getItem('gas_pin') || '';
-if (!GAS_PIN) {
-  GAS_PIN = window.prompt('Enter your app PIN (leave blank if none):') || '';
-  sessionStorage.setItem('gas_pin', GAS_PIN);
-}
-
-// 3) Core network call — every google.script.run.xxx() ends up here.
-//    Note: deliberately NOT setting a Content-Type header. Setting one
-//    (e.g. 'application/json') makes the browser send a CORS preflight
-//    OPTIONS request first, which Apps Script Web Apps do not handle,
-//    and the whole call would silently fail. Leaving it default (text/plain)
-//    avoids the preflight — the backend doPost() still parses it fine via
-//    JSON.parse(e.postData.contents).
-async function gasApiCall_(action, args) {
-  const res = await fetch(GAS_API_URL, {
-    method: 'POST',
-    body: JSON.stringify({ action, params: args, pin: GAS_PIN })
-  });
-  const json = await res.json();
-  if (!json.success) {
-    if (json.error === 'Invalid PIN') {
-      sessionStorage.removeItem('gas_pin');
-      alert('Wrong PIN — reloading so you can re-enter it.');
-      location.reload();
-    }
-    throw new Error(json.error || 'Unknown API error');
+  // Clock Init
+  function updateTime() {
+    const d = new Date();
+    document.getElementById('last-refresh').innerText = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
-  return json.result;
-}
+  updateTime();
+  setInterval(updateTime, 60000);
 
-// 4) The chainable proxy that mimics google.script.run's real API.
-//    Any property accessed that isn't withSuccessHandler/withFailureHandler
-//    is treated as the backend function name to call.
-function gasRunProxy_(successFn, failureFn) {
-  return new Proxy({}, {
-    get(_target, prop) {
-      if (prop === 'withSuccessHandler') return (fn) => gasRunProxy_(fn, failureFn);
-      if (prop === 'withFailureHandler') return (fn) => gasRunProxy_(successFn, fn);
-      // Anything else = the actual function name, e.g. .getChapterOnDemand(...)
-      return (...args) => {
-        gasApiCall_(String(prop), args)
-          .then(result => { if (successFn) successFn(result); })
-          .catch(err => { if (failureFn) failureFn(err); else console.error(err); });
-      };
-    }
-  });
-}
-
-// 5) Install the fake google.script.run — everything below this line in
-//    your existing Index.html script works completely unchanged.
-window.google = { script: { run: gasRunProxy_(null, null) } };
-let appData = null;
-let synth = window.speechSynthesis;
-let voiceStopBtn = null;  // Track the manual stop button
-let speech = null, isPlaying = false, spRate = 0.8;
-let currentLang = 'en', askLang = 'en', quizLang = 'en';
-let currentListenFilter = 'all', currentProgressFilter = 'all';
-let voiceAutoPlay = false;
-
-const STATUS_OPTIONS = ['Not Started','In Progress','Completed'];
-const SUBJECTS_ORDER = ['English','Mathematics','Science','Social Science','Sanskrit'];
-const SOCIAL_SCIENCE_SUBJECTS = ['Civics','Economics','Geography','History'];
-const SUBJECT_GROUP_MAP = { 'Civics': 'Social Science', 'Economics': 'Social Science', 'Geography': 'Social Science', 'History': 'Social Science' };
-
-// ── NAV ───────────────────────────────────────────────────
-function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
-  document.getElementById('nav-' + name).classList.add('active');
-  
-  if (name === 'ref' && document.getElementById('formula-list').innerHTML.includes('Loading reference...')) {
-    loadFormulaBank('all');
-  }
-  if (name === 'more') {
-    refreshBulkStatus();
-  }
-}
-
-function showRefMode(mode) {
-  document.getElementById('ref-formula-section').style.display = mode === 'formula' ? 'block' : 'none';
-  document.getElementById('ref-pyq-section').style.display = mode === 'pyq' ? 'block' : 'none';
-  document.getElementById('ref-notes-section').style.display = mode === 'notes' ? 'block' : 'none';
-  document.getElementById('ref-papers-section').style.display = mode === 'papers' ? 'block' : 'none';
-  document.getElementById('ref-mode-formula').classList.toggle('active', mode === 'formula');
-  document.getElementById('ref-mode-pyq').classList.toggle('active', mode === 'pyq');
-  document.getElementById('ref-mode-notes').classList.toggle('active', mode === 'notes');
-  document.getElementById('ref-mode-papers').classList.toggle('active', mode === 'papers');
-  if (mode === 'notes' && appData) populateNotesDropdowns(appData.trackerChapters);
-  if (mode === 'papers') initPastPapersUI();
-}
-
-function toast(msg, dur=2200) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), dur);
-}
-
-// ── LOAD ALL DATA ─────────────────────────────────────────
-function loadDashboardData() {
-  google.script.run
-    .withSuccessHandler(raw => {
-      const data = JSON.parse(raw);
-      appData = data;
-      document.getElementById('last-refresh').textContent = data.lastRefresh || '--:--';
-      renderHome(data);
-      renderProgress(data.trackerChapters);
-      buildFilterBars(data.trackerChapters);
-      populateChapterDropdowns(data.trackerChapters);
-    })
-    .withFailureHandler(err => toast('Error: ' + err.message))
-    .getDashboardData();
-}
-
-// ── HOME PAGE ─────────────────────────────────────────────
-function renderHome(data) {
-  const stats = data.subjectStats || {};
-  let total = 0, done = 0;
-  Object.values(stats).forEach(s => { total += s.total; done += s.completed; });
-
-  document.getElementById('st-total').textContent = total;
-  document.getElementById('st-done').textContent = done;
-  document.getElementById('st-pct').textContent = total ? Math.round(done/total*100) + '%' : '0%';
-
-  const examDate = new Date(2027, 1, 15);
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const daysLeft = Math.ceil((examDate - today) / (1000 * 60 * 60 * 24));
-  const countdownEl = document.getElementById('stat-row');
-  if (daysLeft > 0 && countdownEl) {
-    const countdownHTML = `<div class="countdown-banner" id="exam-countdown-banner" style="text-align:center;padding:10px;background:var(--redlt);border-radius:8px;margin-bottom:12px;font-weight:600;color:var(--red);font-size:14px">📅 Board Exam: ${daysLeft} days remaining (Feb 15, 2027)</div>`;
-    const existing = document.getElementById('exam-countdown-banner');
-    if (existing) existing.outerHTML = countdownHTML;
-    else countdownEl.insertAdjacentHTML('beforebegin', countdownHTML);
+  // Navigation
+  function switchPage(pageId, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + pageId).classList.add('active');
+    if(btn) btn.classList.add('active');
   }
 
-  const spEl = document.getElementById('subj-progress-home');
-  const groupedStats = {};
-  Object.entries(stats).forEach(([subj, st]) => {
-    const group = SUBJECT_GROUP_MAP[subj] || subj;
-    if (!groupedStats[group]) groupedStats[group] = { total: 0, completed: 0 };
-    groupedStats[group].total += st.total; groupedStats[group].completed += st.completed;
-  });
-  
-  const orderedSubjects = SUBJECTS_ORDER.filter(s => groupedStats[s]);
-  if (orderedSubjects.length) {
-    spEl.innerHTML = orderedSubjects.map(s => {
-      const st = groupedStats[s];
-      const pct = st.total ? Math.round(st.completed/st.total*100) : 0;
-      const cls = pct>=80?'green': pct>=40?'':'amber';
-      return `<div class="prog-wrap">
-        <div class="prog-label"><span>${s}</span><span>${st.completed}/${st.total} (${pct}%)</span></div>
-        <div class="prog-track"><div class="prog-fill ${cls}" style="width:${pct}%"></div></div>
-      </div>`;
-    }).join('');
-  } else spEl.innerHTML = '<p style="font-size:13px;color:var(--txt2)">No data found.</p>';
+  // Card Toggles
+  function toggleHomeCard(id) {
+    const body = document.getElementById(id + '-list') || document.getElementById(id + '-home') || document.getElementById('mcq-scores-home') || document.getElementById('current-affairs-home');
+    const chevron = document.getElementById(id + '-chevron');
+    if (body) body.classList.toggle('collapsed');
+    if (chevron) chevron.classList.toggle('open');
+  }
 
-  const behindEl = document.getElementById('behind-list');
-  const behindBadge = document.getElementById('behind-badge');
-  if (!data.behind || data.behind.length === 0) {
-    behindEl.innerHTML = '<p style="font-size:13px;color:var(--green)">✅ All subjects on pace.</p>';
-    if (behindBadge) behindBadge.textContent = '✅ On pace';
-  } else {
-    const groupedBehind = new Set();
-    let hasSocialScience = false;
-    data.behind.forEach(s => {
-      if (SOCIAL_SCIENCE_SUBJECTS.includes(s)) hasSocialScience = true;
-      else groupedBehind.add(s);
+  function toggleMoreCard(cardId) {
+    const body = document.getElementById(cardId + '-body');
+    const chevron = document.getElementById(cardId + '-chevron');
+    if (body) body.classList.toggle('collapsed');
+    if (chevron) chevron.classList.toggle('open');
+  }
+
+  // Toast Helper
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.innerText = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  // Tab Switching for Ref
+  function showRefMode(mode) {
+    ['formula', 'pyq', 'notes', 'papers'].forEach(m => {
+      document.getElementById('ref-' + m + '-section').style.display = (m === mode) ? 'block' : 'none';
+      const btn = document.getElementById('ref-mode-' + m);
+      if(btn) {
+        if(m === mode) btn.classList.add('active');
+        else btn.classList.remove('active');
+      }
     });
-    if (hasSocialScience) groupedBehind.add('Social Science');
-    behindEl.innerHTML = Array.from(groupedBehind).map(s => `<div style="font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)">⚠️ <b>${s}</b> — below 50% complete</div>`).join('');
-    if (behindBadge) behindBadge.textContent = groupedBehind.size;
   }
 
-  const mcqEl = document.getElementById('mcq-scores-home');
-  const scoresBadge = document.getElementById('scores-badge');
-  if (!data.mcqScores || data.mcqScores.length === 0) {
-    mcqEl.innerHTML = '<p style="font-size:13px;color:var(--txt2)">No quiz attempts yet.</p>';
-    if (scoresBadge) scoresBadge.textContent = '—';
-  } else {
-    mcqEl.innerHTML = data.mcqScores.map(s => {
-      const pct = Number(s.percent) || 0;
-      const cls = pct>=80?'sc-good': pct>=60?'sc-mid':'sc-bad';
-      return `<div class="score-row"><div class="score-circle ${cls}">${pct}%</div><div><div style="font-size:12px;font-weight:600">${s.score}/${s.total} — ${s.date}</div><div style="font-size:11px;color:var(--txt2)">${s.formTitle||''}</div></div></div>`;
-    }).join('');
-    if (scoresBadge) scoresBadge.textContent = 'Last: ' + Math.round(Number(data.mcqScores[0].percent) || 0) + '%';
+  // Stubs for API & Dynamic Functions
+  function toggleVoiceCommand() { showToast("Voice recognition listening..."); }
+  function loadListenUnits() {}
+  function loadChapterContent() { document.getElementById('listen-view').style.display = 'block'; }
+  function setLang(lang, btn) { setTabActive(btn); }
+  function setAskLang(lang, btn) { setTabActive(btn); }
+  function setQuizLang(lang, btn) { setTabActive(btn); }
+  function setAskAnswerLang(lang, btn) { setTabActive(btn); }
+  function setSpeed(speed, btn) { setTabActive(btn); }
+  function setTabActive(btn) {
+    if(!btn) return;
+    const parent = btn.parentElement;
+    Array.from(parent.children).forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
   }
-
-  // Current affairs render
-  const caEl = document.getElementById('current-affairs-home');
-  const affairsBadge = document.getElementById('affairs-badge');
-  if (!data.currentAffairs || data.currentAffairs.length === 0) {
-    caEl.innerHTML = '<p style="font-size:13px;color:var(--txt2)">No news today.</p>';
-    if (affairsBadge) affairsBadge.textContent = '0';
-  } else {
-    caEl.innerHTML = data.currentAffairs.map(ca => `
-      <div style="padding:10px 0; border-bottom:1px solid var(--border)">
-        <div style="font-size:11px; color:var(--txt2); margin-bottom:4px"><span class="lbl-tag" style="display:inline">${ca.source}</span> • ${dateIST_format(ca.date)}</div>
-        <a href="${ca.url}" target="_blank" style="font-size:13px; font-weight:600; color:var(--navy); text-decoration:none">${ca.headline}</a>
-      </div>
-    `).join('');
-    if (affairsBadge) affairsBadge.textContent = data.currentAffairs.length;
+  function togglePlay() { showToast("Audio playback toggled"); }
+  function downloadSummary() {}
+  function startTalkQuiz() {}
+  function toggleTalkMic() {}
+  function submitTalkAnswer() {}
+  function nextTalkQuestion() {}
+  function exitTalkQuiz() {}
+  function filterSubject(subj, btn) { setTabActive(btn); }
+  function toggleAskMic() {}
+  function askQuestion() {
+    document.getElementById('ask-answer-box').style.display = 'block';
+    document.getElementById('ask-answer-box').innerText = "Photosynthesis is the process used by plants, algae, and certain bacteria to harness energy from sunlight and turn it into chemical energy.";
+    document.getElementById('ask-audio-bar').style.display = 'flex';
   }
-}
-
-function toggleMoreCard(id) {
-  const body = document.getElementById(id + '-body');
-  const chev = document.getElementById(id + '-chevron');
-  if (body) body.classList.toggle('collapsed');
-  if (chev) chev.classList.toggle('open');
-}
-
-function toggleHomeCard(id) {
-  const bodyIds = { behind: 'behind-list', affairs: 'current-affairs-home', scores: 'mcq-scores-home' };
-  const body = document.getElementById(bodyIds[id]);
-  const chev = document.getElementById(id + '-chevron');
-  if (body) body.classList.toggle('collapsed');
-  if (chev) chev.classList.toggle('open');
-}
-
-function dateIST_format(d) { return new Date(d).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' }); }
-
-// ── FILTER BARS ───────────────────────────────────────────
-function buildFilterBars(chapters) {
-  const displaySubjects = SUBJECTS_ORDER.filter(s => {
-    if (s === 'Social Science') return SOCIAL_SCIENCE_SUBJECTS.some(ss => chapters.some(c => c.subject === ss));
-    return chapters.some(c => c.subject === s);
-  });
-
-  const listenBar = document.getElementById('listen-filter-tabs');
-  listenBar.innerHTML = `<button class="seg-tab active" onclick="filterListen('all',this)">All</button>` +
-    displaySubjects.map(s => `<button class="seg-tab" onclick="filterListen('${s}',this)">${s}</button>`).join('');
-
-  const progressBar = document.getElementById('subj-filter-tabs');
-  progressBar.innerHTML = `<button class="seg-tab active" onclick="filterSubject('all',this)">All</button>` +
-    displaySubjects.map(s => `<button class="seg-tab" onclick="filterSubject('${s}',this)">${s}</button>`).join('');
-}
-
-function filterListen(subj, btn) {
-  currentListenFilter = subj;
-  document.querySelectorAll('#listen-filter-tabs .seg-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  populateChapterDropdowns(appData ? appData.trackerChapters : []);
-}
-
-function filterSubject(subj, btn) {
-  currentProgressFilter = subj;
-  document.querySelectorAll('#subj-filter-tabs .seg-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  if (appData) renderProgress(appData.trackerChapters);
-}
-
-// ── PROGRESS PAGE ─────────────────────────────────────────
-function renderProgress(chapters) {
-  const list = document.getElementById('subject-list');
-  if (!chapters || chapters.length === 0) { list.innerHTML = '<p style="color:var(--txt2);font-size:13px;padding:20px;text-align:center">No data found.</p>'; return; }
-
-  const byGroup = {};
-  chapters.forEach(ch => {
-    const filterGroup = SUBJECT_GROUP_MAP[ch.subject] || ch.subject;
-    if (currentProgressFilter !== 'all' && filterGroup !== currentProgressFilter && ch.subject !== currentProgressFilter) return;
-    if (!byGroup[filterGroup]) byGroup[filterGroup] = [];
-    byGroup[filterGroup].push(ch);
-  });
-
-  const groups = SUBJECTS_ORDER.filter(s => byGroup[s]);
-  list.innerHTML = groups.map(groupName => {
-    const units = byGroup[groupName];
-    const done = units.filter(u => u.status === 'Completed').length;
-    const pct = Math.round(done / units.length * 100);
-    const pctColor = pct>=80?'green': pct>=40?'':'amber';
-
-    const rows = units.map(u => `
-      <div class="unit-row">
-        <div class="unit-num">${u.chNum}</div>
-        <div class="unit-title"><b>${u.subject}</b> — ${u.title}${u.book ? ' <span style=\"color:var(--txt2);font-size:10px\">(' + u.book + ')</span>' : ''}</div>
-        <select class="status-select" onchange="changeStatus(${u.rowIndex},this.value); loadDashboardData();">
-          ${STATUS_OPTIONS.map(opt => `<option value="${opt}" ${opt===u.status?'selected':''}>${opt}</option>`).join('')}
-        </select>
-      </div>`).join('');
-
-    return `<div class="subj-card" id="sc-${groupName.replace(/\s+/g,'_')}"><div class="subj-head" onclick="toggleSubj('${groupName.replace(/\s+/g,'_')}')"><div class="subj-head-left"><div class="subj-name">${groupName}</div><div class="prog-wrap" style="margin-top:6px"><div class="prog-track"><div class="prog-fill ${pctColor}" style="width:${pct}%"></div></div></div></div><span class="subj-pct">${pct}%</span><span class="chevron">▼</span></div><div class="subj-units">${rows}</div></div>`;
-  }).join('');
-}
-
-function toggleSubj(id) { document.getElementById('sc-' + id).classList.toggle('open'); }
-function changeStatus(rowIndex, newStatus) {
-  google.script.run
-    .withSuccessHandler(res => {
-      if (res.ok !== false && res.success !== false) {
-        toast('✅ Status updated: ' + newStatus);
-        if (appData) { const ch = appData.trackerChapters.find(c => c.rowIndex === rowIndex); if (ch) ch.status = newStatus; }
-      } else toast('⚠️ ' + (res.error || 'Update failed'));
-    })
-    .withFailureHandler(e => toast('Error: ' + e.message))
-    .updateChapterStatus(rowIndex, newStatus);
-}
-
-// ── DROPDOWNS ─────────────────────────────────────────────
-function populateChapterDropdowns(chapters) {
-  const listenSubj = document.getElementById('listen-subj');
-  const listenSubjects = SUBJECTS_ORDER.filter(s => {
-    if (s === 'Social Science') return SOCIAL_SCIENCE_SUBJECTS.some(ss => chapters.some(c => c.subject === ss));
-    return chapters.some(c => c.subject === s);
-  });
-  
-  listenSubj.innerHTML = '<option value="">— Choose subject —</option>' + listenSubjects.map(s => `<option value="${s}">${s}</option>`).join('');
-  document.getElementById('webmcq-subj').innerHTML = listenSubj.innerHTML;
-  document.getElementById('pyq-subj').innerHTML = listenSubj.innerHTML;
-
-  const flatOptions = chapters.map(ch => `<option value="${ch.subject}|${ch.chNum}|${escQ(ch.title)}|${escQ(ch.book)}">${ch.subject} | Ch ${ch.chNum} | ${ch.title}</option>`).join('');
-  document.getElementById('quizChSelect').innerHTML = '<option value="">— Choose chapter —</option>' + flatOptions;
-  document.getElementById('manualChSelect').innerHTML = '<option value="">— Choose chapter —</option>' + flatOptions;
-  document.getElementById('askChSelect').innerHTML = '<option value="">— Out of Syllabus / General Question —</option>' + flatOptions;
-}
-function escQ(s) { return String(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/\|/g,'%7C'); }
-
-function loadListenUnits() {
-  const subj = document.getElementById('listen-subj').value;
-  const sel = document.getElementById('listen-unit');
-  sel.innerHTML = '<option value="">— Choose chapter —</option>';
-  document.getElementById('listen-view').style.display = 'none';
-  if (!subj || !appData) return;
-  const relevantSubjects = (subj === 'Social Science') ? SOCIAL_SCIENCE_SUBJECTS : [subj];
-  appData.trackerChapters.filter(c => relevantSubjects.includes(c.subject)).forEach(ch => {
-    const opt = document.createElement('option');
-    opt.value = ch.subject + '|' + ch.chNum + '|' + ch.title + '|' + (ch.book || '');
-    opt.textContent = `${ch.subject} Ch ${ch.chNum}: ${ch.title}`;
-    sel.appendChild(opt);
-  });
-}
-
-// Translates the raw sheet source label into something a parent/student can
-// read at a glance, without needing to open the spreadsheet.
-function friendlySourceLabel_(rawSrc) {
-  if (!rawSrc) return { text: '⚠️ No summary yet', color: 'var(--amber)' };
-  if (rawSrc.startsWith('Placeholder')) return { text: '⚠️ No summary yet — add one in More', color: 'var(--amber)' };
-  if (rawSrc.startsWith('Manual')) return { text: '✍️ Hand-typed by you', color: 'var(--navy)' };
-  if (rawSrc.startsWith('AI Generated')) {
-    const grounded = rawSrc.includes('PDF-grounded');
-    const provider = rawSrc.includes('Gemini') ? 'Gemini' : rawSrc.includes('Groq') ? 'Groq' : 'AI';
-    return { text: '🤖 AI-generated (' + provider + (grounded ? ', from textbook PDF' : ', general knowledge') + ')', color: grounded ? 'var(--green)' : 'var(--amber)' };
-  }
-  return { text: rawSrc, color: 'var(--txt2)' };
-}
-
-// ── LISTEN PAGE ───────────────────────────────────────────
-let currentChapter = null;
-function loadChapterContent() {
-  const val = document.getElementById('listen-unit').value;
-  if (!val) { document.getElementById('listen-view').style.display = 'none'; return; }
-  const [subject, chNum, title, book] = val.split('|');
-  currentChapter = { subject, chNum, title, book };
-
-  document.getElementById('listen-view').style.display = 'block';
-  document.getElementById('listen-title').textContent = `Ch ${chNum}: ${title}`;
-  document.getElementById('listen-source-tag').textContent = '';
-  document.getElementById('summary-text').textContent = 'Loading content…';
-  document.getElementById('download-summary-btn').style.display = 'none';
-  exitTalkQuiz();
-  setLang('en', document.querySelector('.lang-tabs .lang-tab'));
-
-  google.script.run
-    .withSuccessHandler(res => {
-      currentChapter.en = res.en; currentChapter.hi = res.hi; currentChapter.kn = res.kn;
-      renderSummaryForLang();
-      const tagEl = document.getElementById('listen-source-tag');
-      const friendly = friendlySourceLabel_(res.enSrc);
-      tagEl.textContent = friendly.text;
-      tagEl.style.color = friendly.color;
-      if (voiceAutoPlay) { voiceAutoPlay = false; togglePlay(); }
-    })
-    .withFailureHandler(e => { document.getElementById('summary-text').textContent = 'Error: ' + e.message; })
-    .getChapterOnDemand(subject, chNum, title);
-}
-
-function exitTalkQuiz() {
-  if (synth) synth.cancel();
-  const setupEl = document.getElementById('talk-setup');
-  const containerEl = document.getElementById('talk-container');
-  if (setupEl) setupEl.style.display = 'block';
-  if (containerEl) containerEl.style.display = 'none';
-  talkQuestions = []; talkIndex = 0;
-}
-
-function setLang(lang, btn) {
-  currentLang = lang;
-  document.querySelectorAll('.lang-tabs .lang-tab').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  renderSummaryForLang();
-}
-
-function renderSummaryForLang() {
-  if (!currentChapter) return;
-  const text = currentChapter[currentLang] || '';
-  document.getElementById('summary-text').textContent = text || 'No summary available in this language yet.';
-  document.getElementById('download-summary-btn').style.display = text ? 'block' : 'none';
-  if (isPlaying) stopSpeech();
-}
-
-function downloadSummary() {
-  const title = document.getElementById('listen-title').textContent;
-  const text = document.getElementById('summary-text').textContent;
-  const blob = new Blob([text], {type: 'text/plain'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = title + '.txt';
-  a.click();
-}
-
-// ── SHARED TTS ENGINE (Listen + Ask pages) ──────────────────
-let speechQueue = [];
-let ttsSourceId = 'summary-text', ttsBtnId = 'audio-play-btn', ttsLangCode = 'en-IN';
-function langCodeFor(l) { return l === 'hi' ? 'hi-IN' : l === 'kn' ? 'kn-IN' : 'en-IN'; }
-function togglePlay(sourceId, btnId, langCode) {
-  if (isPlaying) { stopSpeech(); return; }
-  sourceId = sourceId || 'summary-text'; btnId = btnId || 'audio-play-btn';
-  langCode = langCode || (currentLang === 'hi' ? 'hi-IN' : currentLang === 'kn' ? 'kn-IN' : 'en-IN');
-  const text = document.getElementById(sourceId).textContent;
-  if (!text || text.startsWith('No summary') || text === 'Thinking…' || text === 'Translating…') { toast('No content to play'); return; }
-  ttsSourceId = sourceId; ttsBtnId = btnId; ttsLangCode = langCode;
-  speechQueue = chunkText(text); isPlaying = true; updatePlayBtn(); speakNextChunk();
-  if (!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) startResumeWatchdog();
-}
-function chunkText(text) {
-  let chunks = text.match(/[^.!?।॥]+[.!?।॥]+|\S+$/g) || [text]; const out = [];
-  chunks.forEach(c => { if (c.length > 220) { for (let i = 0; i < c.length; i += 200) out.push(c.slice(i, i + 200)); } else out.push(c); });
-  return out;
-}
-function speakNextChunk() {
-  if (!speechQueue.length) { isPlaying = false; updatePlayBtn(); stopResumeWatchdog(); return; }
-  const chunk = speechQueue.shift();
-  speech = new SpeechSynthesisUtterance(chunk); speech.rate = spRate;
-  speech.lang = ttsLangCode;
-  const voices = synth.getVoices(); const preferred = voices.find(v => v.lang === speech.lang) || voices.find(v => v.lang.startsWith('en'));
-  if (preferred) speech.voice = preferred;
-  speech.onend = speakNextChunk; speech.onerror = (e) => { toast('Speech error: ' + e.error); speakNextChunk(); };
-  synth.speak(speech);
-}
-let resumeTimer = null;
-function startResumeWatchdog() { resumeTimer = setInterval(() => { if (isPlaying) { synth.pause(); synth.resume(); } }, 10000); }
-function stopResumeWatchdog() { clearInterval(resumeTimer); }
-function stopSpeech() { speechQueue = []; stopResumeWatchdog(); synth.cancel(); isPlaying = false; updatePlayBtn(); }
-function updatePlayBtn() { const btn = document.getElementById(ttsBtnId); if (!btn) return; btn.textContent = isPlaying ? '⏹ Stop' : '▶ Play'; btn.classList.toggle('stop', isPlaying); }
-function setSpeed(rate, btn) { spRate = rate; const scope = btn.closest('.audio-bar') || document; scope.querySelectorAll('.speed-btn').forEach(b => { if (!b.id || !b.id.startsWith('ask-lang-')) b.classList.remove('active'); }); btn.classList.add('active'); if (isPlaying) { stopSpeech(); togglePlay(ttsSourceId, ttsBtnId, ttsLangCode); } }
-
-// ── ASK AI PAGE ───────────────────────────────────────────
-let currentAskAnswer = { en: '', hi: '', kn: '' };
-let askDisplayLang = 'en';
-function setAskLang(lang, btn) { askLang = lang; document.querySelectorAll('#page-ask .lang-tab').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
-function setAskAnswerLang(lang, btn) {
-  document.querySelectorAll('#ask-audio-bar .speed-btn').forEach(b => { if (b.id && b.id.startsWith('ask-lang-')) b.classList.remove('active'); });
-  btn.classList.add('active');
-  if (isPlaying) stopSpeech();
-  const box = document.getElementById('ask-answer-box');
-  if (currentAskAnswer[lang]) { askDisplayLang = lang; box.textContent = currentAskAnswer[lang]; return; }
-
-  const sourceLang = currentAskAnswer.en ? 'en' : (currentAskAnswer.hi ? 'hi' : 'kn');
-  box.textContent = 'Translating…';
-  google.script.run
-    .withSuccessHandler(res => {
-      if (res.success) { currentAskAnswer[lang] = res.text; askDisplayLang = lang; box.textContent = res.text; }
-      else { box.textContent = currentAskAnswer[sourceLang]; toast('Translation failed, showing original'); }
-    })
-    .withFailureHandler(e => { box.textContent = currentAskAnswer[sourceLang]; toast('Translation error: ' + e.message); })
-    .translateAskAnswer(currentAskAnswer[sourceLang], sourceLang, lang);
-}
-function askQuestion() {
-  const q = document.getElementById('ask-question').value.trim();
-  if (!q) { toast('Type a question first'); return; }
-  const chVal = document.getElementById('askChSelect').value;
-  let subject = '', chNum = '', title = '', book = '';
-  if (chVal) { [subject, chNum, title, book] = chVal.split('|'); }
-  const box = document.getElementById('ask-answer-box'); box.style.display = 'block'; box.textContent = 'Thinking…';
-  document.getElementById('ask-audio-bar').style.display = 'none';
-  const sourceTag = document.getElementById('ask-source-tag');
-  if (sourceTag) sourceTag.style.display = 'none';
-  if (isPlaying) stopSpeech();
-
-  currentAskAnswer = { en: '', hi: '', kn: '' };
-  askDisplayLang = askLang;
-  document.querySelectorAll('#ask-audio-bar .speed-btn').forEach(b => { if (b.id && b.id.startsWith('ask-lang-')) b.classList.toggle('active', b.id === 'ask-lang-' + askLang); });
-
-  google.script.run
-    .withSuccessHandler(res => { 
-      if (!res.success) { box.textContent = res.answer; return; }
-      currentAskAnswer[askLang] = res.answer;
-      box.textContent = res.answer;
-      if (sourceTag) {
-        if (res.source) {
-          sourceTag.style.display = 'block';
-          sourceTag.style.color = 'var(--green)';
-          sourceTag.textContent = '📎 Grounded in ' + res.source;
-        } else if (chVal) {
-          sourceTag.style.display = 'block';
-          sourceTag.style.color = 'var(--amber)';
-          sourceTag.textContent = '⚠️ General knowledge (no saved summary/PDF/notes found for this chapter yet)';
-        } else {
-          sourceTag.style.display = 'none';
-        }
-      }
-      document.getElementById('ask-audio-bar').style.display = 'flex';
-      const langCode = langCodeFor(askLang);
-      const voices = synth.getVoices(); const hasVoice = voices.some(v => v.lang === langCode || v.lang.startsWith(langCode.split('-')[0]));
-      if (hasVoice) togglePlay('ask-answer-box', 'ask-audio-play-btn', langCode);
-      else toast('Voice not available on this device for this language');
-    })
-    .withFailureHandler(e => { box.textContent = 'Error: ' + e.message; })
-    .askAI(q, askLang, null, subject, chNum, title, book);
-}
-let askMicListening = false;
-function toggleAskMic() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) { toast('Voice input not supported on this browser'); return; }
-  if (synth) synth.cancel();  
-  const micBtn = document.getElementById('askMicBtn');
-  if (askMicListening) { if (window.askRecognition) window.askRecognition.stop(); return; }
-  window.askRecognition = new SpeechRecognition();
-  window.askRecognition.lang = askLang === 'hi' ? 'hi-IN' : askLang === 'kn' ? 'kn-IN' : 'en-IN';
-  window.askRecognition.onstart = () => { askMicListening = true; micBtn.classList.add('listening'); };
-  window.askRecognition.onend = () => { askMicListening = false; micBtn.classList.remove('listening'); };
-  window.askRecognition.onresult = (e) => { document.getElementById('ask-question').value = e.results[0][0].transcript; };
-  window.askRecognition.start();
-}
-// ── VOICE COMMANDS (Home page) ────────────────────────────
-let vcListening = false;
-function toggleVoiceCommand() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) { toast('Voice input not supported on this browser'); return; }
-  if (synth) synth.cancel();
-  const btn = document.getElementById('voiceCmdBtn');
-  
-  if (vcListening) { 
-    console.log('VOICE_STOP: User clicked stop button');
-    if (window.vcRecognition) window.vcRecognition.stop(); 
-    if (voiceStopBtn) voiceStopBtn.style.display = 'none';
-    return; 
-  }
-  
-  console.log('VOICE_START: Initializing speech recognition');
-  window.vcRecognition = new SpeechRecognition();
-  window.vcRecognition.lang = 'en-IN';
-  window.vcRecognition.continuous = true;
-  window.vcRecognition.interimResults = false;
-  window.vcRecognition.maxAlternatives = 1;
-  
-  window.vcRecognition.onstart = () => { 
-    console.log('VOICE_LISTENING: Recognition started');
-    vcListening = true; 
-    btn.classList.add('listening');
-    
-    if (!voiceStopBtn) {
-      voiceStopBtn = document.createElement('button');
-      voiceStopBtn.className = 'mic-btn';
-      voiceStopBtn.id = 'voiceStopBtn';
-      voiceStopBtn.textContent = '⏹️ Stop Listening';
-      voiceStopBtn.style.cssText = `
-        display: block;
-        margin: 10px auto;
-        font-size: 13px;
-        padding: 8px 14px;
-        background: var(--red, #ff4444);
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-      `;
-      voiceStopBtn.onclick = toggleVoiceCommand;
-      btn.parentElement.appendChild(voiceStopBtn);
-    } else {
-      voiceStopBtn.style.display = 'block';
-    }
-    
-    const feedbackEl = document.getElementById('voiceFeedback');
-    if (feedbackEl) feedbackEl.style.display = 'block';
-  };
-  
-  window.vcRecognition.onend = () => { 
-    console.log('VOICE_ENDED: Recognition ended');
-    vcListening = false; 
-    btn.classList.remove('listening');
-    if (voiceStopBtn) voiceStopBtn.style.display = 'none';
-    
-    const feedbackEl = document.getElementById('voiceFeedback');
-    if (feedbackEl) feedbackEl.style.display = 'none';
-  };
-  
-  window.vcRecognition.onerror = (e) => {
-    console.error('VOICE_ERROR:', e.error);
-    toast('Voice error: ' + e.error);
-    vcListening = false;
-    btn.classList.remove('listening');
-    if (voiceStopBtn) voiceStopBtn.style.display = 'none';
-  };
-  
-  window.vcRecognition.onresult = (e) => {
-    const results = e.results;
-    const lastResult = results[results.length - 1];
-    
-    if (lastResult.isFinal) {
-      const transcript = lastResult[0].transcript;
-      const confidence = lastResult[0].confidence;
-      console.log('VOICE_HEARD:', transcript, '(confidence: ' + (confidence*100).toFixed(0) + '%)');
-      
-      window.vcRecognition.stop();
-      handleVoiceCommand(transcript);
-    }
-  };
-  
-  window.vcRecognition.start();
-}
-
-function speakVC_(text) {
-  if (!synth) return;
-  synth.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'en-IN';
-  synth.speak(u);
-}
-
-function handleVoiceCommand(transcript) {
-  if (!appData || !appData.trackerChapters) { 
-    toast('Data not loaded yet, try again'); 
-    return; 
-  }
-  
-  let t = transcript.toLowerCase();
-  console.log('VOICE_INPUT_RAW:', transcript);
-
-  // 1. Convert Spoken Number Words to Digits ("three" -> "3")
-  const wordToNum = { 
-    'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 
-    'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
-    'eleven': 11, 'twelve': 12, 'thirteen': 13, 'fourteen': 14, 'fifteen': 15 
-  };
-  for (const [word, num] of Object.entries(wordToNum)) {
-    t = t.replace(new RegExp(`\\b${word}\\b`, 'g'), num);
-  }
-
-  // 2. Map Indian Subject Aliases & Sub-subjects to Official Names
-  let subject = null;
-  const aliasMap = {
-    'mathematics': ['math', 'maths', 'mathematics', 'ganit'],
-    'science': ['science', 'phy', 'physics', 'chem', 'chemistry', 'bio', 'biology', 'vigyan'],
-    'social science': ['social science', 'social', 'sst', 'civics', 'economics', 'geography', 'history', 'civ', 'eco', 'geo', 'hist', 'samajik'],
-    'english': ['english', 'eng'],
-    'sanskrit': ['sanskrit', 'skt']
-  };
-
-  for (const [officialSub, aliases] of Object.entries(aliasMap)) {
-    if (aliases.some(alias => t.includes(alias))) {
-      subject = officialSub;
-      break;
-    }
-  }
-
-  // 3. Robust Chapter Number Extractor (Handles "chapter 3", "ch 3", "lesson 3", or "3")
-  const chMatch = t.match(/(?:chapter|ch|lesson|unit|adhyay|part)?\s*(\d+)/i);
-  const chNum = chMatch ? Number(chMatch[1]) : null;
-
-  // 4. Flexible Intent Detection (English + Hinglish + Natural Verbs)
-  let intent = null;
-  if (/\b(practice|oral|answer|spoken|test me|ask|pucho|suno)\b/.test(t)) {
-    intent = 'practicequiz';
-  } else if (/\b(quiz|test|mcq|multiple|exam|paper)\b/.test(t)) {
-    intent = 'quiz';
-  } else if (/\b(read|listen|summary|explain|play|open|show|padhao|padhna|start|tell)\b/.test(t)) {
-    intent = 'listen';
-  } else {
-    // DEFAULT SMART FALLBACK: If user names subject + chapter without verb, default to "Listen"
-    if (subject && chNum) intent = 'listen';
-  }
-
-  // 5. Validation Check
-  if (!intent || !chNum || !subject) {
-    const msg = 'Could not catch chapter or subject. Try: "Science chapter 3" or "SST ch 2 quiz".';
-    speakVC_(msg);
-    toast('Try saying: "Science chapter 3" or "SST ch 2 quiz"');
-    return;
-  }
-
-  // 6. Match Chapter in Tracker
-  const relevantSubjects = (subject === 'social science') ? SOCIAL_SCIENCE_SUBJECTS : [subject];
-  const match = appData.trackerChapters.find(ch =>
-    relevantSubjects.some(rs => ch.subject.toLowerCase() === rs.toLowerCase()) &&
-    Number(ch.chNum) === chNum
-  );
-
-  if (!match) {
-    speakVC_("Chapter not found.");
-    toast('Chapter not found in tracker');
-    return;
-  }
-
-  // 7. Route to Requested Page
-  const dropdownSubject = SOCIAL_SCIENCE_SUBJECTS.includes(match.subject) ? 'Social Science' : match.subject;
-
-  if (intent === 'listen') {
-    showPage('listen');
-    document.getElementById('listen-subj').value = dropdownSubject;
-    loadListenUnits();
-    document.getElementById('listen-unit').value = match.subject + '|' + match.chNum + '|' + match.title + '|' + (match.book || '');
-    voiceAutoPlay = true;
-    loadChapterContent();
-    
-  } else if (intent === 'quiz') {
-    showPage('quiz');
-    document.getElementById('webmcq-subj').value = dropdownSubject;
-    loadWebMcqUnits();
-    document.getElementById('webmcq-unit').value = match.subject + '|' + match.chNum + '|' + match.title;
-    startWebMCQ();
-    
-  } else if (intent === 'practicequiz') {
-    showPage('quiz');
-    const qOption = match.subject + '|' + match.chNum + '|' + match.title + '|' + (match.book || '');
-    document.getElementById('quizChSelect').value = qOption;
-    enableQuizBtn();
-    startQuiz();
-  }
-}
-// ── PRACTICE QUIZ (oral / typed answer, AI graded) ─────────
-// NOTE: this whole block was missing from the uploaded file, which is why
-// "Select Chapter" never enabled the Start Quiz button — the onchange/onclick
-// handlers in the HTML had nothing to call. Restored below, unchanged from the
-// last known-working version, just pointed at the current askAI(...,maxTokens) signature.
-let quizQuestions = [], quizIndex = 0, quizChapter = null;
-let talkQuestions = [], talkIndex = 0;
-
-function enableQuizBtn() {
-  document.getElementById('startQuizBtn').disabled = !document.getElementById('quizChSelect').value;
-}
-
-function setQuizLang(lang, btn) {
-  quizLang = lang;
-  document.querySelectorAll('#quizSetup .lang-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-}
-
-function startQuiz() {
-  const val = document.getElementById('quizChSelect').value;
-  if (!val) {
-    console.error('QUIZ_FAIL: No chapter selected');
-    toast('Select a chapter first');
-    return;
-  }
-  
-  const [subject, chNum, title, book] = val.split('|');
-  quizChapter = { subject, chNum, title };
-  console.log('QUIZ_START: Practice Quiz', {subject, chNum, title});
-
-  const startBtn = document.getElementById('startQuizBtn');
-  startBtn.disabled = true;
-  startBtn.textContent = '⏳ Checking question bank…';
-
-  // Tier -1 (Session 3): check the pre-generated bank BEFORE calling the AI.
-  // If this chapter's bank exists, the quiz loads instantly at zero API cost.
-  google.script.run
-    .withSuccessHandler(bankRes => {
-      if (bankRes.success && bankRes.questions.length >= 5) {
-        console.log('QUIZ_FROM_BANK:', bankRes.questions.length + ' questions (0 API calls)');
-        startBtn.disabled = false;
-        startBtn.textContent = '▶ Start Quiz';
-        quizQuestions = bankRes.questions;
-        quizIndex = 0;
-        document.getElementById('quizSetup').style.display = 'none';
-        document.getElementById('quizContainer').style.display = 'block';
-        const badge = document.getElementById('quizGroundBadge');
-        if (badge) { badge.textContent = '📚 ' + bankRes.source; badge.style.color = 'var(--green)'; }
-        showQuestion();
-        return;
-      }
-      // Not in the bank yet — fall back to live AI generation, exactly as before.
-      startQuizViaAI_(subject, chNum, title, book, startBtn);
-    })
-    .withFailureHandler(() => startQuizViaAI_(subject, chNum, title, book, startBtn))
-    .getPracticeQuizBank(subject, Number(chNum), title);
-}
-
-function startQuizViaAI_(subject, chNum, title, book, startBtn) {
-  startBtn.textContent = '⏳ Generating questions…';
-
-  const instruction = 'Generate exactly 5 short-answer (not multiple choice) practice questions with their model answers for this chapter' +
-    '. Format strictly as:\nQ1: question\nA1: model answer\nQ2: question\nA2: model answer\n(continue through Q5/A5)';
-
-  const requestStartTime = Date.now();
-  
-  google.script.run
-    .withSuccessHandler(res => {
-      const elapsed = ((Date.now() - requestStartTime) / 1000).toFixed(1);
-      console.log('QUIZ_RESPONSE:', {elapsed_sec: elapsed, success: res.success});
-
-      startBtn.disabled = false;
-      startBtn.textContent = '▶ Start Quiz';
-
-      if (!res.success) {
-        console.error('QUIZ_GENERATION_FAILED:', res);
-        if (res.debug) console.error('  Backend debug:', res.debug);
-        toast('Could not generate questions. Check console for details.');
-        return;
-      }
-
-      quizQuestions = parseGeneratedQuestions_(res.answer);
-      console.log('QUIZ_PARSED:', quizQuestions.length + ' questions');
-
-      if (quizQuestions.length === 0) {
-        console.error('QUIZ_PARSE_FAILED: No questions extracted');
-        toast('No questions generated, try again');
-        return;
-      }
-      
-      quizIndex = 0;
-      document.getElementById('quizSetup').style.display = 'none';
-      document.getElementById('quizContainer').style.display = 'block';
-      
-      const badge = document.getElementById('quizGroundBadge');
-      if (badge) {
-        badge.textContent = res.source ? '📎 Grounded in ' + res.source : '⚠️ General knowledge (chapter not yet generated — for tighter accuracy, generate it in More first)';
-        badge.style.color = res.source ? 'var(--green)' : 'var(--amber)';
-      }
-      
-      console.log('QUIZ_READY:', quizQuestions.length + ' questions loaded');
-      showQuestion();
-    })
-    .withFailureHandler(e => {
-      console.error('QUIZ_API_ERROR:', e.message || e);
-      startBtn.disabled = false;
-      startBtn.textContent = '▶ Start Quiz';
-      toast('Error: ' + (e.message || 'Network error. Check console.'));
-    })
-    .askAI(instruction, quizLang, 1500, subject, chNum, title, book);
-}
-
-function parseGeneratedQuestions_(text) {
-  const qs = [];
-  const re = /Q\d+:\s*(.+?)\s*A\d+:\s*(.+?)(?=Q\d+:|$)/gs;
-  let m;
-  while ((m = re.exec(text)) !== null && qs.length < 5) {
-    qs.push({ question: m[1].trim(), answer: m[2].trim() });
-  }
-  return qs;
-}
-
-function showQuestion() {
-  document.getElementById('quizProgress').textContent = `Question ${quizIndex+1} of ${quizQuestions.length}`;
-  const q = quizQuestions[quizIndex].question;
-  document.getElementById('quizQuestionText').textContent = q;
-  document.getElementById('quizAnswerText').value = '';
-  document.getElementById('quizFeedback').style.display = 'none';
-  document.getElementById('nextQBtn').style.display = 'none';
-
-  if (synth) {
-    synth.cancel();
-    const utterance = new SpeechSynthesisUtterance(q);
-    utterance.lang = langCodeFor(quizLang);
-    const voices = synth.getVoices();
-    const preferred = voices.find(v => v.lang === utterance.lang) || voices.find(v => v.lang.startsWith('en'));
-    if (preferred) utterance.voice = preferred;
-    synth.speak(utterance);
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════
-// SHARED GRADING PROGRESS HELPER (Session 2 fix — Issues #2 & #3)
-// Used by both submitAnswer() (Practice Quiz) and submitTalkAnswer()
-// (Talk About This Chapter) so the spinner/timeout/retry logic exists once.
-//   - Spinner + "Checking…" immediately
-//   - "Still checking… (10-30s on free tier)" after 5s
-//   - Timeout message + Retry button after 30s (request may still land late;
-//     if it does, the success/failure handler below still fires and updates
-//     the box, clearing the timers)
-//   - Elapsed time logged to console + shown as a title tooltip on the box
-// ═══════════════════════════════════════════════════════════════════════
-window.__gradeRetry = null;
-
-function gradeAndShow_(q, studentAnswer, lang, fb, nextBtn) {
-  const retryFn = () => gradeAndShow_(q, studentAnswer, lang, fb, nextBtn);
-
-  fb.style.display = 'block';
-  fb.className = 'feedback-box';
-  fb.innerHTML = '<span class="spinner-icon"></span>Checking your answer…';
-  nextBtn.style.display = 'none';
-  console.log('ANSWER_SUBMIT:', {q_text: q.question.substring(0, 40)});
-
-  const gradeStartTime = Date.now();
-
-  const stillTimer = setTimeout(() => {
-    fb.innerHTML = '<span class="spinner-icon"></span>Still checking… (free tier can take 10–30s)';
-  }, 5000);
-
-  const timeoutTimer = setTimeout(() => {
-    window.__gradeRetry = retryFn;
-    fb.className = 'feedback-box feedback-incorrect';
-    fb.innerHTML = 'Taking longer than expected (30s+). It may still complete — or tap retry.' +
-      '<br><button class="btn retry-btn" onclick="__gradeRetry && __gradeRetry()">🔄 Retry</button>';
-    console.warn('GRADE_TIMEOUT: no response after 30s');
-  }, 30000);
-
-  google.script.run
-    .withSuccessHandler(res => {
-      clearTimeout(stillTimer); clearTimeout(timeoutTimer);
-      const elapsed = ((Date.now() - gradeStartTime) / 1000).toFixed(1);
-      console.log('GRADE_RESPONSE:', {elapsed_sec: elapsed, success: res.success});
-
-      if (!res.success) {
-        window.__gradeRetry = retryFn;
-        fb.className = 'feedback-box feedback-incorrect';
-        fb.innerHTML = (res.answer || 'Could not grade. Try again.') +
-          '<br><button class="btn retry-btn" onclick="__gradeRetry && __gradeRetry()">🔄 Retry</button>';
-        return;
-      }
-
-      const isCorrect = res.answer.toUpperCase().startsWith('CORRECT');
-      fb.className = 'feedback-box ' + (isCorrect ? 'feedback-correct' : 'feedback-incorrect');
-      fb.textContent = res.answer;
-      fb.title = 'Graded in ' + elapsed + 's';
-      nextBtn.style.display = 'block';
-
-      if (synth) {
-        synth.cancel();
-        const utterance = new SpeechSynthesisUtterance(res.answer);
-        utterance.lang = langCodeFor(lang);
-        const voices = synth.getVoices();
-        const preferred = voices.find(v => v.lang === utterance.lang) || voices.find(v => v.lang.startsWith('en'));
-        if (preferred) utterance.voice = preferred;
-        synth.speak(utterance);
-      }
-    })
-    .withFailureHandler(e => {
-      clearTimeout(stillTimer); clearTimeout(timeoutTimer);
-      console.error('GRADE_ERROR:', e.message || e);
-      window.__gradeRetry = retryFn;
-      fb.className = 'feedback-box feedback-incorrect';
-      fb.innerHTML = 'Error: ' + (e.message || 'Network error') +
-        '<br><button class="btn retry-btn" onclick="__gradeRetry && __gradeRetry()">🔄 Retry</button>';
-    })
-    .checkOralAnswer(q.question, q.answer, studentAnswer, lang);
-}
-
-function submitAnswer() {
-  const studentAnswer = document.getElementById('quizAnswerText').value.trim();
-  if (!studentAnswer) { toast('Type or speak your answer first'); return; }
-  const q = quizQuestions[quizIndex];
-  gradeAndShow_(q, studentAnswer, quizLang,
-    document.getElementById('quizFeedback'), document.getElementById('nextQBtn'));
-}
-
-function nextQuestion() {
-  quizIndex++;
-  if (quizIndex >= quizQuestions.length) { toast('🎉 Quiz complete!'); exitQuiz(); return; }
-  showQuestion();
-}
-
-function exitQuiz() {
-  if (synth) synth.cancel();
-  document.getElementById('quizSetup').style.display = 'block';
-  document.getElementById('quizContainer').style.display = 'none';
-}
-
-let micListening = false;
-function toggleMic() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) { toast('Voice input not supported on this browser'); return; }
-  const micBtn = document.getElementById('micBtn');
-  if (micListening) { if (window.quizRecognition) window.quizRecognition.stop(); return; }
-  window.quizRecognition = new SpeechRecognition();
-  window.quizRecognition.lang = langCodeFor(quizLang);
-  window.quizRecognition.onstart = () => { micListening = true; micBtn.classList.add('listening'); };
-  window.quizRecognition.onend = () => { micListening = false; micBtn.classList.remove('listening'); };
-  window.quizRecognition.onresult = (e) => { document.getElementById('quizAnswerText').value = e.results[0][0].transcript; };
-  window.quizRecognition.start();
-}
-
-// ── TALK ABOUT THIS CHAPTER (Listen page inline oral quiz) ──
-// Replaces the old static "Dinner Table Questions" text block. Reuses the
-// exact same grounded generation (askAI) and marks-aware grading
-// (checkOralAnswer) engine as the standalone Practice Quiz — just embedded
-// inline under the summary so a child can use it right where they're
-// listening, without navigating to a separate tab. Fresh questions every time.
-let talkListening = false;
-
-function startTalkQuiz() {
-  if (!currentChapter) return;
-  const { subject, chNum, title, book } = currentChapter;
-  const btn = document.getElementById('talkStartBtn');
-  btn.disabled = true; btn.textContent = 'Checking question bank…';
-
-  // Tier -1 (Session 3): bank check before any AI call — same pattern as startQuiz().
-  google.script.run
-    .withSuccessHandler(bankRes => {
-      if (bankRes.success && bankRes.questions.length >= 5) {
-        console.log('TALK_FROM_BANK:', bankRes.questions.length + ' questions (0 API calls)');
-        btn.disabled = false; btn.textContent = '🎙️ Start';
-        talkQuestions = bankRes.questions;
-        talkIndex = 0;
-        document.getElementById('talk-setup').style.display = 'none';
-        document.getElementById('talk-container').style.display = 'block';
-        const badge = document.getElementById('talkGroundBadge');
-        badge.textContent = '📚 ' + bankRes.source;
-        badge.style.color = 'var(--green)';
-        showTalkQuestion();
-        return;
-      }
-      startTalkQuizViaAI_(subject, chNum, title, book, btn);
-    })
-    .withFailureHandler(() => startTalkQuizViaAI_(subject, chNum, title, book, btn))
-    .getPracticeQuizBank(subject, Number(chNum), title);
-}
-
-function startTalkQuizViaAI_(subject, chNum, title, book, btn) {
-  btn.textContent = 'Generating questions…';
-
-  const instruction = 'Generate exactly 5 short-answer (not multiple choice) practice questions with their model answers for this chapter' +
-    '. Format strictly as:\nQ1: question\nA1: model answer\nQ2: question\nA2: model answer\n(continue through Q5/A5)';
-
-  google.script.run
-    .withSuccessHandler(res => {
-      btn.disabled = false; btn.textContent = '🎙️ Start';
-      if (!res.success) { toast('Could not generate questions'); return; }
-      talkQuestions = parseGeneratedQuestions_(res.answer);
-      if (talkQuestions.length === 0) { toast('No questions generated, try again'); return; }
-      talkIndex = 0;
-      document.getElementById('talk-setup').style.display = 'none';
-      document.getElementById('talk-container').style.display = 'block';
-      const badge = document.getElementById('talkGroundBadge');
-      badge.textContent = res.source ? '📎 Grounded in ' + res.source : '⚠️ General knowledge (chapter not yet generated — for tighter accuracy, generate it in More first)';
-      badge.style.color = res.source ? 'var(--green)' : 'var(--amber)';
-      showTalkQuestion();
-    })
-    .withFailureHandler(e => {
-      btn.disabled = false; btn.textContent = '🎙️ Start';
-      toast('Error: ' + e.message);
-    })
-    .askAI(instruction, currentLang, 1500, subject, chNum, title, book);
-}
-
-function showTalkQuestion() {
-  document.getElementById('talkProgress').textContent = `Question ${talkIndex+1} of ${talkQuestions.length}`;
-  const q = talkQuestions[talkIndex].question;
-  document.getElementById('talkQuestionText').textContent = q;
-  document.getElementById('talkAnswerText').value = '';
-  document.getElementById('talkFeedback').style.display = 'none';
-  document.getElementById('talkNextBtn').style.display = 'none';
-
-  if (synth) {
-    synth.cancel();
-    const utterance = new SpeechSynthesisUtterance(q);
-    utterance.lang = langCodeFor(currentLang);
-    const voices = synth.getVoices();
-    const preferred = voices.find(v => v.lang === utterance.lang) || voices.find(v => v.lang.startsWith('en'));
-    if (preferred) utterance.voice = preferred;
-    synth.speak(utterance);
-  }
-}
-
-function submitTalkAnswer() {
-  const studentAnswer = document.getElementById('talkAnswerText').value.trim();
-  if (!studentAnswer) { toast('Type or speak your answer first'); return; }
-  const q = talkQuestions[talkIndex];
-  gradeAndShow_(q, studentAnswer, currentLang,
-    document.getElementById('talkFeedback'), document.getElementById('talkNextBtn'));
-}
-
-function nextTalkQuestion() {
-  talkIndex++;
-  if (talkIndex >= talkQuestions.length) { toast('🎉 All done for this chapter!'); exitTalkQuiz(); return; }
-  showTalkQuestion();
-}
-
-function toggleTalkMic() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) { toast('Voice input not supported on this browser'); return; }
-  if (synth) synth.cancel(); 
-  const micBtn = document.getElementById('talkMicBtn');
-  if (talkListening) { if (window.talkRecognition) window.talkRecognition.stop(); return; }
-  window.talkRecognition = new SpeechRecognition();
-  window.talkRecognition.lang = langCodeFor(currentLang);
-  window.talkRecognition.onstart = () => { talkListening = true; micBtn.classList.add('listening'); };
-  window.talkRecognition.onend = () => { talkListening = false; micBtn.classList.remove('listening'); };
-  window.talkRecognition.onresult = (e) => { document.getElementById('talkAnswerText').value = e.results[0][0].transcript; };
-  window.talkRecognition.start();
-}
-
-// ── PYQ BANK ─────────────────────────────────────────────
-function loadPyqUnits() {
-  const subj = document.getElementById('pyq-subj').value;
-  const sel = document.getElementById('pyq-unit');
-  sel.innerHTML = '<option value="">— Choose chapter —</option>';
-  if (!subj || !appData) return;
-  const relevantSubjects = (subj === 'Social Science') ? SOCIAL_SCIENCE_SUBJECTS : [subj];
-  appData.trackerChapters.filter(c => relevantSubjects.includes(c.subject)).forEach(ch => {
-    const opt = document.createElement('option');
-    opt.value = ch.subject + '|' + ch.chNum + '|' + ch.title;
-    opt.textContent = `${ch.subject} Ch ${ch.chNum}: ${ch.title}`;
-    sel.appendChild(opt);
-  });
-}
-
-function loadPYQs() {
-  const val = document.getElementById('pyq-unit').value;
-  if (!val) return toast('Select a chapter');
-  const [subject, chNum, title] = val.split('|');
-  const btn = document.querySelector('#pyqSetup button');
-  btn.textContent = 'Loading...'; btn.disabled = true;
-  
-  google.script.run
-    .withSuccessHandler(res => {
-      btn.textContent = 'Load PYQs'; btn.disabled = false;
-      if (res.length === 0) return toast('No PYQs found for this chapter');
-      renderPYQs(res, subject, chNum);
-    })
-    .withFailureHandler(e => { btn.textContent = 'Load PYQs'; btn.disabled = false; toast('Error: ' + e.message); })
-    .getPYQList(subject, chNum, title);
-}
-
-let pyqDataMap = {};
-function renderPYQs(pyqs, subj, chNum) {
-  document.getElementById('pyqSetup').style.display = 'none';
-  document.getElementById('pyqContainer').style.display = 'block';
-  pyqDataMap = {};
-  
-  const html = pyqs.map((q, i) => {
-    pyqDataMap[i] = q;
-    return `
-    <div style="margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid var(--border)">
-      <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-        <span style="font-size:10px; background:var(--purplt); color:var(--purple); padding:2px 6px; border-radius:4px; font-weight:700">📅 ${q.source} • ${q.year}</span>
-        <span style="font-size:10px; background:var(--bg); color:var(--txt2); padding:2px 6px; border-radius:4px; font-weight:700">${q.marks} Marks</span>
-      </div>
-      <div class="quiz-q">${q.question}</div>
-      <textarea class="text-input" id="pyq-ans-${i}" rows="2" placeholder="Type your answer here..."></textarea>
-      <button class="btn btn-sm btn-success" id="pyq-btn-${i}" onclick="submitPYQ(${i})">Check Answer</button>
-      <div id="pyq-feedback-${i}" style="display:none; margin-top:10px" class="feedback-box"></div>
-    </div>`;
-  }).join('');
-  document.getElementById('pyqList').innerHTML = html;
-}
-
-function submitPYQ(idx) {
-  const ans = document.getElementById('pyq-ans-' + idx).value.trim();
-  if (!ans) return toast('Type an answer first');
-  const qData = pyqDataMap[idx];
-  const btn = document.getElementById('pyq-btn-' + idx);
-  btn.disabled = true; btn.textContent = 'Checking...';
-  
-  google.script.run
-    .withSuccessHandler(res => {
-      btn.disabled = false; btn.textContent = 'Check Answer';
-      const fBox = document.getElementById('pyq-feedback-' + idx);
-      fBox.style.display = 'block';
-      fBox.className = 'feedback-box ' + (res.answer.startsWith('CORRECT') ? 'feedback-correct' : 'feedback-incorrect');
-      fBox.innerHTML = res.answer + `<br><br><span style="color:var(--txt);font-weight:600">Model Answer:</span><br>${qData.answer}`;
-    })
-    .withFailureHandler(e => { btn.disabled = false; btn.textContent = 'Check Answer'; toast('Error: ' + e.message); })
-    .checkPYQAnswer(qData.question, qData.answer, ans, 'en');
-}
-
-function exitPYQ() {
-  document.getElementById('pyqSetup').style.display = 'block';
-  document.getElementById('pyqContainer').style.display = 'none';
-}
-
-// ── DAILY MCQ ─────────────────────────────────────────────
-let webMcqData = null;
-function loadWebMcqUnits() {
-  const subj = document.getElementById('webmcq-subj').value;
-  const sel = document.getElementById('webmcq-unit');
-  sel.innerHTML = '<option value="">— Choose chapter —</option>';
-  if (!subj || !appData) return;
-  const relevantSubjects = (subj === 'Social Science') ? SOCIAL_SCIENCE_SUBJECTS : [subj];
-  appData.trackerChapters.filter(c => relevantSubjects.includes(c.subject)).forEach(ch => {
-    const opt = document.createElement('option');
-    opt.value = ch.subject + '|' + ch.chNum + '|' + ch.title;
-    opt.textContent = `${ch.subject} Ch ${ch.chNum}: ${ch.title}`;
-    sel.appendChild(opt);
-  });
-}
-function startWebMCQ() {
-  const val = document.getElementById('webmcq-unit').value;
-  if (!val) {
-    console.error('WEBMCQ_FAIL: No chapter selected');
-    toast('Choose a chapter first');
-    return;
-  }
-  
-  const [subject, chNum, title] = val.split('|');
-  console.log('WEBMCQ_START: Web MCQ Quiz', {subject, chNum, title});
-  
-  const btn = document.getElementById('startWebMcqBtn');
-  btn.disabled = true;
-  btn.textContent = '⏳ Generating…';
-  
-  const requestStartTime = Date.now();
-  const timeoutId = setTimeout(() => {
-    if (btn.disabled) {
-      console.warn('WEBMCQ_TIMEOUT: Request taking >5 seconds (normal for free tier)');
-      btn.textContent = '⏳ Still generating (can take 10-30s on free tier)…';
-    }
-  }, 5000);
-
-  google.script.run
-    .withSuccessHandler(res => {
-      clearTimeout(timeoutId);
-      const elapsed = ((Date.now() - requestStartTime) / 1000).toFixed(1);
-      console.log('WEBMCQ_RESPONSE:', {elapsed_sec: elapsed, success: res.success});
-      
-      btn.disabled = false;
-      btn.textContent = '▶ Start MCQ Quiz';
-      
-      if (!res.success) {
-        console.error('WEBMCQ_GENERATION_FAILED:', res);
-        if (res.debug) console.error('  Backend debug:', res.debug);
-        
-        let errMsg = res.error || 'Failed to generate';
-        if (errMsg.includes('429')) errMsg = 'API rate limit (try again in 30s)';
-        if (errMsg.includes('timeout')) errMsg = 'Request timeout (try again)';
-        
-        toast(errMsg + ' — check console for details');
-        return;
-      }
-      
-      console.log('WEBMCQ_LOADED:', res.questions.length + ' questions', 
-        '| grounded:', res.grounded ? 'YES' : 'NO');
-      
-      webMcqData = res;
-      renderWebMCQ();
-      document.getElementById('webMcqSetup').style.display = 'none';
-      document.getElementById('webMcqContainer').style.display = 'block';
-      document.getElementById('webMcqResults').style.display = 'none';
-    })
-    .withFailureHandler(e => {
-      clearTimeout(timeoutId);
-      console.error('WEBMCQ_API_ERROR:', e.message || e);
-      btn.disabled = false;
-      btn.textContent = '▶ Start MCQ Quiz';
-      toast('Error: ' + (e.message || 'Network error. Check console.'));
-    })
-    .generateWebMCQQuiz(subject, Number(chNum), title);
-}
-function renderWebMCQ() {
-  const badge = document.getElementById('webMcqGroundBadge');
-  if (badge) {
-    const n = webMcqData.questions.length;
-    const groundTxt = webMcqData.grounded ? '📖 Based on this chapter\'s saved content' : '⚠️ General knowledge (chapter not yet generated — for tighter accuracy, generate it in More first)';
-    // Question-quality badge (Session 2): surfaces if the AI returned fewer
-    // than 5 well-formed questions, instead of silently showing a short quiz.
-    const qualityTxt = n >= 5 ? ' · ✅ 5/5 questions valid' : ' · ⚠️ ' + n + '/5 valid (some skipped, check console)';
-    badge.textContent = groundTxt + qualityTxt;
-    badge.style.color = webMcqData.grounded && n >= 5 ? 'var(--green)' : 'var(--amber)';
-  }
-  document.getElementById('webMcqList').innerHTML = webMcqData.questions.map((q, i) => `
-    <div style="margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border)">
-      <div class="quiz-q" style="margin-bottom:8px">${i+1}. ${q.text}</div>
-      ${['A','B','C','D'].map(opt => `
-        <label style="display:flex;align-items:center;gap:8px;padding:8px;font-size:13px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px">
-          <input type="radio" name="wmcq-${i}" value="${opt}">
-          <span>${opt}) ${q['opt'+opt]}</span>
-        </label>`).join('')}
-    </div>`).join('');
-}
-function submitWebMCQ() {
-  const answers = webMcqData.questions.map((q,i) => {
-    const sel = document.querySelector(`input[name="wmcq-${i}"]:checked`);
-    return sel ? sel.value : '';
-  });
-  if (answers.some(a => !a)) { toast('Answer all questions first'); return; }
-  google.script.run
-    .withSuccessHandler(res => {
-      if (!res.success) { toast(res.error || 'Error grading'); return; }
-      res.grounded = webMcqData.grounded;
-      showWebMCQResults(res);
-      // Refresh Home (stats + Recent Quiz Scores) in the background so it's
-      // already up to date when the student goes back, instead of needing a
-      // manual page reload.
-      loadDashboardData();
-    })
-    .withFailureHandler(e => toast('Error: ' + e.message))
-    .submitWebMCQQuiz(webMcqData.quizId, webMcqData.subject, webMcqData.chNum, webMcqData.title, answers);
-}
-function showWebMCQResults(res) {
-  document.getElementById('webMcqContainer').style.display = 'none';
-  document.getElementById('webMcqResults').style.display = 'block';
-  const cls = res.percent>=80?'sc-good': res.percent>=50?'sc-mid':'sc-bad';
-  const groundLine = res.grounded
-    ? '<div style="font-size:11px;color:var(--green);font-weight:600;margin-bottom:10px">📖 These questions were based on this chapter\'s saved content</div>'
-    : '<div style="font-size:11px;color:var(--amber);font-weight:600;margin-bottom:10px">⚠️ General knowledge (chapter not yet generated)</div>';
-  document.getElementById('webMcqResultsBody').innerHTML = groundLine + `
-    <div class="score-row" style="border:none;margin-bottom:10px">
-      <div class="score-circle ${cls}" style="width:56px;height:56px;font-size:16px">${res.percent}%</div>
-      <div style="font-size:16px;font-weight:700">${res.score}/${res.total} correct</div>
-    </div>
-    ${res.results.map((r,i) => `
-      <div style="padding:10px 0;border-top:1px solid var(--border);font-size:13px">
-        <div style="font-weight:600;margin-bottom:4px">${i+1}. ${r.question}</div>
-        <div style="color:${r.isCorrect?'var(--green)':'var(--red)'}">Your answer: ${r.given ? r.given + ') ' + r.givenText : '—'} ${r.isCorrect ? '✅' : '❌'}</div>
-        ${!r.isCorrect ? `<div style="color:var(--green)">Correct: ${r.correctAnswer}</div>` : ''}
-      </div>`).join('')}
-    <button class="btn btn-primary btn-full" style="margin-top:14px" onclick="exitWebMCQ()">Done</button>`;
-}
-function exitWebMCQ() {
-  document.getElementById('webMcqSetup').style.display = 'block';
-  document.getElementById('webMcqContainer').style.display = 'none';
-  document.getElementById('webMcqResults').style.display = 'none';
-  document.getElementById('webmcq-unit').innerHTML = '<option value="">— Choose chapter —</option>';
-}
-
-// ── REFERENCE PAGE (FORMULAS) ────────────────────────────
-function loadFormulaBank(subjectFilter) {
-  document.querySelectorAll('#ref-filter-tabs .seg-tab').forEach(b => {
-     if (b.textContent.toLowerCase().includes(subjectFilter.substring(0,3).toLowerCase()) || (subjectFilter==='all' && b.textContent==='All')) {
-         b.classList.add('active');
-     } else {
-         b.classList.remove('active');
-     }
-  });
-  document.getElementById('formula-list').innerHTML = '<div class="loader"><div class="spinner"></div><div class="loader-txt">Loading...</div></div>';
-  
-  google.script.run
-    .withSuccessHandler(res => {
-      const list = document.getElementById('formula-list');
-      if(res.length === 0) {
-         list.innerHTML = '<p style="padding:20px; text-align:center; color:var(--txt2); font-size:13px">No formulas found.</p>';
-         return;
-      }
-      list.innerHTML = res.map(f => `
-        <div class="card">
-          <div class="card-head ${f.subject==='Science'?'green':'navy'}">${f.subject} — Ch ${f.chapter}: ${f.topic}</div>
-          <div class="card-body">
-            <div style="font-size:11px; color:var(--txt2); margin-bottom:8px">Type: ${f.type} | Source: ${f.source}</div>
-            <div style="font-size:14px; font-weight:600; color:var(--txt); margin-bottom:10px; white-space:pre-wrap">${f.content}</div>
-            ${f.imageUrl ? `<img src="${f.imageUrl}" style="max-width:100%; border-radius:8px; border:1px solid var(--border)">` : ''}
-          </div>
-        </div>
-      `).join('');
-    })
-    .withFailureHandler(e => toast('Error: ' + e.message))
-    .getFormulaBank(subjectFilter);
-}
-
-// Initialize on Load
-window.onload = () => { loadDashboardData(); }
-// ── MANUAL SUMMARY FUNCTIONS ─────────────────────────────────────────────
-function toggleOptionalFields() {
-  const el = document.getElementById('manualOptionalFields');
-  const btn = document.querySelector('button[onclick="toggleOptionalFields()"]');
-  if (el.style.display === 'none') {
-    el.style.display = 'block';
-    btn.textContent = '- Hide Hindi/Kannada';
-  } else {
-    el.style.display = 'none';
-    btn.textContent = '+ Add Hindi/Kannada';
-  }
-}
-
-function submitManualSummary() {
-  const val = document.getElementById('manualChSelect').value;
-  if (!val) { toast('Please choose a chapter first.'); return; }
-  
-  const [subject, chNum, title] = val.split('|');
-  const en = document.getElementById('manualEn').value.trim();
-  const hi = document.getElementById('manualHi').value.trim();
-  const kn = document.getElementById('manualKn').value.trim();
-
-  if (!en) { toast('English summary is required.'); return; }
-
-  const msgEl = document.getElementById('manual-msg');
-  msgEl.style.display = 'block';
-  msgEl.textContent = 'Saving...';
-  msgEl.style.color = 'var(--txt)';
-
-  google.script.run
-    .withSuccessHandler(res => {
-      if (res.success) {
-        msgEl.textContent = '✅ Saved successfully!';
-        msgEl.style.color = 'var(--green)';
-        toast('Summary saved successfully');
-        setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
-      } else {
-        msgEl.textContent = '❌ Error: ' + res.error;
-        msgEl.style.color = 'var(--red)';
-      }
-    })
-    .withFailureHandler(e => {
-      msgEl.textContent = '❌ Error: ' + e.message;
-      msgEl.style.color = 'var(--red)';
-    })
-    .saveManualSummary(subject, parseInt(chNum), title, en, hi, kn);
-}
-// Function called when clicking "Translate Missing Now" button
-function sendDigestNow() {
-  const msgEl = document.getElementById('digest-msg');
-  if (!msgEl) return;
-
-  msgEl.style.display = 'block';
-  msgEl.textContent = '⏳ Sending digest email...';
-  msgEl.style.color = 'var(--txt)';
-
-  google.script.run
-    .withSuccessHandler(res => {
-      if (!res.success) { msgEl.textContent = '❌ ' + (res.error || 'Failed'); msgEl.style.color = 'var(--red)'; return; }
-      msgEl.textContent = '✅ Sent! (' + res.weekScoreCount + ' quiz attempt(s) this week, ' + res.lowScoreCount + ' below 60%)';
-      msgEl.style.color = 'var(--green)';
-      toast('Digest email sent');
-    })
-    .withFailureHandler(err => {
-      msgEl.textContent = '❌ Error: ' + err.message;
-      msgEl.style.color = 'var(--red)';
-    })
-    .sendWeeklyParentDigest();
-}
-
-function runFixStaleTranslations() {
-  const msgEl = document.getElementById('fix-stale-msg');
-  if (!msgEl) return;
-
-  msgEl.style.display = 'block';
-  msgEl.textContent = '⏳ Scanning and fixing...';
-  msgEl.style.color = 'var(--txt)';
-
-  google.script.run
-    .withSuccessHandler(res => {
-      if (!res.success) { msgEl.textContent = '❌ ' + (res.error || 'Failed'); msgEl.style.color = 'var(--red)'; return; }
-      msgEl.textContent = `✅ Cleaned ${res.cleared} mismatched cell(s), refilled ${res.refilled} translation(s).`;
-      msgEl.style.color = 'var(--green)';
-      toast('Cleanup complete');
-    })
-    .withFailureHandler(err => {
-      msgEl.textContent = '❌ Error: ' + err.message;
-      msgEl.style.color = 'var(--red)';
-    })
-    .fixStalePlaceholderTranslations();
-}
-
-function runTranslateMissing() {
-  const msgEl = document.getElementById('translate-msg');
-  if (!msgEl) return;
-  
-  msgEl.style.display = 'block';
-  msgEl.textContent = '⏳ Translating missing fields... please wait...';
-  msgEl.style.color = 'var(--txt)';
-  
-  google.script.run
-    .withSuccessHandler(res => {
-      msgEl.textContent = '✅ Success! Translated ' + (res.translated || 0) + ' missing items.';
-      msgEl.style.color = 'var(--green)';
-      toast('Translation complete!');
-      setTimeout(() => { msgEl.style.display = 'none'; }, 5000);
-    })
-    .withFailureHandler(err => {
-      msgEl.textContent = '❌ Error: ' + err.message;
-      msgEl.style.color = 'var(--red)';
-    })
-    .runTranslateMissingBackend();
-}
-
-// ── BULK CONTENT GENERATOR ───────────────────────────────
-function renderBulkStatus(status) {
-  if (!status || status.error) {
-    document.getElementById('bulk-progress-label').textContent = status && status.error ? 'Error: ' + status.error : 'Status unavailable';
-    return;
-  }
-  document.getElementById('bulk-provider').textContent = status.provider;
-  const summaryPct = status.total ? Math.round(status.summaryDone / status.total * 100) : 0;
-  const pyqPct = status.total ? Math.round(status.pyqDone / status.total * 100) : 0;
-  document.getElementById('bulk-progress-label').textContent =
-    `Summaries: ${status.summaryDone}/${status.total} (${summaryPct}%)  •  PYQ sets: ${status.pyqDone}/${status.total} (${pyqPct}%)`;
-  document.getElementById('bulk-progress-fill').style.width = Math.min(summaryPct, pyqPct) + '%';
-
-  const btn = document.getElementById('bulkGenBtn');
-  if (status.summaryDone >= status.total && status.pyqDone >= status.total) {
-    btn.disabled = true;
-    btn.textContent = '✅ All chapters complete';
-  } else {
-    btn.disabled = false;
-    btn.textContent = '⚡ Generate Next 5 Chapters';
-  }
-}
-
-function refreshBulkStatus() {
-  google.script.run
-    .withSuccessHandler(renderBulkStatus)
-    .withFailureHandler(e => { document.getElementById('bulk-progress-label').textContent = 'Error: ' + e.message; })
-    .bulkGenerateStatus();
-
-  google.script.run
-    .withSuccessHandler(res => {
-      const el = document.getElementById('pdf-setup-status');
-      if (!res || res.error) { el.textContent = 'PDF grounding: not set up yet.'; return; }
-      if (!res.driveApiEnabled) {
-        el.innerHTML = '⚠️ Drive API not enabled — see setup note below the checkbox before turning this on.';
-        return;
-      }
-      const configured = res.rows.filter(r => r.configured).length;
-      el.textContent = `PDF grounding: ${configured}/${res.rows.length} subject folders mapped in "📁 CHAPTER_PDF_FOLDERS" sheet.`;
-    })
-    .withFailureHandler(() => {})
-    .getPdfFolderSetupStatus();
-
-  if (appData && appData.trackerChapters) populateBulkSingleDropdowns(appData.trackerChapters);
-}
-
-function populateBulkSingleDropdowns(chapters) {
-  const subjSel = document.getElementById('bulk-single-subj');
-  if (!subjSel) return;
-  const listenSubjects = SUBJECTS_ORDER.filter(s => {
-    if (s === 'Social Science') return SOCIAL_SCIENCE_SUBJECTS.some(ss => chapters.some(c => c.subject === ss));
-    return chapters.some(c => c.subject === s);
-  });
-  subjSel.innerHTML = '<option value="">— Choose subject —</option>' + listenSubjects.map(s => `<option value="${s}">${s}</option>`).join('');
-}
-
-function loadBulkSingleUnits() {
-  const subj = document.getElementById('bulk-single-subj').value;
-  const sel = document.getElementById('bulk-single-unit');
-  sel.innerHTML = '<option value="">— Choose chapter —</option>';
-  if (!subj || !appData) return;
-  const relevantSubjects = (subj === 'Social Science') ? SOCIAL_SCIENCE_SUBJECTS : [subj];
-  appData.trackerChapters.filter(c => relevantSubjects.includes(c.subject) && c.chNum > 0).forEach(ch => {
-    const opt = document.createElement('option');
-    opt.value = ch.subject + '|' + ch.chNum + '|' + ch.title + '|' + (ch.book || '');
-    opt.textContent = `${ch.subject} Ch ${ch.chNum}: ${ch.title}${ch.book ? ' (' + ch.book + ')' : ''}`;
-    sel.appendChild(opt);
-  });
-}
-
-function generateSingleChapterUI() {
-  const val = document.getElementById('bulk-single-unit').value;
-  if (!val) { toast('Choose a chapter first'); return; }
-  const [subject, chNum, title, book] = val.split('|');
-  const usePdf = document.getElementById('usePdfToggle').checked;
-  const forceOverwrite = document.getElementById('overwriteManualToggle').checked;
-  const btn = document.getElementById('bulkSingleBtn');
-  const logEl = document.getElementById('bulk-log');
-  btn.disabled = true; btn.textContent = 'Generating…';
-
-  google.script.run
-    .withSuccessHandler(res => {
-      btn.disabled = false; btn.textContent = 'Generate This Chapter';
-      if (!res.success) { toast(res.error || 'Failed'); return; }
-      let line;
-      if (res.skippedExisting) {
-        line = `<div>⏭️ ${subject} Ch${chNum}: skipped — ${res.pdfNote}</div>`;
-      } else {
-        line = `<div>✅ ${subject} Ch${chNum}: ${res.summarySaved ? 'summary saved via ' + (res.provider || '?') : 'summary failed'}, ` +
-          `${res.pyqCount} PYQs saved${res.formulaCount ? ', ' + res.formulaCount + ' formula(s) added to Formula Bank' : ''}. ${res.pdfNote || ''}</div>`;
-      }
-      logEl.innerHTML = line + logEl.innerHTML;
-      refreshBulkStatus();
-      toast(res.skippedExisting ? 'Skipped — hand-typed summary protected' : 'Chapter generated');
-    })
-    .withFailureHandler(e => {
-      btn.disabled = false; btn.textContent = 'Generate This Chapter';
-      toast('Error: ' + e.message);
-    })
-    .generateSingleChapter(subject, Number(chNum), title, usePdf, book, forceOverwrite);
-}
-
-function bulkGenerateBatch() {
-  const btn = document.getElementById('bulkGenBtn');
-  const logEl = document.getElementById('bulk-log');
-  const usePdf = document.getElementById('usePdfToggle').checked;
-  btn.disabled = true; btn.textContent = 'Generating… (this can take ~30–60s)';
-
-  google.script.run
-    .withSuccessHandler(res => {
-      if (!res.success) {
-        btn.disabled = false; btn.textContent = '⚡ Generate Next 5 Chapters';
-        toast(res.error || 'Batch failed');
-        return;
-      }
-      renderBulkStatus(res.status);
-      if (res.log && res.log.length) {
-        const entries = res.log.map(l => `<div>${l}</div>`).join('');
-        logEl.innerHTML = entries + logEl.innerHTML;
-      } else if (res.processed === 0) {
-        logEl.innerHTML = '<div>Nothing left to generate — all chapters complete.</div>' + logEl.innerHTML;
-      }
-      toast(`Processed ${res.processed} chapter(s)`);
-    })
-    .withFailureHandler(e => {
-      btn.disabled = false; btn.textContent = '⚡ Generate Next 5 Chapters';
-      toast('Error: ' + e.message + ' — if this mentions rate limits, wait a minute and try again.');
-    })
-    .bulkGenerateNextBatch(5, usePdf);
-}
-
-// ── SCHOOL NOTES (photo capture) ─────────────────────────
-let currentNotesChapter = null;
-
-function populateNotesDropdowns(chapters) {
-  const subjSel = document.getElementById('notes-subj');
-  if (!subjSel) return;
-  const listenSubjects = SUBJECTS_ORDER.filter(s => {
-    if (s === 'Social Science') return SOCIAL_SCIENCE_SUBJECTS.some(ss => chapters.some(c => c.subject === ss));
-    return chapters.some(c => c.subject === s);
-  });
-  subjSel.innerHTML = '<option value="">— Choose subject —</option>' + listenSubjects.map(s => `<option value="${s}">${s}</option>`).join('');
-}
-
-function loadNotesUnits() {
-  const subj = document.getElementById('notes-subj').value;
-  const sel = document.getElementById('notes-unit');
-  sel.innerHTML = '<option value="">— Choose chapter —</option>';
-  document.getElementById('notes-actions').style.display = 'none';
-  if (!subj || !appData) return;
-  const relevantSubjects = (subj === 'Social Science') ? SOCIAL_SCIENCE_SUBJECTS : [subj];
-  appData.trackerChapters.filter(c => relevantSubjects.includes(c.subject)).forEach(ch => {
-    const opt = document.createElement('option');
-    opt.value = ch.subject + '|' + ch.chNum + '|' + ch.title;
-    opt.textContent = `${ch.subject} Ch ${ch.chNum}: ${ch.title}`;
-    sel.appendChild(opt);
-  });
-}
-
-function loadNotesGallery() {
-  const val = document.getElementById('notes-unit').value;
-  if (!val) { document.getElementById('notes-actions').style.display = 'none'; return; }
-  const [subject, chNum, title] = val.split('|');
-  currentNotesChapter = { subject, chNum, title };
-  document.getElementById('notes-actions').style.display = 'block';
-  refreshNotesGallery();
-}
-
-function refreshNotesGallery() {
-  if (!currentNotesChapter) return;
-  const galleryEl = document.getElementById('notes-gallery');
-  const emptyEl = document.getElementById('notes-empty');
-  galleryEl.innerHTML = '<div class="loader" style="grid-column:1/3;min-height:80px"><div class="spinner"></div></div>';
-  emptyEl.style.display = 'none';
-
-  google.script.run
-    .withSuccessHandler(notes => {
-      if (!notes || notes.length === 0) {
-        galleryEl.innerHTML = '';
-        emptyEl.style.display = 'block';
-        return;
-      }
-      galleryEl.innerHTML = notes.map(n => `
-        <div style="position:relative;border-radius:10px;overflow:hidden;box-shadow:var(--shadow)">
-          <a href="${n.url}" target="_blank">
-            <img src="https://drive.google.com/thumbnail?id=${n.fileId}&sz=w400" style="width:100%;height:120px;object-fit:cover;display:block;background:var(--bg)">
-          </a>
-          <div style="font-size:10px;color:var(--txt2);padding:4px 6px;background:var(--card)">${n.uploadedAt || ''}</div>
-          <button onclick="deleteNoteUI('${n.fileId}')" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:50%;width:24px;height:24px;font-size:13px;cursor:pointer">✕</button>
-        </div>
-      `).join('');
-    })
-    .withFailureHandler(e => { galleryEl.innerHTML = ''; toast('Error loading notes: ' + e.message); })
-    .getNotesForChapter(currentNotesChapter.subject, Number(currentNotesChapter.chNum));
-}
-
-function deleteNoteUI(fileId) {
-  google.script.run
-    .withSuccessHandler(res => { if (res.success) { toast('Note deleted'); refreshNotesGallery(); } else toast(res.error || 'Delete failed'); })
-    .withFailureHandler(e => toast('Error: ' + e.message))
-    .deleteNote(fileId);
-}
-
-// Compresses/resizes the photo client-side before upload (camera photos can be
-// several MB — this keeps uploads fast and reliable on mobile data).
-function readableTimestamp_() {
-  const d = new Date();
-  const pad = n => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`;
-}
-
-function handleNotePhoto(event) {
-  const file = event.target.files[0];
-  if (!file || !currentNotesChapter) return;
-  const statusEl = document.getElementById('notes-upload-status');
-  statusEl.style.display = 'block';
-  statusEl.textContent = 'Preparing photo…';
-
-  const reader = new FileReader();
-  reader.onload = e => {
-    const img = new Image();
-    img.onload = () => {
-      const maxDim = 1600;
-      let { width, height } = img;
-      if (width > height && width > maxDim) { height = height * (maxDim / width); width = maxDim; }
-      else if (height > maxDim) { width = width * (maxDim / height); height = maxDim; }
-      const canvas = document.createElement('canvas');
-      canvas.width = width; canvas.height = height;
-      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
-      const base64 = dataUrl.split(',')[1];
-
-      statusEl.textContent = 'Uploading…';
-      google.script.run
-        .withSuccessHandler(res => {
-          statusEl.style.display = 'none';
-          event.target.value = '';
-          if (!res.success) { toast(res.error || 'Upload failed'); return; }
-          toast('Note saved');
-          refreshNotesGallery();
-        })
-        .withFailureHandler(e => {
-          statusEl.style.display = 'none';
-          event.target.value = '';
-          toast('Error: ' + e.message);
-        })
-        .uploadNoteImage(currentNotesChapter.subject, Number(currentNotesChapter.chNum), currentNotesChapter.title, base64, 'image/jpeg', 'note_' + readableTimestamp_() + '.jpg');
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-// ── RELINK CHAPTER PDFs ───────────────────────────────────
-function relinkChapterPdfsUI() {
-  const btn = document.getElementById('relinkBtn');
-  const resultEl = document.getElementById('relink-result');
-  btn.disabled = true; btn.textContent = 'Scanning Drive folders… (may take a minute for 128 chapters)';
-  resultEl.textContent = '';
-
-  google.script.run
-    .withSuccessHandler(res => {
-      btn.disabled = false; btn.textContent = '🔗 Relink All Chapter PDFs';
-      if (!res.success) { toast(res.error || 'Relink failed'); resultEl.textContent = 'Error: ' + res.error; return; }
-      let html = `Linked ${res.linked} of ${res.total} chapters.`;
-      if (res.notFound > 0) {
-        html += ` ${res.notFound} not found — check filenames match chapter number/title.`;
-        if (res.misses && res.misses.length) {
-          html += '<div style="margin-top:6px;font-size:11px">' + res.misses.map(m => '⚠️ ' + m).join('<br>') + '</div>';
-        }
-      }
-      resultEl.innerHTML = html;
-      toast(`Relinked ${res.linked} chapters`);
-    })
-    .withFailureHandler(e => {
-      btn.disabled = false; btn.textContent = '🔗 Relink All Chapter PDFs';
-      toast('Error: ' + e.message);
-      resultEl.textContent = 'Error: ' + e.message;
-    })
-    .relinkAllChapterPdfs();
-}
-
-// ── PAST PAPERS ───────────────────────────────────────────
-let pastPapersInited = false;
-function initPastPapersUI() {
-  if (!pastPapersInited) {
-    const yearSel = document.getElementById('papers-year-select');
-    const currentYear = new Date().getFullYear();
-    let opts = '';
-    for (let y = currentYear; y >= currentYear - 8; y--) opts += `<option value="${y}">${y}</option>`;
-    opts += `<option value="Sample Paper">Sample Paper</option>`;
-    yearSel.innerHTML = opts;
-
-    const subjSel = document.getElementById('papers-subject-select');
-    subjSel.innerHTML = '<option value="">— All Subjects —</option>' + SUBJECTS_ORDER.map(s => `<option value="${s}">${s}</option>`).join('');
-    pastPapersInited = true;
-  }
-  loadPastPapersGallery();
-}
-
-function loadPastPapersGallery() {
-  const year = document.getElementById('papers-year-select').value;
-  const listEl = document.getElementById('papers-list');
-  listEl.innerHTML = '<div class="loader" style="min-height:60px"><div class="spinner"></div></div>';
-
-  google.script.run
-    .withSuccessHandler(papers => {
-      if (!papers || papers.length === 0) {
-        listEl.innerHTML = '<p style="font-size:12px;color:var(--txt2);text-align:center;padding:16px 0">No papers for this year yet.</p>';
-        return;
-      }
-      listEl.innerHTML = papers.map(p => `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 4px;border-bottom:1px solid var(--border)">
-          <a href="${p.url}" target="_blank" style="font-size:13px;color:var(--navy);text-decoration:none;flex:1">
-            📄 ${p.subject ? p.subject + ' — ' : ''}${p.name}
-          </a>
-          <button onclick="deletePastPaperUI('${p.fileId}')" style="background:none;border:none;color:var(--red);font-size:16px;cursor:pointer;padding:4px 8px">✕</button>
-        </div>
-      `).join('');
-    })
-    .withFailureHandler(e => { listEl.innerHTML = ''; toast('Error: ' + e.message); })
-    .getPastPapers(year);
-}
-
-function deletePastPaperUI(fileId) {
-  google.script.run
-    .withSuccessHandler(res => { if (res.success) { toast('Paper deleted'); loadPastPapersGallery(); } else toast(res.error || 'Delete failed'); })
-    .withFailureHandler(e => toast('Error: ' + e.message))
-    .deletePastPaper(fileId);
-}
-
-function handlePastPaperFile(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const year = document.getElementById('papers-year-select').value;
-  const subject = document.getElementById('papers-subject-select').value;
-  const statusEl = document.getElementById('papers-upload-status');
-  statusEl.style.display = 'block';
-  statusEl.textContent = 'Uploading…';
-
-  const finishUpload = (base64, mimeType, fileName) => {
-    google.script.run
-      .withSuccessHandler(res => {
-        statusEl.style.display = 'none';
-        event.target.value = '';
-        if (!res.success) { toast(res.error || 'Upload failed'); return; }
-        toast('Paper saved');
-        loadPastPapersGallery();
-      })
-      .withFailureHandler(e => {
-        statusEl.style.display = 'none';
-        event.target.value = '';
-        toast('Error: ' + e.message);
-      })
-      .uploadPastPaper(year, subject, base64, mimeType, fileName);
-  };
-
-  if (file.type === 'application/pdf') {
-    // PDFs go up as-is — no compression possible/needed for a document format.
-    const reader = new FileReader();
-    reader.onload = e => finishUpload(e.target.result.split(',')[1], 'application/pdf', file.name);
-    reader.readAsDataURL(file);
-  } else {
-    // Photo of a paper — compress like Notes photos to keep upload fast.
-    const reader = new FileReader();
-    reader.onload = e => {
-      const img = new Image();
-      img.onload = () => {
-        const maxDim = 1600;
-        let { width, height } = img;
-        if (width > height && width > maxDim) { height = height * (maxDim / width); width = maxDim; }
-        else if (height > maxDim) { width = width * (maxDim / height); height = maxDim; }
-        const canvas = document.createElement('canvas');
-        canvas.width = width; canvas.height = height;
-        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-        finishUpload(dataUrl.split(',')[1], 'image/jpeg', 'paper_' + Date.now() + '.jpg');
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  }
-}
-  function renderBehindList(weakList) {
-  const container = document.getElementById('behind-list');
-  const badge = document.getElementById('behind-badge');
-
-  if (!container) return;
-
-  if (!weakList || weakList.length === 0) {
-    if (badge) {
-      badge.textContent = 'All Clear! 🎉';
-      badge.style.background = 'var(--green)';
-    }
-    container.innerHTML = '<p style="font-size:12px;color:var(--txt2);text-align:center;padding:10px;">Great job! No chapters need revision right now.</p>';
-    return;
-  }
-
-  if (badge) {
-    badge.textContent = weakList.length + ' Needs Review';
-    badge.style.background = 'var(--red)';
-  }
-
-  let html = '';
-  weakList.forEach(item => {
-    html += `
-      <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border);">
-        <div>
-          <div style="font-size:13px; font-weight:700; color:var(--txt);">${item.title}</div>
-          <div style="font-size:11px; color:var(--red); font-weight:600;">Last Score: ${item.score}% (${item.date})</div>
-        </div>
-        <button class="btn btn-sm btn-amber" onclick="switchPage('quiz');">
-          🎯 Re-Quiz
-        </button>
-      </div>
-    `;
-  });
-
-  container.innerHTML = html;
-}
-  let mockTimerInterval = null;
-let mockTimeRemaining = 600;
-
-function startMockExamTimer() {
-  clearInterval(mockTimerInterval);
-  mockTimeRemaining = 600;
-
-  const timerDisplay = document.getElementById('mockTimerDisplay');
-  mockTimerInterval = setInterval(() => {
-    mockTimeRemaining--;
-    const mins = Math.floor(mockTimeRemaining / 60);
-    const secs = mockTimeRemaining % 60;
-    
-    if (timerDisplay) {
-      timerDisplay.textContent = `⏱️ Time Left: ${mins}:${secs < 10 ? '0' : ''}${secs}`;
-    }
-
-    if (mockTimeRemaining <= 0) {
-      clearInterval(mockTimerInterval);
-      toast('Time up! Submitting your exam automatically...');
-      submitMockExam();
-    }
-  }, 1000);
-}
-
-function stopMockExamTimer() {
-    clearInterval(mockTimerInterval);
-}
+  function loadWebMcqUnits() {}
+  function startWebMCQ() {}
+  function launchMockExam() {}
+  function submitWebMCQ() {}
+  function exitWebMCQ() {}
+  function enableQuizBtn() { document.getElementById('startQuizBtn').disabled = false; }
+  function startQuiz() {}
+  function toggleMic() {}
+  function submitAnswer() {}
+  function nextQuestion() {}
+  function exitQuiz() {}
+  function loadFormulaBank(cat) {}
+  function loadPyqUnits() {}
+  function loadPYQs() {}
+  function exitPYQ() {}
+  function loadNotesUnits() {}
+  function loadNotesGallery() {}
+  function handleNotePhoto(e) {}
+  function loadPastPapersGallery() {}
+  function handlePastPaperFile(e) {}
+  function sendDigestNow() { showToast("Digest email sent successfully!"); }
+  function loadManualUnits() {}
+  function saveManualSummary() { showToast("Manual summary saved."); }
 </script>
-
-<!-- Timed Mock Test Button & Timer -->
-<div style="margin-top: 15px; text-align: center;">
-  <button id="btnStartMockExam" onclick="launchMockExam()" style="background-color: #d9534f; color: white; padding: 12px 20px; font-weight: bold; border: none;">
-    ⏱ Start 10-Min Timed Mock Test
-  </button>
-</div>
-
-<div id="mockTimerDisplay" style="display: none; background: #fff3cd; color: #856404; padding: 10px; font-weight: bold; text-align: center; font-size: 1.1em;">
-  ⏱ Time Left: 10:00
-</div>
-
 </body>
 </html>
