@@ -719,12 +719,36 @@ body {
   function loadManualUnits() {}
   function saveManualSummary() { showToast("Manual summary saved."); }
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Hide all spinners
+  // 1. Class X Subject and Chapter Database
+  const courseData = {
+    "Mathematics": [
+      "Real Numbers", "Polynomials", "Pair of Linear Equations", 
+      "Quadratic Equations", "Arithmetic Progressions", "Triangles", 
+      "Coordinate Geometry", "Introduction to Trigonometry", "Circles", 
+      "Areas Related to Circles", "Surface Areas and Volumes", "Statistics", "Probability"
+    ],
+    "Science": [
+      "Chemical Reactions and Equations", "Acids, Bases and Salts", "Metals and Non-metals", 
+      "Carbon and its Compounds", "Life Processes", "Control and Coordination", 
+      "How do Organisms Reproduce?", "Heredity", "Light – Reflection and Refraction", 
+      "Human Eye and Colourful World", "Electricity", "Magnetic Effects of Electric Current", "Our Environment"
+    ],
+    "Social Science": [
+      "The Rise of Nationalism in Europe", "Nationalism in India", "Resources and Development", 
+      "Forest and Wildlife Resources", "Water Resources", "Agriculture", 
+      "Power Sharing", "Federalism", "Development", "Sectors of the Indian Economy"
+    ],
+    "English": [
+      "A Letter to God", "Nelson Mandela: Long Walk to Freedom", "Two Stories About Flying", 
+      "From the Diary of Anne Frank", "Glimpses of India", "Madam Rides the Bus"
+    ]
+  };
+
+  // 2. Hide loading spinners
   document.querySelectorAll('.spinner, [class*="spinner"], .loading').forEach(el => el.style.display = 'none');
 
-  // 2. Populate top stat cards
-  const allCards = document.querySelectorAll('div');
-  allCards.forEach(el => {
+  // 3. Populate Top Stat Cards
+  document.querySelectorAll('div').forEach(el => {
     if (el.children.length === 0) {
       if (el.textContent.trim() === 'Total Chapters') el.innerHTML = '<b style="font-size: 18px; color: #005f73;">16</b><br>Total Chapters';
       if (el.textContent.trim() === 'Completed') el.innerHTML = '<b style="font-size: 18px; color: #0a9396;">10</b><br>Completed';
@@ -732,8 +756,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 3. Inject Subject Progress progress bars directly
-  document.querySelectorAll('div, section, card').forEach(card => {
+  // 4. Inject Progress Bars into Subject Progress
+  document.querySelectorAll('div, section').forEach(card => {
     if (card.textContent.includes('Subject Progress') && card.children.length > 0) {
       const targetBox = card.querySelector('div:last-child') || card;
       targetBox.innerHTML = `
@@ -767,7 +791,82 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  console.log('Dashboard stats and progress rendered successfully.');
+  // 5. Populate Subject Dropdowns
+  const subjectSelects = Array.from(document.querySelectorAll('select')).filter(s => {
+    const firstOption = s.options[0]?.text || '';
+    return firstOption.toLowerCase().includes('subject');
+  });
+
+  subjectSelects.forEach(select => {
+    select.innerHTML = '<option value="">— Choose subject —</option>';
+    Object.keys(courseData).forEach(sub => {
+      const opt = document.createElement('option');
+      opt.value = sub;
+      opt.textContent = sub;
+      select.appendChild(opt);
+    });
+
+    // Handle dynamic updates to Chapter dropdowns on subject change
+    select.addEventListener('change', (e) => {
+      const selectedSubject = e.target.value;
+      const parentContainer = select.closest('div, section, .card') || document;
+      const chapterSelect = Array.from(parentContainer.querySelectorAll('select')).find(s => {
+        const txt = s.options[0]?.text || '';
+        return txt.toLowerCase().includes('chapter');
+      }) || document.querySelectorAll('select')[1];
+
+      if (chapterSelect) {
+        chapterSelect.innerHTML = '<option value="">— Choose chapter —</option>';
+        if (selectedSubject && courseData[selectedSubject]) {
+          courseData[selectedSubject].forEach(chap => {
+            const opt = document.createElement('option');
+            opt.value = chap;
+            opt.textContent = chap;
+            chapterSelect.appendChild(opt);
+          });
+        }
+      }
+    });
+  });
+
+  // Populate any standalone Chapter dropdowns with initial default list
+  const chapterSelects = Array.from(document.querySelectorAll('select')).filter(s => {
+    const firstOption = s.options[0]?.text || '';
+    return firstOption.toLowerCase().includes('chapter');
+  });
+
+  chapterSelects.forEach(select => {
+    if (select.options.length <= 1) {
+      select.innerHTML = '<option value="">— Select a Subject first —</option>';
+    }
+  });
+
+  // 6. Make Quiz & Mock Test Buttons Active
+  document.querySelectorAll('button').forEach(btn => {
+    const text = btn.textContent.trim().toLowerCase();
+    
+    if (text.includes('mcq quiz') || text.includes('timed mock test') || text.includes('start quiz')) {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const parent = btn.closest('div, section, .card') || document;
+        const subVal = parent.querySelector('select')?.value;
+        
+        if (!subVal) {
+          if (typeof showToast === 'function') showToast('Please select a subject first!');
+          else alert('Please select a subject first!');
+          return;
+        }
+
+        if (typeof showToast === 'function') {
+          showToast(`Starting ${btn.textContent.trim()} for ${subVal}...`);
+        } else {
+          alert(`Starting ${btn.textContent.trim()} for ${subVal}...`);
+        }
+      });
+    }
+  });
+
+  console.log('Dropdowns populated and interactive handlers attached successfully.');
 });
 </script>
 </body>
