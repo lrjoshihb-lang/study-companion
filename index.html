@@ -1328,45 +1328,66 @@ function speakVC_(text) {
 
 function handleVoiceCommand(transcript) {
   if (!appData || !appData.trackerChapters) { 
-    console.error('VOICE_FAIL: Data not loaded');
     toast('Data not loaded yet, try again'); 
     return; 
   }
   
-  const t = transcript.toLowerCase();
-  console.log('VOICE_PROCESSING:', {input: transcript, lowercase: t});
+  let t = transcript.toLowerCase();
+  console.log('VOICE_INPUT_RAW:', transcript);
 
-  let intent = null;
-  if (/\b(practice|oral|answer|spoken)\b/.test(t)) {
-    intent = 'practicequiz';
-    console.log('  Intent: PRACTICE QUIZ');
-  } else if (/\b(quiz|test|mcq|multiple)\b/.test(t)) {
-    intent = 'quiz';
-    console.log('  Intent: DAILY MCQ QUIZ');
-  } else if (/\b(read|listen|summary|explain)\b/.test(t)) {
-    intent = 'listen';
-    console.log('  Intent: LISTEN/READ CHAPTER');
-  } else {
-    console.warn('  Intent: NONE DETECTED');
+  // 1. Convert Spoken Number Words to Digits ("three" -> "3")
+  const wordToNum = { 
+    'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 
+    'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
+    'eleven': 11, 'twelve': 12, 'thirteen': 13, 'fourteen': 14, 'fifteen': 15 
+  };
+  for (const [word, num] of Object.entries(wordToNum)) {
+    t = t.replace(new RegExp(`\\b${word}\\b`, 'g'), num);
   }
 
-  const chMatch = t.match(/chapter\s*(\d+)|ch\s*(\d+)|chapter\s+(\w+)/);
-  const chNum = chMatch ? Number(chMatch[1] || chMatch[2]) : null;
-  console.log('  Chapter:', chNum || 'not found');
+  // 2. Map Indian Subject Aliases & Sub-subjects to Official Names
+  let subject = null;
+  const aliasMap = {
+    'mathematics': ['math', 'maths', 'mathematics', 'ganit'],
+    'science': ['science', 'phy', 'physics', 'chem', 'chemistry', 'bio', 'biology', 'vigyan'],
+    'social science': ['social science', 'social', 'sst', 'civics', 'economics', 'geography', 'history', 'civ', 'eco', 'geo', 'hist', 'samajik'],
+    'english': ['english', 'eng'],
+    'sanskrit': ['sanskrit', 'skt']
+  };
 
-  const subjectNames = ['english','mathematics','maths','science','civics','economics','geography','history','sanskrit','social science'];
-  let subject = subjectNames.find(s => t.includes(s));
-  if (subject === 'maths') subject = 'mathematics';
-  console.log('  Subject:', subject || 'not found');
+  for (const [officialSub, aliases] of Object.entries(aliasMap)) {
+    if (aliases.some(alias => t.includes(alias))) {
+      subject = officialSub;
+      break;
+    }
+  }
 
+  // 3. Robust Chapter Number Extractor (Handles "chapter 3", "ch 3", "lesson 3", or "3")
+  const chMatch = t.match(/(?:chapter|ch|lesson|unit|adhyay|part)?\s*(\d+)/i);
+  const chNum = chMatch ? Number(chMatch[1]) : null;
+
+  // 4. Flexible Intent Detection (English + Hinglish + Natural Verbs)
+  let intent = null;
+  if (/\b(practice|oral|answer|spoken|test me|ask|pucho|suno)\b/.test(t)) {
+    intent = 'practicequiz';
+  } else if (/\b(quiz|test|mcq|multiple|exam|paper)\b/.test(t)) {
+    intent = 'quiz';
+  } else if (/\b(read|listen|summary|explain|play|open|show|padhao|padhna|start|tell)\b/.test(t)) {
+    intent = 'listen';
+  } else {
+    // DEFAULT SMART FALLBACK: If user names subject + chapter without verb, default to "Listen"
+    if (subject && chNum) intent = 'listen';
+  }
+
+  // 5. Validation Check
   if (!intent || !chNum || !subject) {
-    const msg = 'Sorry, please say something like: read Science chapter 3, or quiz me on History chapter 2.';
-    console.warn('VOICE_INCOMPLETE:', {intent, chNum, subject});
+    const msg = 'Could not catch chapter or subject. Try: "Science chapter 3" or "SST ch 2 quiz".';
     speakVC_(msg);
-    toast('Could not understand — try: "read Science chapter 3"');
+    toast('Try saying: "Science chapter 3" or "SST ch 2 quiz"');
     return;
   }
 
+  // 6. Match Chapter in Tracker
   const relevantSubjects = (subject === 'social science') ? SOCIAL_SCIENCE_SUBJECTS : [subject];
   const match = appData.trackerChapters.find(ch =>
     relevantSubjects.some(rs => ch.subject.toLowerCase() === rs.toLowerCase()) &&
@@ -1374,17 +1395,15 @@ function handleVoiceCommand(transcript) {
   );
 
   if (!match) {
-    console.warn('VOICE_NOT_FOUND: Chapter', subject, chNum, 'not in tracker');
-    speakVC_("I couldn't find that chapter.");
-    toast('Chapter not found — check subject/chapter number');
+    speakVC_("Chapter not found.");
+    toast('Chapter not found in tracker');
     return;
   }
 
-  console.log('VOICE_MATCH_FOUND:', {subject: match.subject, chNum: match.chNum, title: match.title});
+  // 7. Route to Requested Page
   const dropdownSubject = SOCIAL_SCIENCE_SUBJECTS.includes(match.subject) ? 'Social Science' : match.subject;
 
   if (intent === 'listen') {
-    console.log('VOICE_ACTION: Loading Listen page');
     showPage('listen');
     document.getElementById('listen-subj').value = dropdownSubject;
     loadListenUnits();
@@ -1393,22 +1412,17 @@ function handleVoiceCommand(transcript) {
     loadChapterContent();
     
   } else if (intent === 'quiz') {
-    console.log('VOICE_ACTION: Loading Daily MCQ Quiz page');
     showPage('quiz');
     document.getElementById('webmcq-subj').value = dropdownSubject;
     loadWebMcqUnits();
     document.getElementById('webmcq-unit').value = match.subject + '|' + match.chNum + '|' + match.title;
-    console.log('VOICE_ACTION: Calling startWebMCQ()');
     startWebMCQ();
     
   } else if (intent === 'practicequiz') {
-    console.log('VOICE_ACTION: Loading Practice Quiz page');
     showPage('quiz');
     const qOption = match.subject + '|' + match.chNum + '|' + match.title + '|' + (match.book || '');
-    console.log('  Setting quizChSelect to:', qOption);
     document.getElementById('quizChSelect').value = qOption;
     enableQuizBtn();
-    console.log('VOICE_ACTION: Calling startQuiz()');
     startQuiz();
   }
 }
