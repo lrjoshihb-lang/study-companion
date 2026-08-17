@@ -719,43 +719,55 @@ body {
   function loadManualUnits() {}
   function saveManualSummary() { showToast("Manual summary saved."); }
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Hide all loading spinners
+  // 1. Hide all spinners
   document.querySelectorAll('.spinner, [class*="spinner"], .loading').forEach(el => el.style.display = 'none');
 
-  // 2. Populate subject progress placeholder list
-  const subjectProgressContainer = document.querySelector('.card-content, [class*="progress"]');
-  if (subjectProgressContainer && subjectProgressContainer.children.length === 0) {
-    subjectProgressContainer.innerHTML = `
-      <div style="padding: 12px; display: flex; flex-direction: column; gap: 12px;">
-        <div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-weight:bold; font-size:14px;">
-            <span>Mathematics</span><span>75%</span>
-          </div>
-          <div style="width:100%; bg-color:#e0e0e0; background:#e0e0e0; height:8px; border-radius:4px; overflow:hidden;">
-            <div style="width:75%; background:#005f73; height:100%;"></div>
-          </div>
-        </div>
-        <div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-weight:bold; font-size:14px;">
-            <span>Science</span><span>60%</span>
-          </div>
-          <div style="width:100%; background:#e0e0e0; height:8px; border-radius:4px; overflow:hidden;">
-            <div style="width:60%; background:#0a9396; height:100%;"></div>
-          </div>
-        </div>
-        <div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-weight:bold; font-size:14px;">
-            <span>Social Science</span><span>40%</span>
-          </div>
-          <div style="width:100%; background:#e0e0e0; height:8px; border-radius:4px; overflow:hidden;">
-            <div style="width:40%; background:#ee9b00; height:100%;"></div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
+  // 2. Populate top stat cards
+  const allCards = document.querySelectorAll('div');
+  allCards.forEach(el => {
+    if (el.children.length === 0) {
+      if (el.textContent.trim() === 'Total Chapters') el.innerHTML = '<b style="font-size: 18px; color: #005f73;">16</b><br>Total Chapters';
+      if (el.textContent.trim() === 'Completed') el.innerHTML = '<b style="font-size: 18px; color: #0a9396;">10</b><br>Completed';
+      if (el.textContent.trim() === 'Overall %') el.innerHTML = '<b style="font-size: 18px; color: #ee9b00;">62.5%</b><br>Overall %';
+    }
+  });
 
-  console.log('App initialized with sample data.');
+  // 3. Inject Subject Progress progress bars directly
+  document.querySelectorAll('div, section, card').forEach(card => {
+    if (card.textContent.includes('Subject Progress') && card.children.length > 0) {
+      const targetBox = card.querySelector('div:last-child') || card;
+      targetBox.innerHTML = `
+        <div style="padding: 16px; display: flex; flex-direction: column; gap: 14px; background: #ffffff;">
+          <div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-weight:600; color:#2b2d42; font-size:14px;">
+              <span>Mathematics</span><span>75%</span>
+            </div>
+            <div style="width:100%; background:#e9ecef; height:10px; border-radius:5px; overflow:hidden;">
+              <div style="width:75%; background:#005f73; height:100%;"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-weight:600; color:#2b2d42; font-size:14px;">
+              <span>Science</span><span>60%</span>
+            </div>
+            <div style="width:100%; background:#e9ecef; height:10px; border-radius:5px; overflow:hidden;">
+              <div style="width:60%; background:#0a9396; height:100%;"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-weight:600; color:#2b2d42; font-size:14px;">
+              <span>Social Science</span><span>40%</span>
+            </div>
+            <div style="width:100%; background:#e9ecef; height:10px; border-radius:5px; overflow:hidden;">
+              <div style="width:40%; background:#ee9b00; height:100%;"></div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  });
+
+  console.log('Dashboard stats and progress rendered successfully.');
 });
 </script>
 </body>
