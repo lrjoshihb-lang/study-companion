@@ -155,6 +155,16 @@ body {
   background: #ff2222 !important;
   box-shadow: 0 0 8px rgba(255, 34, 34, 0.5);
 }
+
+/* ── GRADING PROGRESS (Session 2 fix) ── */
+@keyframes spin-anim { to { transform: rotate(360deg); } }
+.spinner-icon {
+  display: inline-block; width: 13px; height: 13px;
+  border: 2px solid rgba(0,102,255,0.25); border-top-color: var(--blue, #0066ff);
+  border-radius: 50%; animation: spin-anim 0.7s linear infinite;
+  margin-right: 7px; vertical-align: -2px;
+}
+.feedback-box .retry-btn { margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -1516,33 +1526,66 @@ function showQuestion() {
   }
 }
 
-function submitAnswer() {
-  const studentAnswer = document.getElementById('quizAnswerText').value.trim();
-  if (!studentAnswer) { toast('Type or speak your answer first'); return; }
-  const q = quizQuestions[quizIndex];
+// ═══════════════════════════════════════════════════════════════════════
+// SHARED GRADING PROGRESS HELPER (Session 2 fix — Issues #2 & #3)
+// Used by both submitAnswer() (Practice Quiz) and submitTalkAnswer()
+// (Talk About This Chapter) so the spinner/timeout/retry logic exists once.
+//   - Spinner + "Checking…" immediately
+//   - "Still checking… (10-30s on free tier)" after 5s
+//   - Timeout message + Retry button after 30s (request may still land late;
+//     if it does, the success/failure handler below still fires and updates
+//     the box, clearing the timers)
+//   - Elapsed time logged to console + shown as a title tooltip on the box
+// ═══════════════════════════════════════════════════════════════════════
+window.__gradeRetry = null;
 
-  const fb = document.getElementById('quizFeedback');
+function gradeAndShow_(q, studentAnswer, lang, fb, nextBtn) {
+  const retryFn = () => gradeAndShow_(q, studentAnswer, lang, fb, nextBtn);
+
   fb.style.display = 'block';
   fb.className = 'feedback-box';
-  fb.textContent = 'Checking your answer…';
-  console.log('ANSWER_SUBMIT:', {q_idx: quizIndex, q_text: q.question.substring(0,40)});
+  fb.innerHTML = '<span class="spinner-icon"></span>Checking your answer…';
+  nextBtn.style.display = 'none';
+  console.log('ANSWER_SUBMIT:', {q_text: q.question.substring(0, 40)});
 
   const gradeStartTime = Date.now();
 
+  const stillTimer = setTimeout(() => {
+    fb.innerHTML = '<span class="spinner-icon"></span>Still checking… (free tier can take 10–30s)';
+  }, 5000);
+
+  const timeoutTimer = setTimeout(() => {
+    window.__gradeRetry = retryFn;
+    fb.className = 'feedback-box feedback-incorrect';
+    fb.innerHTML = 'Taking longer than expected (30s+). It may still complete — or tap retry.' +
+      '<br><button class="btn retry-btn" onclick="__gradeRetry && __gradeRetry()">🔄 Retry</button>';
+    console.warn('GRADE_TIMEOUT: no response after 30s');
+  }, 30000);
+
   google.script.run
     .withSuccessHandler(res => {
+      clearTimeout(stillTimer); clearTimeout(timeoutTimer);
       const elapsed = ((Date.now() - gradeStartTime) / 1000).toFixed(1);
-      console.log('GRADE_RESPONSE:', {elapsed_sec: elapsed});
-      
-      const isCorrect = res.success && res.answer.toUpperCase().startsWith('CORRECT');
+      console.log('GRADE_RESPONSE:', {elapsed_sec: elapsed, success: res.success});
+
+      if (!res.success) {
+        window.__gradeRetry = retryFn;
+        fb.className = 'feedback-box feedback-incorrect';
+        fb.innerHTML = (res.answer || 'Could not grade. Try again.') +
+          '<br><button class="btn retry-btn" onclick="__gradeRetry && __gradeRetry()">🔄 Retry</button>';
+        return;
+      }
+
+      const isCorrect = res.answer.toUpperCase().startsWith('CORRECT');
       fb.className = 'feedback-box ' + (isCorrect ? 'feedback-correct' : 'feedback-incorrect');
       fb.textContent = res.answer;
-      document.getElementById('nextQBtn').style.display = 'block';
+      fb.title = 'Graded in ' + elapsed + 's';
+      nextBtn.style.display = 'block';
 
       if (synth) {
         synth.cancel();
         const utterance = new SpeechSynthesisUtterance(res.answer);
-        utterance.lang = langCodeFor(quizLang);
+        utterance.lang = langCodeFor(lang);
         const voices = synth.getVoices();
         const preferred = voices.find(v => v.lang === utterance.lang) || voices.find(v => v.lang.startsWith('en'));
         if (preferred) utterance.voice = preferred;
@@ -1550,10 +1593,22 @@ function submitAnswer() {
       }
     })
     .withFailureHandler(e => {
+      clearTimeout(stillTimer); clearTimeout(timeoutTimer);
       console.error('GRADE_ERROR:', e.message || e);
-      fb.textContent = 'Error: ' + e.message;
+      window.__gradeRetry = retryFn;
+      fb.className = 'feedback-box feedback-incorrect';
+      fb.innerHTML = 'Error: ' + (e.message || 'Network error') +
+        '<br><button class="btn retry-btn" onclick="__gradeRetry && __gradeRetry()">🔄 Retry</button>';
     })
-    .checkOralAnswer(q.question, q.answer, studentAnswer, quizLang);
+    .checkOralAnswer(q.question, q.answer, studentAnswer, lang);
+}
+
+function submitAnswer() {
+  const studentAnswer = document.getElementById('quizAnswerText').value.trim();
+  if (!studentAnswer) { toast('Type or speak your answer first'); return; }
+  const q = quizQuestions[quizIndex];
+  gradeAndShow_(q, studentAnswer, quizLang,
+    document.getElementById('quizFeedback'), document.getElementById('nextQBtn'));
 }
 
 function nextQuestion() {
@@ -1643,31 +1698,8 @@ function submitTalkAnswer() {
   const studentAnswer = document.getElementById('talkAnswerText').value.trim();
   if (!studentAnswer) { toast('Type or speak your answer first'); return; }
   const q = talkQuestions[talkIndex];
-
-  const fb = document.getElementById('talkFeedback');
-  fb.style.display = 'block';
-  fb.className = 'feedback-box';
-  fb.textContent = 'Checking your answer…';
-
-  google.script.run
-    .withSuccessHandler(res => {
-      const isCorrect = res.success && res.answer.toUpperCase().startsWith('CORRECT');
-      fb.className = 'feedback-box ' + (isCorrect ? 'feedback-correct' : 'feedback-incorrect');
-      fb.textContent = res.answer;
-      document.getElementById('talkNextBtn').style.display = 'block';
-
-      if (synth) {
-        synth.cancel();
-        const utterance = new SpeechSynthesisUtterance(res.answer);
-        utterance.lang = langCodeFor(currentLang);
-        const voices = synth.getVoices();
-        const preferred = voices.find(v => v.lang === utterance.lang) || voices.find(v => v.lang.startsWith('en'));
-        if (preferred) utterance.voice = preferred;
-        synth.speak(utterance);
-      }
-    })
-    .withFailureHandler(e => { fb.textContent = 'Error: ' + e.message; })
-    .checkOralAnswer(q.question, q.answer, studentAnswer, currentLang);
+  gradeAndShow_(q, studentAnswer, currentLang,
+    document.getElementById('talkFeedback'), document.getElementById('talkNextBtn'));
 }
 
 function nextTalkQuestion() {
@@ -1849,8 +1881,13 @@ function startWebMCQ() {
 function renderWebMCQ() {
   const badge = document.getElementById('webMcqGroundBadge');
   if (badge) {
-    badge.textContent = webMcqData.grounded ? '📖 Based on this chapter\'s saved content' : '⚠️ General knowledge (chapter not yet generated — for tighter accuracy, generate it in More first)';
-    badge.style.color = webMcqData.grounded ? 'var(--green)' : 'var(--amber)';
+    const n = webMcqData.questions.length;
+    const groundTxt = webMcqData.grounded ? '📖 Based on this chapter\'s saved content' : '⚠️ General knowledge (chapter not yet generated — for tighter accuracy, generate it in More first)';
+    // Question-quality badge (Session 2): surfaces if the AI returned fewer
+    // than 5 well-formed questions, instead of silently showing a short quiz.
+    const qualityTxt = n >= 5 ? ' · ✅ 5/5 questions valid' : ' · ⚠️ ' + n + '/5 valid (some skipped, check console)';
+    badge.textContent = groundTxt + qualityTxt;
+    badge.style.color = webMcqData.grounded && n >= 5 ? 'var(--green)' : 'var(--amber)';
   }
   document.getElementById('webMcqList').innerHTML = webMcqData.questions.map((q, i) => `
     <div style="margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border)">
