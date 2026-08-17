@@ -1496,20 +1496,20 @@ function startQuizViaAI_(subject, chNum, title, book, startBtn) {
     .withSuccessHandler(res => {
       const elapsed = ((Date.now() - requestStartTime) / 1000).toFixed(1);
       console.log('QUIZ_RESPONSE:', {elapsed_sec: elapsed, success: res.success});
-      
+
       startBtn.disabled = false;
       startBtn.textContent = '▶ Start Quiz';
-      
+
       if (!res.success) {
         console.error('QUIZ_GENERATION_FAILED:', res);
         if (res.debug) console.error('  Backend debug:', res.debug);
         toast('Could not generate questions. Check console for details.');
         return;
       }
-      
+
       quizQuestions = parseGeneratedQuestions_(res.answer);
       console.log('QUIZ_PARSED:', quizQuestions.length + ' questions');
-      
+
       if (quizQuestions.length === 0) {
         console.error('QUIZ_PARSE_FAILED: No questions extracted');
         toast('No questions generated, try again');
