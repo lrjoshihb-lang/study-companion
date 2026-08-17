@@ -377,6 +377,16 @@ body {
       </select>
       <button class="btn btn-amber btn-full" id="startWebMcqBtn" onclick="startWebMCQ()">▶ Start MCQ Quiz</button>
       <p style="font-size:11px;color:var(--txt2);margin-top:10px">5 MCQs for the chapter you pick. Tick your answers and submit — graded instantly, scores saved automatically.</p>
+   <!-- Timed Mock Test Button & Timer -->
+<div style="margin-top: 15px; text-align: center;">
+  <button id="btnStartMockExam" onclick="launchMockExam()" style="background-color: #d9534f; color: white; padding: 12px 20px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; width: 100%;">
+    ⏱️ Start 10-Min Timed Mock Test
+  </button>
+</div>
+
+<div id="mockTimerDisplay" style="display: none; background: #fff3cd; color: #856404; padding: 10px; font-weight: bold; text-align: center; font-size: 1.1em; border-radius: 5px; margin-top: 10px;">
+  ⏱️ Time Left: 10:00
+</div>
     </div>
   </div>
 
@@ -2608,6 +2618,16 @@ function startMockExamTimer() {
 function stopMockExamTimer() {
   clearInterval(mockTimerInterval);
 }
+  <!-- Timed Mock Test Button & Timer -->
+<div style="margin-top: 15px; text-align: center;">
+  <button id="btnStartMockExam" onclick="launchMockExam()" style="background-color: #d9534f; color: white; padding: 12px 20px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; width: 100%;">
+    ⏱️ Start 10-Min Timed Mock Test
+  </button>
+</div>
+
+<div id="mockTimerDisplay" style="display: none; background: #fff3cd; color: #856404; padding: 10px; font-weight: bold; text-align: center; font-size: 1.1em; border-radius: 5px; margin-top: 10px;">
+  ⏱️ Time Left: 10:00
+</div>
 </script>
 </body>
 </html>
