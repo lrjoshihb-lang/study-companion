@@ -718,6 +718,15 @@ body {
   function sendDigestNow() { showToast("Digest email sent successfully!"); }
   function loadManualUnits() {}
   function saveManualSummary() { showToast("Manual summary saved."); }
+  document.addEventListener('DOMContentLoaded', () => {
+  // 1. Hide all initial loading spinners
+  const spinners = document.querySelectorAll('.spinner, [class*="spinner"], .loading');
+  spinners.forEach(spinner => spinner.style.display = 'none');
+
+  // 2. Set initial values for summary cards if empty
+  // Replace these element queries/logic with your preferred initial dashboard state
+  console.log('App initialized successfully.');
+});
 </script>
 </body>
 </html>
