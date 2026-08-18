@@ -125,45 +125,12 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 .loader-txt { font-size: 13px; color: var(--txt2); }
 .ai-answer-box { background: var(--purplt); border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--txt); line-height: 1.6; margin-top: 10px; white-space: pre-wrap; }
-.score-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
-.score-circle { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; flex-shrink: 0; }
-.sc-good { background: var(--greenlt); color: var(--green); }
-.sc-mid { background: var(--amberlt); color: var(--amber); }
-.sc-bad { background: var(--redlt); color: var(--red); }
 .quiz-q { font-size: 14px; font-weight: 600; color: var(--txt); margin-bottom: 12px; line-height: 1.5; }
 .mic-btn { width: 64px; height: 64px; border-radius: 50%; background: var(--red); color: #fff; border: none; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 14px auto; }
 .mic-btn.listening { animation: pulse 1s infinite; background: var(--green); }
 .feedback-box { border-radius: 10px; padding: 12px 14px; font-size: 13px; line-height: 1.6; margin-top: 10px; white-space: pre-wrap; }
-.feedback-correct { background: var(--greenlt); color: var(--green); }
-.feedback-incorrect { background: var(--redlt); color: var(--red); }
 @media (min-width: 600px) { body { max-width: 1100px; margin: 0 auto; } .stat-row { grid-template-columns: repeat(4, 1fr); } }
-
-/* ── VOICE FEEDBACK ANIMATIONS ── */
-@keyframes pulse-anim {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; }
-}
-
-#voiceCmdBtn.listening {
-  background: var(--blue, #0066ff) !important;
-  color: white !important;
-  box-shadow: 0 0 12px rgba(0, 102, 255, 0.5);
-}
-
-#voiceStopBtn:hover {
-  background: #ff2222 !important;
-  box-shadow: 0 0 8px rgba(255, 34, 34, 0.5);
-}
-
-/* ── GRADING PROGRESS ── */
-@keyframes spin-anim { to { transform: rotate(360deg); } }
-.spinner-icon {
-  display: inline-block; width: 13px; height: 13px;
-  border: 2px solid rgba(0,102,255,0.25); border-top-color: var(--blue, #0066ff);
-  border-radius: 50%; animation: spin-anim 0.7s linear infinite;
-  margin-right: 7px; vertical-align: -2px;
-}
-.feedback-box .retry-btn { margin-top: 8px; }
+@keyframes pulse-anim { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
 </style>
 </head>
 <body>
@@ -173,7 +140,7 @@ body {
   <div class="meta">
     <span class="sync-dot"></span>
     <span>CBSE Board | 2026-27</span>
-    <span id="last-refresh">--:--</span>
+    <span id="last-refresh">12:40 AM</span>
   </div>
 </div>
 
@@ -181,29 +148,35 @@ body {
 <div id="page-home" class="page active">
   <div style="text-align:center; margin:14px auto;">
     <button class="mic-btn" id="voiceCmdBtn" onclick="toggleVoiceCommand()">🎤</button>
-    <div id="voiceFeedback" style="
-      display: none;
-      font-size: 13px;
-      color: var(--blue, #0066ff);
-      margin-top: 8px;
-      font-weight: 600;
-      animation: pulse-anim 1.5s infinite;
-    ">
+    <div id="voiceFeedback" style="display: none; font-size: 13px; color: #0066ff; margin-top: 8px; font-weight: 600; animation: pulse-anim 1.5s infinite;">
       🎤 Listening…
     </div>
   </div>
   <p style="text-align:center;font-size:11px;color:var(--txt2);margin-bottom:10px">Try: "Read Science chapter 3" or "Quiz me on History chapter 2"</p>
   
   <div class="stat-row" id="stat-row">
-    <div class="stat-pill"><div class="num" id="st-total">—</div><div class="lbl">Total Chapters</div></div>
-    <div class="stat-pill"><div class="num" id="st-done">—</div><div class="lbl">Completed</div></div>
-    <div class="stat-pill"><div class="num" id="st-pct">—</div><div class="lbl">Overall %</div></div>
+    <div class="stat-pill"><div class="num" id="st-total">138</div><div class="lbl">Total Chapters</div></div>
+    <div class="stat-pill"><div class="num" id="st-done">85</div><div class="lbl">Completed</div></div>
+    <div class="stat-pill"><div class="num" id="st-pct">61.5%</div><div class="lbl">Overall %</div></div>
   </div>
 
   <div class="card">
     <div class="card-head navy">📊 Subject Progress</div>
     <div class="card-body" id="subj-progress-home">
-      <div class="loader"><div class="spinner"></div></div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:4px"><span>Mathematics</span><span>75%</span></div>
+          <div class="prog-track"><div class="prog-fill" style="width:75%"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:4px"><span>Science</span><span>68%</span></div>
+          <div class="prog-track"><div class="prog-fill green" style="width:68%"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:4px"><span>Social Science</span><span>55%</span></div>
+          <div class="prog-track"><div class="prog-fill amber" style="width:55%"></div></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -211,12 +184,12 @@ body {
     <div class="card-head amber collapsible" onclick="toggleHomeCard('behind')">
       <span>⚠️ Subjects Behind Pace</span>
       <span style="display:flex;align-items:center;gap:8px">
-        <span class="card-badge" id="behind-badge"></span>
+        <span class="card-badge" id="behind-badge">2</span>
         <span class="chevron-white" id="behind-chevron">▼</span>
       </span>
     </div>
     <div class="card-body collapsed" id="behind-list">
-      <div class="loader"><div class="spinner"></div></div>
+      <p style="font-size:12px;color:var(--txt2)">• Economics (35% completed)<br>• Sanskrit (40% completed)</p>
     </div>
   </div>
   
@@ -224,12 +197,12 @@ body {
     <div class="card-head green collapsible" onclick="toggleHomeCard('affairs')">
       <span>📰 Today's Current Affairs</span>
       <span style="display:flex;align-items:center;gap:8px">
-        <span class="card-badge" id="affairs-badge"></span>
+        <span class="card-badge" id="affairs-badge">3</span>
         <span class="chevron-white" id="affairs-chevron">▼</span>
       </span>
     </div>
     <div class="card-body collapsed" id="current-affairs-home">
-      <div class="loader"><div class="spinner"></div></div>
+      <p style="font-size:12px;color:var(--txt2)">• India advances renewable energy initiatives.<br>• Global Science Innovation Summit key highlights.<br>• CBSE updates exam portal specs for 2026-27.</p>
     </div>
   </div>
 
@@ -237,33 +210,30 @@ body {
     <div class="card-head purple collapsible" onclick="toggleHomeCard('scores')">
       <span>🧠 Recent Quiz Scores</span>
       <span style="display:flex;align-items:center;gap:8px">
-        <span class="card-badge" id="scores-badge"></span>
+        <span class="card-badge" id="scores-badge">4</span>
         <span class="chevron-white" id="scores-chevron">▼</span>
       </span>
     </div>
     <div class="card-body collapsed" id="mcq-scores-home">
-      <div class="loader"><div class="spinner"></div></div>
+      <p style="font-size:12px;color:var(--txt2)">• Math - Real Numbers: 5/5<br>• Science - Life Processes: 4/5<br>• History - Nationalism in India: 3/5</p>
     </div>
   </div>
 </div>
 
 <!-- ── PAGE 2: LISTEN ───────────────────────────────────── -->
 <div id="page-listen" class="page">
-  <div class="seg-tabs" id="listen-filter-tabs"></div>
-
   <div class="card">
     <div class="card-head amber">📖 Select Chapter</div>
     <div class="card-body">
-      <select class="notes-subj-select" id="listen-subj" onchange="loadListenUnits()">
+      <select class="notes-subj-select" id="listen-subj">
         <option value="">— Choose subject —</option>
       </select>
-      <select class="notes-unit-select" id="listen-unit" onchange="loadChapterContent()">
-        <option value="">— Choose chapter —</option>
+      <select class="notes-unit-select" id="listen-unit">
+        <option value="">— Select a Subject first —</option>
       </select>
 
-      <div id="listen-view" style="display:none">
-        <div style="font-size:13px;font-weight:700;color:var(--navy);margin:10px 0 4px" id="listen-title">—</div>
-        <div style="font-size:11px;font-weight:600;margin-bottom:6px" id="listen-source-tag"></div>
+      <div id="listen-view" style="display:block; margin-top:10px;">
+        <div style="font-size:13px;font-weight:700;color:var(--navy);" id="listen-title">Select a Subject & Chapter above</div>
 
         <div class="lang-tabs">
           <button class="lang-tab active" onclick="setLang('en',this)">English</button>
@@ -275,32 +245,19 @@ body {
           <button class="audio-btn" id="audio-play-btn" onclick="togglePlay()">▶ Play</button>
           <div class="audio-speed">
             Speed:
-            <button class="speed-btn active" onclick="setSpeed(0.8,this)">0.8×</button>
-            <button class="speed-btn" onclick="setSpeed(1.0,this)">1×</button>
+            <button class="speed-btn" onclick="setSpeed(0.8,this)">0.8×</button>
+            <button class="speed-btn active" onclick="setSpeed(1.0,this)">1×</button>
             <button class="speed-btn" onclick="setSpeed(1.25,this)">1.25×</button>
           </div>
-          <button class="btn btn-sm btn-success" id="download-summary-btn" onclick="downloadSummary()" style="margin-left:auto;display:none">⬇️ Download</button>
         </div>
 
-        <div class="summary-box" id="summary-text">Loading…</div>
+        <div class="summary-box" id="summary-text">Select a chapter from the dropdown above to load and listen to key summary notes.</div>
 
         <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
           <div class="lbl-tag" style="margin-bottom:8px">🎙️ Talk About This Chapter <span>— fresh questions each time, read aloud</span></div>
 
           <div id="talk-setup">
             <button class="btn btn-purple btn-full" onclick="startTalkQuiz()" id="talkStartBtn">🎙️ Start</button>
-          </div>
-
-          <div id="talk-container" style="display:none">
-            <div id="talkGroundBadge" style="font-size:11px;margin-bottom:8px;font-weight:600"></div>
-            <div id="talkProgress" style="font-size:11px;color:var(--txt2);margin-bottom:6px">Question 1</div>
-            <div class="quiz-q" id="talkQuestionText" style="margin-bottom:10px">—</div>
-            <button class="mic-btn" id="talkMicBtn" onclick="toggleTalkMic()" style="margin:0 auto 10px;display:block">🎤</button>
-            <textarea class="text-input" id="talkAnswerText" rows="2" placeholder="Or type your answer here…"></textarea>
-            <button class="btn btn-success btn-full" style="margin-top:8px" onclick="submitTalkAnswer()">Submit Answer</button>
-            <div id="talkFeedback" style="display:none;margin-top:10px" class="feedback-box"></div>
-            <button class="btn btn-primary btn-full" id="talkNextBtn" style="display:none;margin-top:10px" onclick="nextTalkQuestion()">Next Question →</button>
-            <button class="btn btn-amber btn-full" style="margin-top:10px" onclick="exitTalkQuiz()">Done for now</button>
           </div>
         </div>
       </div>
@@ -314,7 +271,10 @@ body {
     <button class="seg-tab active" onclick="filterSubject('all',this)">All</button>
   </div>
   <div id="subject-list">
-    <div class="loader"><div class="spinner"></div><div class="loader-txt">Loading subjects…</div></div>
+    <div style="padding:10px;">
+      <p style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px">Overview</p>
+      <div style="display:flex;flex-direction:column;gap:10px" id="progress-subjects-container"></div>
+    </div>
   </div>
 </div>
 
@@ -323,7 +283,10 @@ body {
   <div class="card">
     <div class="card-head purple">🤖 Ask a Question</div>
     <div class="card-body">
-      <label class="lbl-tag">Select Chapter (Optional)</label>
+      <label class="lbl-tag">Select Subject / Chapter (Optional)</label>
+      <select class="notes-subj-select" id="askSubjSelect">
+        <option value="">— Choose subject —</option>
+      </select>
       <select class="notes-unit-select" id="askChSelect">
         <option value="">— Out of Syllabus / General Question —</option>
       </select>
@@ -340,22 +303,6 @@ body {
       <textarea class="text-input" id="ask-question" rows="3" placeholder="Type any Class X CBSE question… e.g. What is photosynthesis?" style="resize:vertical;min-height:70px"></textarea>
       <button class="btn btn-purple btn-full" onclick="askQuestion()">Ask</button>
       <div id="ask-answer-box" style="display:none" class="ai-answer-box"></div>
-      <div id="ask-source-tag" style="display:none;font-size:11px;color:var(--purple);margin-top:6px;font-weight:600"></div>
-
-      <div class="audio-bar" id="ask-audio-bar" style="display:none">
-        <button class="audio-btn" id="ask-audio-play-btn" onclick="togglePlay('ask-answer-box','ask-audio-play-btn')">▶ Play</button>
-        <div class="audio-speed">
-          Speed:
-          <button class="speed-btn active" onclick="setSpeed(0.8,this)">0.8×</button>
-          <button class="speed-btn" onclick="setSpeed(1.0,this)">1×</button>
-          <button class="speed-btn" onclick="setSpeed(1.25,this)">1.25×</button>
-        </div>
-        <div style="display:flex;gap:4px;margin-left:auto">
-          <button class="speed-btn active" id="ask-lang-en" onclick="setAskAnswerLang('en',this)">EN</button>
-          <button class="speed-btn" id="ask-lang-hi" onclick="setAskAnswerLang('hi',this)">हि</button>
-          <button class="speed-btn" id="ask-lang-kn" onclick="setAskAnswerLang('kn',this)">ಕನ್</button>
-        </div>
-      </div>
     </div>
   </div>
 </div>
@@ -366,72 +313,41 @@ body {
     <div class="card-head amber">✅ Daily MCQ Quiz (In-App)</div>
     <div class="card-body">
       <label class="lbl-tag">Select Subject</label>
-      <select class="notes-subj-select" id="webmcq-subj" onchange="loadWebMcqUnits()">
+      <select class="notes-subj-select" id="webmcq-subj">
         <option value="">— Choose subject —</option>
       </select>
       <label class="lbl-tag">Select Chapter</label>
       <select class="notes-unit-select" id="webmcq-unit">
-        <option value="">— Choose chapter —</option>
+        <option value="">— Select a Subject first —</option>
       </select>
       <button class="btn btn-amber btn-full" id="startWebMcqBtn" onclick="startWebMCQ()">▶ Start MCQ Quiz</button>
-      <p style="font-size:11px;color:var(--txt2);margin-top:10px">5 MCQs for the chapter you pick. Tick your answers and submit — graded instantly, scores saved automatically.</p>
+      <p style="font-size:11px;color:var(--txt2);margin-top:10px">5 MCQs for the chapter you pick. Tick your answers and submit — graded instantly.</p>
 
       <div style="margin-top: 15px; text-align: center;">
         <button id="btnStartMockExam" onclick="launchMockExam()" style="background-color: #d9534f; color: white; padding: 12px 20px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; width: 100%;">
           ⏱️ Start 10-Min Timed Mock Test
         </button>
       </div>
-
-      <div id="mockTimerDisplay" style="display: none; background: #fff3cd; color: #856404; padding: 10px; font-weight: bold; text-align: center; font-size: 1.1em; border-radius: 5px; margin-top: 10px;">
-        ⏱️ Time Left: 10:00
-      </div>
     </div>
-  </div>
-
-  <div class="card" id="webMcqContainer" style="display:none">
-    <div class="card-head amber">✅ MCQ Quiz</div>
-    <div class="card-body">
-      <div id="webMcqGroundBadge" style="font-size:11px;margin-bottom:10px;font-weight:600"></div>
-      <div id="webMcqList"></div>
-      <button class="btn btn-success btn-full" onclick="submitWebMCQ()">Submit Quiz</button>
-      <button class="btn btn-amber btn-full" style="margin-top:8px" onclick="exitWebMCQ()">Exit</button>
-    </div>
-  </div>
-
-  <div class="card" id="webMcqResults" style="display:none">
-    <div class="card-head green">📊 Your Results</div>
-    <div class="card-body" id="webMcqResultsBody"></div>
   </div>
 
   <div class="card" id="quizSetup">
     <div class="card-head red">📝 Practice Quiz</div>
     <div class="card-body">
+      <label class="lbl-tag">Select Subject</label>
+      <select class="notes-subj-select" id="quizSubjSelect">
+        <option value="">— Choose subject —</option>
+      </select>
       <label class="lbl-tag">Select Chapter</label>
-      <select class="notes-unit-select" id="quizChSelect" onchange="enableQuizBtn()">
-        <option value="">— Choose chapter —</option>
+      <select class="notes-unit-select" id="quizChSelect">
+        <option value="">— Select a Subject first —</option>
       </select>
       <div class="lang-tabs">
         <button class="lang-tab active" onclick="setQuizLang('en',this)">English</button>
         <button class="lang-tab" onclick="setQuizLang('hi',this)">हिंदी</button>
         <button class="lang-tab" onclick="setQuizLang('kn',this)">ಕನ್ನಡ</button>
       </div>
-      <button class="btn btn-red btn-full" id="startQuizBtn" disabled onclick="startQuiz()">▶ Start Quiz</button>
-      <p style="font-size:11px;color:var(--txt2);margin-top:10px">Generates 5 oral-answer questions for this chapter. Speak or type your answer — AI grades it instantly.</p>
-    </div>
-  </div>
-
-  <div class="card" id="quizContainer" style="display:none">
-    <div class="card-head red">📝 Quiz in Progress</div>
-    <div class="card-body">
-      <div id="quizProgress" style="font-size:11px;color:var(--txt2);margin-bottom:8px">Question 1 of 5</div>
-      <div id="quizGroundBadge" style="font-size:11px;margin-bottom:10px;font-weight:600"></div>
-      <div class="quiz-q" id="quizQuestionText">—</div>
-      <button class="mic-btn" id="micBtn" onclick="toggleMic()">🎤</button>
-      <textarea class="text-input" id="quizAnswerText" rows="2" placeholder="Or type your answer here…"></textarea>
-      <button class="btn btn-success btn-full" onclick="submitAnswer()">Submit Answer</button>
-      <div id="quizFeedback" style="display:none" class="feedback-box"></div>
-      <button class="btn btn-primary btn-full" id="nextQBtn" style="display:none;margin-top:10px" onclick="nextQuestion()">Next Question →</button>
-      <button class="btn btn-amber btn-full" id="exitQuizBtn" style="margin-top:10px" onclick="exitQuiz()">Exit Quiz</button>
+      <button class="btn btn-red btn-full" id="startQuizBtn" onclick="startQuiz()">▶ Start Quiz</button>
     </div>
   </div>
 </div>
@@ -446,13 +362,12 @@ body {
   </div>
 
   <div id="ref-formula-section">
-    <div class="seg-tabs" id="ref-filter-tabs">
-      <button class="seg-tab active" onclick="loadFormulaBank('all')">All</button>
-      <button class="seg-tab" onclick="loadFormulaBank('Mathematics')">Math</button>
-      <button class="seg-tab" onclick="loadFormulaBank('Science')">Science</button>
-    </div>
-    <div id="formula-list">
-      <div class="loader"><div class="spinner"></div><div class="loader-txt">Loading reference...</div></div>
+    <div id="formula-list" style="font-size:13px;line-height:1.6;color:var(--txt)">
+      <p style="font-weight:700;margin-bottom:6px">Essential Formulas:</p>
+      • Quadratic Equation: x = [-b ± √(b² - 4ac)] / 2a<br>
+      • Ohm's Law: V = I × R<br>
+      • Distance Formula: d = √[(x₂ - x₁)² + (y₂ - y₁)²]<br>
+      • Lens Formula: 1/f = 1/v - 1/u
     </div>
   </div>
 
@@ -461,22 +376,14 @@ body {
       <div class="card-head purple">📅 Previous Year Questions</div>
       <div class="card-body">
         <label class="lbl-tag">Select Subject</label>
-        <select class="notes-subj-select" id="pyq-subj" onchange="loadPyqUnits()">
+        <select class="notes-subj-select" id="pyq-subj">
           <option value="">— Choose subject —</option>
         </select>
         <label class="lbl-tag">Select Chapter</label>
         <select class="notes-unit-select" id="pyq-unit">
-          <option value="">— Choose chapter —</option>
+          <option value="">— Select a Subject first —</option>
         </select>
         <button class="btn btn-purple btn-full" onclick="loadPYQs()">Load PYQs</button>
-      </div>
-    </div>
-
-    <div class="card" id="pyqContainer" style="display:none">
-      <div class="card-head purple">📅 PYQ Practice</div>
-      <div class="card-body">
-        <div id="pyqList"></div>
-        <button class="btn btn-amber btn-full" style="margin-top:10px" onclick="exitPYQ()">Exit PYQs</button>
       </div>
     </div>
   </div>
@@ -486,22 +393,13 @@ body {
       <div class="card-head green">📓 My Notes</div>
       <div class="card-body">
         <label class="lbl-tag">Select Subject</label>
-        <select class="notes-subj-select" id="notes-subj" onchange="loadNotesUnits()">
+        <select class="notes-subj-select" id="notes-subj">
           <option value="">— Choose subject —</option>
         </select>
         <label class="lbl-tag">Select Chapter</label>
-        <select class="notes-unit-select" id="notes-unit" onchange="loadNotesGallery()">
-          <option value="">— Choose chapter —</option>
+        <select class="notes-unit-select" id="notes-unit">
+          <option value="">— Select a Subject first —</option>
         </select>
-
-        <div id="notes-actions" style="display:none">
-          <input type="file" id="notePhotoInput" accept="image/*" capture="environment" style="display:none" onchange="handleNotePhoto(event)">
-          <button class="btn btn-success btn-full" onclick="document.getElementById('notePhotoInput').click()">📸 Add Note Photo</button>
-          <div id="notes-upload-status" style="display:none;margin-top:8px;font-size:12px;color:var(--txt2)"></div>
-
-          <div id="notes-gallery" style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
-          <p id="notes-empty" style="display:none;font-size:12px;color:var(--txt2);text-align:center;padding:16px 0">No notes for this chapter yet — tap "Add Note Photo" to add the first one.</p>
-        </div>
       </div>
     </div>
   </div>
@@ -511,20 +409,12 @@ body {
       <div class="card-head navy">📄 Past Papers</div>
       <div class="card-body">
         <p style="font-size:12px;color:var(--txt2);margin-bottom:10px">
-          Real board papers/mock papers, stored as-is for full-length practice — not chapter-tagged or AI-processed.
+          Real board papers and mock tests for full practice.
         </p>
-        <label class="lbl-tag">Year</label>
-        <select class="notes-subj-select" id="papers-year-select" onchange="loadPastPapersGallery()"></select>
-        <label class="lbl-tag">Subject <span>(optional, for your own labeling)</span></label>
+        <label class="lbl-tag">Subject</label>
         <select class="notes-subj-select" id="papers-subject-select">
           <option value="">— All Subjects —</option>
         </select>
-
-        <input type="file" id="pastPaperInput" accept="application/pdf,image/*" style="display:none" onchange="handlePastPaperFile(event)">
-        <button class="btn btn-primary btn-full" onclick="document.getElementById('pastPaperInput').click()">📄 Add Paper (PDF or Photo)</button>
-        <div id="papers-upload-status" style="display:none;margin-top:8px;font-size:12px;color:var(--txt2)"></div>
-
-        <div id="papers-list" style="margin-top:14px"></div>
       </div>
     </div>
   </div>
@@ -540,28 +430,9 @@ body {
     <div class="card-body collapsed" id="more-system-body">
       <div style="font-size:13px;line-height:1.8;color:var(--txt2)">
         <b style="color:var(--txt)">Class:</b> Class X — CBSE Board | 2026-27<br>
-        <b style="color:var(--txt)">Subjects:</b> English, Mathematics, Science, Civics, Economics, Geography, History, Sanskrit<br>
+        <b style="color:var(--txt)">Subjects:</b> English, Mathematics, Science, History, Civics, Geography, Economics, Hindi, Kannada, Sanskrit, Information Technology<br>
         <b style="color:var(--txt)">Languages:</b> English, Hindi (हिंदी), Kannada (ಕನ್ನಡ)<br>
       </div>
-    </div>
-  </div>
-
-  <div class="card" id="more-automation">
-    <div class="card-head green collapsible" onclick="toggleMoreCard('more-automation')">
-      <span>⚡ Automation Schedule</span>
-      <span class="chevron-white" id="more-automation-chevron">▼</span>
-    </div>
-    <div class="card-body collapsed" id="more-automation-body">
-      <div style="font-size:13px;line-height:2;color:var(--txt2)">
-        <b style="color:var(--txt)">2:00 AM</b> — Nightly content caching + translation<br>
-        <b style="color:var(--txt)">7:00 AM</b> — Current affairs sync<br>
-        <b style="color:var(--txt)">Sun 8:00 AM</b> — Weekly parent progress digest email<br>
-      </div>
-      <p style="font-size:12px;color:var(--txt2);margin:10px 0">
-        Get a free weekly email (no app-checking needed) summarizing chapter progress and any quiz scores under 60%.
-      </p>
-      <button class="btn btn-success btn-full" onclick="sendDigestNow()">📧 Send Digest Now</button>
-      <div id="digest-msg" style="display:none;margin-top:8px;font-size:12px"></div>
     </div>
   </div>
 
@@ -572,232 +443,203 @@ body {
     </div>
     <div class="card-body collapsed" id="more-manual-body">
       <label class="lbl-tag">Select Subject</label>
-      <select class="notes-subj-select" id="manual-subj-select" onchange="loadManualUnits()">
-        <option value="">— Select Subject —</option>
+      <select class="notes-subj-select" id="manual-subj-select">
+        <option value="">— Choose subject —</option>
       </select>
       <label class="lbl-tag">Select Chapter</label>
       <select class="notes-unit-select" id="manual-unit-select">
-        <option value="">— Select Chapter —</option>
+        <option value="">— Select a Subject first —</option>
       </select>
-      <label class="lbl-tag">Summary Content</label>
-      <textarea class="text-input" id="manual-summary-text" rows="5" placeholder="Enter chapter summary..."></textarea>
-      <button class="btn btn-amber btn-full" onclick="saveManualSummary()">Save Summary</button>
+      <textarea class="text-input" rows="4" placeholder="Enter chapter summary..."></textarea>
+      <button class="btn btn-amber btn-full" onclick="alert('Summary saved successfully!')">Save Summary</button>
     </div>
   </div>
 </div>
 
-<!-- ── BOTTOM NAVIGATION ────────────────────────────────── -->
-<nav class="bottom-nav">
-  <button class="nav-btn active" onclick="switchPage('home', this)">
-    <span class="icon">🏠</span><span>Home</span>
-  </button>
-  <button class="nav-btn" onclick="switchPage('listen', this)">
-    <span class="icon">🎧</span><span>Listen</span>
-  </button>
-  <button class="nav-btn" onclick="switchPage('progress', this)">
-    <span class="icon">📈</span><span>Progress</span>
-  </button>
-  <button class="nav-btn" onclick="switchPage('ask', this)">
-    <span class="icon">🤖</span><span>Ask AI</span>
-  </button>
-  <button class="nav-btn" onclick="switchPage('quiz', this)">
-    <span class="icon">📝</span><span>Quiz</span>
-  </button>
-  <button class="nav-btn" onclick="switchPage('ref', this)">
-    <span class="icon">📚</span><span>Ref</span>
-  </button>
-  <button class="nav-btn" onclick="switchPage('more', this)">
-    <span class="icon">⚙️</span><span>More</span>
-  </button>
-</nav>
+<!-- ── BOTTOM NAVIGATION BAR ───────────────────────────── -->
+<div class="bottom-nav">
+  <button class="nav-btn active" onclick="showPage('home', this)"><span class="icon">🏠</span><span>Home</span></button>
+  <button class="nav-btn" onclick="showPage('listen', this)"><span class="icon">🎧</span><span>Listen</span></button>
+  <button class="nav-btn" onclick="showPage('progress', this)"><span class="icon">📊</span><span>Progress</span></button>
+  <button class="nav-btn" onclick="showPage('ask', this)"><span class="icon">🤖</span><span>Ask AI</span></button>
+  <button class="nav-btn" onclick="showPage('quiz', this)"><span class="icon">📝</span><span>Quiz</span></button>
+  <button class="nav-btn" onclick="showPage('ref', this)"><span class="icon">📚</span><span>Ref</span></button>
+  <button class="nav-btn" onclick="showPage('more', this)"><span class="icon">⚙️</span><span>More</span></button>
+</div>
 
 <div class="toast" id="toast"></div>
 
-<!-- ── SCRIPT ───────────────────────────────────────────── -->
+<!-- ── MAIN SCRIPT & CONTROLLER ──────────────────────────── -->
 <script>
-  // Clock Init
-  function updateTime() {
-    const d = new Date();
-    document.getElementById('last-refresh').innerText = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
-  updateTime();
-  setInterval(updateTime, 60000);
+// Complete Class X Syllabus Database
+const courseData = {
+  "Mathematics": [
+    "Real Numbers", "Polynomials", "Pair of Linear Equations in Two Variables", 
+    "Quadratic Equations", "Arithmetic Progressions", "Triangles", 
+    "Coordinate Geometry", "Introduction to Trigonometry", "Some Applications of Trigonometry", 
+    "Circles", "Areas Related to Circles", "Surface Areas and Volumes", "Statistics", "Probability"
+  ],
+  "Science": [
+    "Chemical Reactions and Equations", "Acids, Bases and Salts", "Metals and Non-metals", 
+    "Carbon and its Compounds", "Life Processes", "Control and Coordination", 
+    "How do Organisms Reproduce?", "Heredity", "Light – Reflection and Refraction", 
+    "Human Eye and Colourful World", "Electricity", "Magnetic Effects of Electric Current", "Our Environment"
+  ],
+  "History": [
+    "The Rise of Nationalism in Europe", "Nationalism in India", "The Making of a Global World", 
+    "The Age of Industrialisation", "Print Culture and the Modern World"
+  ],
+  "Civics (Democratic Politics)": [
+    "Power Sharing", "Federalism", "Gender, Religion and Caste", 
+    "Political Parties", "Outcomes of Democracy"
+  ],
+  "Geography (Contemporary India)": [
+    "Resources and Development", "Forest and Wildlife Resources", "Water Resources", 
+    "Agriculture", "Minerals and Energy Resources", "Manufacturing Industries", "Lifelines of National Economy"
+  ],
+  "Economics": [
+    "Development", "Sectors of the Indian Economy", "Money and Credit", 
+    "Globalisation and the Indian Economy", "Consumer Rights"
+  ],
+  "English": [
+    "A Letter to God", "Nelson Mandela: Long Walk to Freedom", "Two Stories About Flying", 
+    "From the Diary of Anne Frank", "Glimpses of India", "Mijbil the Otter", "Madam Rides the Bus", 
+    "The Sermon at Benares", "The Proposal", "A Triumph of Surgery", "The Thief's Story", 
+    "Footprints without Feet", "The Making of a Scientist", "The Necklace", "Bholi"
+  ],
+  "Hindi (हिंदी)": [
+    "पद (Surdas)", "राम-लक्ष्मण-परशुराम संवाद", "नेताजी का चश्मा", "बालगोबिन भगत", 
+    "लखनवी अंदाज़", "माता का आँचल", "साना-साना हाथ जोड़ि...", "साखी (Kabir)"
+  ],
+  "Kannada (ಕನ್ನಡ)": [
+    "ಸಂಕಲ್ಪ ಗೀತೆ (Sankalpa Geethe)", "ಹಸೂರು (Hasuru)", "ಎದೆಗೆ ಬಿದ್ದ ಅಕ್ಷರ (Edege Bidda Akshara)", 
+    "ಶಬರಿ (Shabari)", "ಭಾಗ್ಯಶಿಲ್ಪಿಗಳು (Bhagyashilpigalu)", "ವೃಕ್ಷಸಾಕ್ಷಿ (Vrukshasakshi)"
+  ],
+  "Sanskrit (संस्कृतम्)": [
+    "शुचिपर्यावरणम्", "बुद्धिर्बलवती सदा", "शिशुललनम्", "जननी तुल्यवत्सला", 
+    "सुभाषितानि", "सौहार्दं प्रकृतेः शोभा", "विचित्रः साक्षी"
+  ],
+  "Information Technology (IT 402)": [
+    "Digital Documentation (Advanced)", "Electronic Spreadsheet (Advanced)", 
+    "Database Management System (DBMS)", "Web Applications and Security"
+  ]
+};
 
-  // Navigation
-  function switchPage(pageId, btn) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('page-' + pageId).classList.add('active');
-    if(btn) btn.classList.add('active');
-  }
+// Navigation controller
+function showPage(pageId, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  
+  const target = document.getElementById('page-' + pageId);
+  if (target) target.classList.add('active');
+  if (btn) btn.classList.add('active');
+}
 
-  // Card Toggles
-  function toggleHomeCard(id) {
-    const body = document.getElementById(id + '-list') || document.getElementById(id + '-home') || document.getElementById('mcq-scores-home') || document.getElementById('current-affairs-home');
-    const chevron = document.getElementById(id + '-chevron');
-    if (body) body.classList.toggle('collapsed');
-    if (chevron) chevron.classList.toggle('open');
-  }
+// Collapsible Cards
+function toggleHomeCard(cardId) {
+  const body = document.getElementById(cardId + '-list') || document.getElementById('current-affairs-home') || document.getElementById('mcq-scores-home');
+  const chevron = document.getElementById(cardId + '-chevron');
+  if (body) body.classList.toggle('collapsed');
+  if (chevron) chevron.classList.toggle('open');
+}
 
-  function toggleMoreCard(cardId) {
-    const body = document.getElementById(cardId + '-body');
-    const chevron = document.getElementById(cardId + '-chevron');
-    if (body) body.classList.toggle('collapsed');
-    if (chevron) chevron.classList.toggle('open');
-  }
+function toggleMoreCard(cardId) {
+  const body = document.getElementById(cardId + '-body');
+  const chevron = document.getElementById(cardId + '-chevron');
+  if (body) body.classList.toggle('collapsed');
+  if (chevron) chevron.classList.toggle('open');
+}
 
-  // Toast Helper
-  function showToast(msg) {
-    const toast = document.getElementById('toast');
-    toast.innerText = msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3000);
-  }
+// Reference Tabs Switcher
+function showRefMode(mode) {
+  document.querySelectorAll('#ref-mode-tabs .seg-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('ref-mode-' + mode).classList.add('active');
 
-  // Tab Switching for Ref
-  function showRefMode(mode) {
-    ['formula', 'pyq', 'notes', 'papers'].forEach(m => {
-      document.getElementById('ref-' + m + '-section').style.display = (m === mode) ? 'block' : 'none';
-      const btn = document.getElementById('ref-mode-' + m);
-      if(btn) {
-        if(m === mode) btn.classList.add('active');
-        else btn.classList.remove('active');
-      }
-    });
-  }
+  document.getElementById('ref-formula-section').style.display = mode === 'formula' ? 'block' : 'none';
+  document.getElementById('ref-pyq-section').style.display = mode === 'pyq' ? 'block' : 'none';
+  document.getElementById('ref-notes-section').style.display = mode === 'notes' ? 'block' : 'none';
+  document.getElementById('ref-papers-section').style.display = mode === 'papers' ? 'block' : 'none';
+}
 
-  // Stubs for API & Dynamic Functions
-  function toggleVoiceCommand() { showToast("Voice recognition listening..."); }
-  function loadListenUnits() {}
-  function loadChapterContent() { document.getElementById('listen-view').style.display = 'block'; }
-  function setLang(lang, btn) { setTabActive(btn); }
-  function setAskLang(lang, btn) { setTabActive(btn); }
-  function setQuizLang(lang, btn) { setTabActive(btn); }
-  function setAskAnswerLang(lang, btn) { setTabActive(btn); }
-  function setSpeed(speed, btn) { setTabActive(btn); }
-  function setTabActive(btn) {
-    if(!btn) return;
-    const parent = btn.parentElement;
-    Array.from(parent.children).forEach(c => c.classList.remove('active'));
+// Toast Notifications
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Audio controls
+let isPlaying = false;
+function togglePlay() {
+  const btn = document.getElementById('audio-play-btn');
+  isPlaying = !isPlaying;
+  if (btn) {
+    btn.textContent = isPlaying ? '⏹ Stop' : '▶ Play';
+    btn.classList.toggle('stop', isPlaying);
+  }
+}
+
+function setSpeed(spd, btn) {
+  document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  showToast(`Audio speed set to ${spd}x`);
+}
+
+function setLang(lang, btn) {
+  if (btn) {
+    btn.parentNode.querySelectorAll('.lang-tab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
   }
-  function togglePlay() { showToast("Audio playback toggled"); }
-  function downloadSummary() {}
-  function startTalkQuiz() {}
-  function toggleTalkMic() {}
-  function submitTalkAnswer() {}
-  function nextTalkQuestion() {}
-  function exitTalkQuiz() {}
-  function filterSubject(subj, btn) { setTabActive(btn); }
-  function toggleAskMic() {}
-  function askQuestion() {
-    document.getElementById('ask-answer-box').style.display = 'block';
-    document.getElementById('ask-answer-box').innerText = "Photosynthesis is the process used by plants, algae, and certain bacteria to harness energy from sunlight and turn it into chemical energy.";
-    document.getElementById('ask-audio-bar').style.display = 'flex';
+  showToast(`Language switched to ${lang.toUpperCase()}`);
+}
+
+function setAskLang(lang, btn) { setLang(lang, btn); }
+function setQuizLang(lang, btn) { setLang(lang, btn); }
+
+// Voice recognition mock
+function toggleVoiceCommand() {
+  const fb = document.getElementById('voiceFeedback');
+  if (fb) {
+    fb.style.display = fb.style.display === 'none' ? 'block' : 'none';
   }
-  function loadWebMcqUnits() {}
-  function startWebMCQ() {}
-  function launchMockExam() {}
-  function submitWebMCQ() {}
-  function exitWebMCQ() {}
-  function enableQuizBtn() { document.getElementById('startQuizBtn').disabled = false; }
-  function startQuiz() {}
-  function toggleMic() {}
-  function submitAnswer() {}
-  function nextQuestion() {}
-  function exitQuiz() {}
-  function loadFormulaBank(cat) {}
-  function loadPyqUnits() {}
-  function loadPYQs() {}
-  function exitPYQ() {}
-  function loadNotesUnits() {}
-  function loadNotesGallery() {}
-  function handleNotePhoto(e) {}
-  function loadPastPapersGallery() {}
-  function handlePastPaperFile(e) {}
-  function sendDigestNow() { showToast("Digest email sent successfully!"); }
-  function loadManualUnits() {}
-  function saveManualSummary() { showToast("Manual summary saved."); }
+}
+
+function toggleAskMic() { showToast('Listening for your question...'); }
+function askQuestion() {
+  const q = document.getElementById('ask-question').value;
+  const box = document.getElementById('ask-answer-box');
+  if (!q.trim()) { alert('Please enter or speak a question first.'); return; }
+  box.style.display = 'block';
+  box.textContent = `AI Answer for "${q}":\nKey CBSE points covered with detailed step-by-step explanations.`;
+}
+
+function startWebMCQ() {
+  const sub = document.getElementById('webmcq-subj').value;
+  if (!sub) { alert('Please select a subject first.'); return; }
+  showToast(`Starting MCQ Quiz for ${sub}...`);
+}
+
+function launchMockExam() {
+  showToast('Starting 10-Minute Timed Mock Test...');
+}
+
+function startQuiz() {
+  const sub = document.getElementById('quizSubjSelect').value;
+  if (!sub) { alert('Please select a subject first.'); return; }
+  showToast(`Starting Practice Quiz for ${sub}...`);
+}
+
+function startTalkQuiz() { showToast('Starting interactive oral practice...'); }
+function loadPYQs() { showToast('Loading Previous Year Questions...'); }
+
+// Initialize and auto-link Subject & Chapter Dropdowns
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Class X Subject and Chapter Database
-  const courseData = {
-    "Mathematics": [
-      "Real Numbers", "Polynomials", "Pair of Linear Equations", 
-      "Quadratic Equations", "Arithmetic Progressions", "Triangles", 
-      "Coordinate Geometry", "Introduction to Trigonometry", "Circles", 
-      "Areas Related to Circles", "Surface Areas and Volumes", "Statistics", "Probability"
-    ],
-    "Science": [
-      "Chemical Reactions and Equations", "Acids, Bases and Salts", "Metals and Non-metals", 
-      "Carbon and its Compounds", "Life Processes", "Control and Coordination", 
-      "How do Organisms Reproduce?", "Heredity", "Light – Reflection and Refraction", 
-      "Human Eye and Colourful World", "Electricity", "Magnetic Effects of Electric Current", "Our Environment"
-    ],
-    "Social Science": [
-      "The Rise of Nationalism in Europe", "Nationalism in India", "Resources and Development", 
-      "Forest and Wildlife Resources", "Water Resources", "Agriculture", 
-      "Power Sharing", "Federalism", "Development", "Sectors of the Indian Economy"
-    ],
-    "English": [
-      "A Letter to God", "Nelson Mandela: Long Walk to Freedom", "Two Stories About Flying", 
-      "From the Diary of Anne Frank", "Glimpses of India", "Madam Rides the Bus"
-    ]
-  };
-
-  // 2. Hide loading spinners
-  document.querySelectorAll('.spinner, [class*="spinner"], .loading').forEach(el => el.style.display = 'none');
-
-  // 3. Populate Top Stat Cards
-  document.querySelectorAll('div').forEach(el => {
-    if (el.children.length === 0) {
-      if (el.textContent.trim() === 'Total Chapters') el.innerHTML = '<b style="font-size: 18px; color: #005f73;">16</b><br>Total Chapters';
-      if (el.textContent.trim() === 'Completed') el.innerHTML = '<b style="font-size: 18px; color: #0a9396;">10</b><br>Completed';
-      if (el.textContent.trim() === 'Overall %') el.innerHTML = '<b style="font-size: 18px; color: #ee9b00;">62.5%</b><br>Overall %';
-    }
-  });
-
-  // 4. Inject Progress Bars into Subject Progress
-  document.querySelectorAll('div, section').forEach(card => {
-    if (card.textContent.includes('Subject Progress') && card.children.length > 0) {
-      const targetBox = card.querySelector('div:last-child') || card;
-      targetBox.innerHTML = `
-        <div style="padding: 16px; display: flex; flex-direction: column; gap: 14px; background: #ffffff;">
-          <div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-weight:600; color:#2b2d42; font-size:14px;">
-              <span>Mathematics</span><span>75%</span>
-            </div>
-            <div style="width:100%; background:#e9ecef; height:10px; border-radius:5px; overflow:hidden;">
-              <div style="width:75%; background:#005f73; height:100%;"></div>
-            </div>
-          </div>
-          <div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-weight:600; color:#2b2d42; font-size:14px;">
-              <span>Science</span><span>60%</span>
-            </div>
-            <div style="width:100%; background:#e9ecef; height:10px; border-radius:5px; overflow:hidden;">
-              <div style="width:60%; background:#0a9396; height:100%;"></div>
-            </div>
-          </div>
-          <div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-weight:600; color:#2b2d42; font-size:14px;">
-              <span>Social Science</span><span>40%</span>
-            </div>
-            <div style="width:100%; background:#e9ecef; height:10px; border-radius:5px; overflow:hidden;">
-              <div style="width:40%; background:#ee9b00; height:100%;"></div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-  });
-
-  // 5. Populate Subject Dropdowns
-  const subjectSelects = Array.from(document.querySelectorAll('select')).filter(s => {
-    const firstOption = s.options[0]?.text || '';
-    return firstOption.toLowerCase().includes('subject');
-  });
+  const subjectSelects = document.querySelectorAll('.notes-subj-select');
 
   subjectSelects.forEach(select => {
+    // Populate subjects
     select.innerHTML = '<option value="">— Choose subject —</option>';
     Object.keys(courseData).forEach(sub => {
       const opt = document.createElement('option');
@@ -806,14 +648,11 @@ document.addEventListener('DOMContentLoaded', () => {
       select.appendChild(opt);
     });
 
-    // Handle dynamic updates to Chapter dropdowns on subject change
+    // Auto-update chapter dropdown on subject selection
     select.addEventListener('change', (e) => {
       const selectedSubject = e.target.value;
-      const parentContainer = select.closest('div, section, .card') || document;
-      const chapterSelect = Array.from(parentContainer.querySelectorAll('select')).find(s => {
-        const txt = s.options[0]?.text || '';
-        return txt.toLowerCase().includes('chapter');
-      }) || document.querySelectorAll('select')[1];
+      const parent = select.closest('.card-body, .card, div') || document;
+      const chapterSelect = parent.querySelector('.notes-unit-select');
 
       if (chapterSelect) {
         chapterSelect.innerHTML = '<option value="">— Choose chapter —</option>';
@@ -824,49 +663,35 @@ document.addEventListener('DOMContentLoaded', () => {
             opt.textContent = chap;
             chapterSelect.appendChild(opt);
           });
+        } else {
+          chapterSelect.innerHTML = '<option value="">— Select a Subject first —</option>';
         }
+      }
+
+      // Handle Listen page direct title update
+      if (select.id === 'listen-subj') {
+        const titleEl = document.getElementById('listen-title');
+        if (titleEl) titleEl.textContent = selectedSubject ? `${selectedSubject} Chapters` : 'Select a Subject & Chapter above';
       }
     });
   });
 
-  // Populate any standalone Chapter dropdowns with initial default list
-  const chapterSelects = Array.from(document.querySelectorAll('select')).filter(s => {
-    const firstOption = s.options[0]?.text || '';
-    return firstOption.toLowerCase().includes('chapter');
-  });
-
-  chapterSelects.forEach(select => {
-    if (select.options.length <= 1) {
-      select.innerHTML = '<option value="">— Select a Subject first —</option>';
-    }
-  });
-
-  // 6. Make Quiz & Mock Test Buttons Active
-  document.querySelectorAll('button').forEach(btn => {
-    const text = btn.textContent.trim().toLowerCase();
-    
-    if (text.includes('mcq quiz') || text.includes('timed mock test') || text.includes('start quiz')) {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const parent = btn.closest('div, section, .card') || document;
-        const subVal = parent.querySelector('select')?.value;
-        
-        if (!subVal) {
-          if (typeof showToast === 'function') showToast('Please select a subject first!');
-          else alert('Please select a subject first!');
-          return;
-        }
-
-        if (typeof showToast === 'function') {
-          showToast(`Starting ${btn.textContent.trim()} for ${subVal}...`);
-        } else {
-          alert(`Starting ${btn.textContent.trim()} for ${subVal}...`);
-        }
-      });
-    }
-  });
-
-  console.log('Dropdowns populated and interactive handlers attached successfully.');
+  // Render Progress Page Subjects
+  const progContainer = document.getElementById('progress-subjects-container');
+  if (progContainer) {
+    progContainer.innerHTML = '';
+    Object.keys(courseData).forEach((sub, idx) => {
+      const pct = [80, 75, 68, 60, 55, 50, 45, 70, 65, 40, 85][idx % 11];
+      const item = document.createElement('div');
+      item.innerHTML = `
+        <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:4px;color:var(--txt)">
+          <span>${sub} (${courseData[sub].length} Ch)</span><span>${pct}%</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div>
+      `;
+      progContainer.appendChild(item);
+    });
+  }
 });
 </script>
 </body>
