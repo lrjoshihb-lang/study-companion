@@ -125,12 +125,46 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 .loader-txt { font-size: 13px; color: var(--txt2); }
 .ai-answer-box { background: var(--purplt); border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--txt); line-height: 1.6; margin-top: 10px; white-space: pre-wrap; }
+.score-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.score-circle { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; flex-shrink: 0; }
+.sc-good { background: var(--greenlt); color: var(--green); }
+.sc-mid { background: var(--amberlt); color: var(--amber); }
+.sc-bad { background: var(--redlt); color: var(--red); }
 .quiz-q { font-size: 14px; font-weight: 600; color: var(--txt); margin-bottom: 12px; line-height: 1.5; }
 .mic-btn { width: 64px; height: 64px; border-radius: 50%; background: var(--red); color: #fff; border: none; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 14px auto; }
 .mic-btn.listening { animation: pulse 1s infinite; background: var(--green); }
 .feedback-box { border-radius: 10px; padding: 12px 14px; font-size: 13px; line-height: 1.6; margin-top: 10px; white-space: pre-wrap; }
-@media (min-width: 600px) { body { max-width: 1100px; margin: 0 auto; } .stat-row { grid-template-columns: repeat(4, 1fr); } }
-@keyframes pulse-anim { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+.feedback-correct { background: var(--greenlt); color: var(--green); }
+.feedback-incorrect { background: var(--redlt); color: var(--red); }
+#more-system, #more-automation, #more-setup { display: none !important; }
+@media (min-width: 600px) { body { max-width: 640px; margin: 0 auto; } .stat-row { grid-template-columns: repeat(4, 1fr); } }
+
+/* ── VOICE FEEDBACK ANIMATIONS ── */
+@keyframes pulse-anim {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+#voiceCmdBtn.listening {
+  background: var(--blue, #0066ff) !important;
+  color: white !important;
+  box-shadow: 0 0 12px rgba(0, 102, 255, 0.5);
+}
+
+#voiceStopBtn:hover {
+  background: #ff2222 !important;
+  box-shadow: 0 0 8px rgba(255, 34, 34, 0.5);
+}
+
+/* ── GRADING PROGRESS (Session 2 fix) ── */
+@keyframes spin-anim { to { transform: rotate(360deg); } }
+.spinner-icon {
+  display: inline-block; width: 13px; height: 13px;
+  border: 2px solid rgba(0,102,255,0.25); border-top-color: var(--blue, #0066ff);
+  border-radius: 50%; animation: spin-anim 0.7s linear infinite;
+  margin-right: 7px; vertical-align: -2px;
+}
+.feedback-box .retry-btn { margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -140,7 +174,7 @@ body {
   <div class="meta">
     <span class="sync-dot"></span>
     <span>CBSE Board | 2026-27</span>
-    <span id="last-refresh">12:40 AM</span>
+    <span id="last-refresh">--:--</span>
   </div>
 </div>
 
@@ -148,35 +182,28 @@ body {
 <div id="page-home" class="page active">
   <div style="text-align:center; margin:14px auto;">
     <button class="mic-btn" id="voiceCmdBtn" onclick="toggleVoiceCommand()">🎤</button>
-    <div id="voiceFeedback" style="display: none; font-size: 13px; color: #0066ff; margin-top: 8px; font-weight: 600; animation: pulse-anim 1.5s infinite;">
+    <div id="voiceFeedback" style="
+      display: none;
+      font-size: 13px;
+      color: var(--blue, #0066ff);
+      margin-top: 8px;
+      font-weight: 600;
+      animation: pulse-anim 1.5s infinite;
+    ">
       🎤 Listening…
     </div>
   </div>
-  <p style="text-align:center;font-size:11px;color:var(--txt2);margin-bottom:10px">Try: "Read Science chapter 3" or "Quiz me on History chapter 2"</p>
-  
+     <p style="text-align:center;font-size:11px;color:var(--txt2);margin-bottom:10px">Try: "Read Science chapter 3" or "Quiz me on History chapter 2"</p>
   <div class="stat-row" id="stat-row">
-    <div class="stat-pill"><div class="num" id="st-total">138</div><div class="lbl">Total Chapters</div></div>
-    <div class="stat-pill"><div class="num" id="st-done">85</div><div class="lbl">Completed</div></div>
-    <div class="stat-pill"><div class="num" id="st-pct">61.5%</div><div class="lbl">Overall %</div></div>
+    <div class="stat-pill"><div class="num" id="st-total">—</div><div class="lbl">Total Chapters</div></div>
+    <div class="stat-pill"><div class="num" id="st-done">—</div><div class="lbl">Completed</div></div>
+    <div class="stat-pill"><div class="num" id="st-pct">—</div><div class="lbl">Overall %</div></div>
   </div>
 
   <div class="card">
     <div class="card-head navy">📊 Subject Progress</div>
     <div class="card-body" id="subj-progress-home">
-      <div style="display:flex;flex-direction:column;gap:12px;">
-        <div>
-          <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:4px"><span>Mathematics</span><span>75%</span></div>
-          <div class="prog-track"><div class="prog-fill" style="width:75%"></div></div>
-        </div>
-        <div>
-          <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:4px"><span>Science</span><span>68%</span></div>
-          <div class="prog-track"><div class="prog-fill green" style="width:68%"></div></div>
-        </div>
-        <div>
-          <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:4px"><span>Social Science</span><span>55%</span></div>
-          <div class="prog-track"><div class="prog-fill amber" style="width:55%"></div></div>
-        </div>
-      </div>
+      <div class="loader"><div class="spinner"></div></div>
     </div>
   </div>
 
@@ -184,12 +211,12 @@ body {
     <div class="card-head amber collapsible" onclick="toggleHomeCard('behind')">
       <span>⚠️ Subjects Behind Pace</span>
       <span style="display:flex;align-items:center;gap:8px">
-        <span class="card-badge" id="behind-badge">2</span>
+        <span class="card-badge" id="behind-badge"></span>
         <span class="chevron-white" id="behind-chevron">▼</span>
       </span>
     </div>
     <div class="card-body collapsed" id="behind-list">
-      <p style="font-size:12px;color:var(--txt2)">• Economics (35% completed)<br>• Sanskrit (40% completed)</p>
+      <div class="loader"><div class="spinner"></div></div>
     </div>
   </div>
   
@@ -197,12 +224,12 @@ body {
     <div class="card-head green collapsible" onclick="toggleHomeCard('affairs')">
       <span>📰 Today's Current Affairs</span>
       <span style="display:flex;align-items:center;gap:8px">
-        <span class="card-badge" id="affairs-badge">3</span>
+        <span class="card-badge" id="affairs-badge"></span>
         <span class="chevron-white" id="affairs-chevron">▼</span>
       </span>
     </div>
     <div class="card-body collapsed" id="current-affairs-home">
-      <p style="font-size:12px;color:var(--txt2)">• India advances renewable energy initiatives.<br>• Global Science Innovation Summit key highlights.<br>• CBSE updates exam portal specs for 2026-27.</p>
+      <div class="loader"><div class="spinner"></div></div>
     </div>
   </div>
 
@@ -210,30 +237,33 @@ body {
     <div class="card-head purple collapsible" onclick="toggleHomeCard('scores')">
       <span>🧠 Recent Quiz Scores</span>
       <span style="display:flex;align-items:center;gap:8px">
-        <span class="card-badge" id="scores-badge">4</span>
+        <span class="card-badge" id="scores-badge"></span>
         <span class="chevron-white" id="scores-chevron">▼</span>
       </span>
     </div>
     <div class="card-body collapsed" id="mcq-scores-home">
-      <p style="font-size:12px;color:var(--txt2)">• Math - Real Numbers: 5/5<br>• Science - Life Processes: 4/5<br>• History - Nationalism in India: 3/5</p>
+      <div class="loader"><div class="spinner"></div></div>
     </div>
   </div>
 </div>
 
 <!-- ── PAGE 2: LISTEN ───────────────────────────────────── -->
 <div id="page-listen" class="page">
+  <div class="seg-tabs" id="listen-filter-tabs"></div>
+
   <div class="card">
     <div class="card-head amber">📖 Select Chapter</div>
     <div class="card-body">
-      <select class="notes-subj-select" id="listen-subj">
+      <select class="notes-subj-select" id="listen-subj" onchange="loadListenUnits()">
         <option value="">— Choose subject —</option>
       </select>
-      <select class="notes-unit-select" id="listen-unit">
-        <option value="">— Select a Subject first —</option>
+      <select class="notes-unit-select" id="listen-unit" onchange="loadChapterContent()">
+        <option value="">— Choose chapter —</option>
       </select>
 
-      <div id="listen-view" style="display:block; margin-top:10px;">
-        <div style="font-size:13px;font-weight:700;color:var(--navy);" id="listen-title">Select a Subject & Chapter above</div>
+      <div id="listen-view" style="display:none">
+        <div style="font-size:13px;font-weight:700;color:var(--navy);margin:10px 0 4px" id="listen-title">—</div>
+        <div style="font-size:11px;font-weight:600;margin-bottom:6px" id="listen-source-tag"></div>
 
         <div class="lang-tabs">
           <button class="lang-tab active" onclick="setLang('en',this)">English</button>
@@ -245,19 +275,32 @@ body {
           <button class="audio-btn" id="audio-play-btn" onclick="togglePlay()">▶ Play</button>
           <div class="audio-speed">
             Speed:
-            <button class="speed-btn" onclick="setSpeed(0.8,this)">0.8×</button>
-            <button class="speed-btn active" onclick="setSpeed(1.0,this)">1×</button>
+            <button class="speed-btn active" onclick="setSpeed(0.8,this)">0.8×</button>
+            <button class="speed-btn" onclick="setSpeed(1.0,this)">1×</button>
             <button class="speed-btn" onclick="setSpeed(1.25,this)">1.25×</button>
           </div>
+          <button class="btn btn-sm btn-success" id="download-summary-btn" onclick="downloadSummary()" style="margin-left:auto;display:none">⬇️ Download</button>
         </div>
 
-        <div class="summary-box" id="summary-text">Select a chapter from the dropdown above to load and listen to key summary notes.</div>
+        <div class="summary-box" id="summary-text">Loading…</div>
 
         <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
           <div class="lbl-tag" style="margin-bottom:8px">🎙️ Talk About This Chapter <span>— fresh questions each time, read aloud</span></div>
 
           <div id="talk-setup">
             <button class="btn btn-purple btn-full" onclick="startTalkQuiz()" id="talkStartBtn">🎙️ Start</button>
+          </div>
+
+          <div id="talk-container" style="display:none">
+            <div id="talkGroundBadge" style="font-size:11px;margin-bottom:8px;font-weight:600"></div>
+            <div id="talkProgress" style="font-size:11px;color:var(--txt2);margin-bottom:6px">Question 1</div>
+            <div class="quiz-q" id="talkQuestionText" style="margin-bottom:10px">—</div>
+            <button class="mic-btn" id="talkMicBtn" onclick="toggleTalkMic()" style="margin:0 auto 10px;display:block">🎤</button>
+            <textarea class="text-input" id="talkAnswerText" rows="2" placeholder="Or type your answer here…"></textarea>
+            <button class="btn btn-success btn-full" style="margin-top:8px" onclick="submitTalkAnswer()">Submit Answer</button>
+            <div id="talkFeedback" style="display:none;margin-top:10px" class="feedback-box"></div>
+            <button class="btn btn-primary btn-full" id="talkNextBtn" style="display:none;margin-top:10px" onclick="nextTalkQuestion()">Next Question →</button>
+            <button class="btn btn-amber btn-full" style="margin-top:10px" onclick="exitTalkQuiz()">Done for now</button>
           </div>
         </div>
       </div>
@@ -271,10 +314,7 @@ body {
     <button class="seg-tab active" onclick="filterSubject('all',this)">All</button>
   </div>
   <div id="subject-list">
-    <div style="padding:10px;">
-      <p style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px">Overview</p>
-      <div style="display:flex;flex-direction:column;gap:10px" id="progress-subjects-container"></div>
-    </div>
+    <div class="loader"><div class="spinner"></div><div class="loader-txt">Loading subjects…</div></div>
   </div>
 </div>
 
@@ -283,10 +323,7 @@ body {
   <div class="card">
     <div class="card-head purple">🤖 Ask a Question</div>
     <div class="card-body">
-      <label class="lbl-tag">Select Subject / Chapter (Optional)</label>
-      <select class="notes-subj-select" id="askSubjSelect">
-        <option value="">— Choose subject —</option>
-      </select>
+      <label class="lbl-tag">Select Chapter (Optional)</label>
       <select class="notes-unit-select" id="askChSelect">
         <option value="">— Out of Syllabus / General Question —</option>
       </select>
@@ -294,7 +331,7 @@ body {
       <div class="lang-tabs">
         <button class="lang-tab active" onclick="setAskLang('en',this)">English</button>
         <button class="lang-tab" onclick="setAskLang('hi',this)">हिंदी</button>
-        <button class="lang-tab" onclick="setAskLang('kn',this)">ಕನ್ನಡ</button>
+        <button class="lang-tab" onclick="setAskLang('kn',this)">ಕನ्ನಡ</button>
       </div>
       
       <div style="font-size:12px;color:var(--txt2);margin:10px 0">Type or speak your question:</div>
@@ -303,51 +340,91 @@ body {
       <textarea class="text-input" id="ask-question" rows="3" placeholder="Type any Class X CBSE question… e.g. What is photosynthesis?" style="resize:vertical;min-height:70px"></textarea>
       <button class="btn btn-purple btn-full" onclick="askQuestion()">Ask</button>
       <div id="ask-answer-box" style="display:none" class="ai-answer-box"></div>
+      <div id="ask-source-tag" style="display:none;font-size:11px;color:var(--purple);margin-top:6px;font-weight:600"></div>
+
+      <div class="audio-bar" id="ask-audio-bar" style="display:none">
+        <button class="audio-btn" id="ask-audio-play-btn" onclick="togglePlay('ask-answer-box','ask-audio-play-btn', langCodeFor(askDisplayLang))">▶ Play</button>
+        <div class="audio-speed">
+          Speed:
+          <button class="speed-btn active" onclick="setSpeed(0.8,this)">0.8×</button>
+          <button class="speed-btn" onclick="setSpeed(1.0,this)">1×</button>
+          <button class="speed-btn" onclick="setSpeed(1.25,this)">1.25×</button>
+        </div>
+        <div style="display:flex;gap:4px;margin-left:auto">
+          <button class="speed-btn active" id="ask-lang-en" onclick="setAskAnswerLang('en',this)">EN</button>
+          <button class="speed-btn" id="ask-lang-hi" onclick="setAskAnswerLang('hi',this)">हि</button>
+          <button class="speed-btn" id="ask-lang-kn" onclick="setAskAnswerLang('kn',this)">ಕನ್</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- ── PAGE 5: QUIZ ─────────────────────────────────────── -->
 <div id="page-quiz" class="page">
+
+  <!-- ── In-App Daily MCQ Quiz ── -->
   <div class="card" id="webMcqSetup">
     <div class="card-head amber">✅ Daily MCQ Quiz (In-App)</div>
     <div class="card-body">
       <label class="lbl-tag">Select Subject</label>
-      <select class="notes-subj-select" id="webmcq-subj">
+      <select class="notes-subj-select" id="webmcq-subj" onchange="loadWebMcqUnits()">
         <option value="">— Choose subject —</option>
       </select>
       <label class="lbl-tag">Select Chapter</label>
       <select class="notes-unit-select" id="webmcq-unit">
-        <option value="">— Select a Subject first —</option>
+        <option value="">— Choose chapter —</option>
       </select>
       <button class="btn btn-amber btn-full" id="startWebMcqBtn" onclick="startWebMCQ()">▶ Start MCQ Quiz</button>
-      <p style="font-size:11px;color:var(--txt2);margin-top:10px">5 MCQs for the chapter you pick. Tick your answers and submit — graded instantly.</p>
-
-      <div style="margin-top: 15px; text-align: center;">
-        <button id="btnStartMockExam" onclick="launchMockExam()" style="background-color: #d9534f; color: white; padding: 12px 20px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; width: 100%;">
-          ⏱️ Start 10-Min Timed Mock Test
-        </button>
-      </div>
+      <p style="font-size:11px;color:var(--txt2);margin-top:10px">5 MCQs for the chapter you pick. Tick your answers and submit — graded instantly, scores saved automatically.</p>
     </div>
   </div>
 
+  <div class="card" id="webMcqContainer" style="display:none">
+    <div class="card-head amber">✅ MCQ Quiz</div>
+    <div class="card-body">
+      <div id="webMcqGroundBadge" style="font-size:11px;margin-bottom:10px;font-weight:600"></div>
+      <div id="webMcqList"></div>
+      <button class="btn btn-success btn-full" onclick="submitWebMCQ()">Submit Quiz</button>
+      <button class="btn btn-amber btn-full" style="margin-top:8px" onclick="exitWebMCQ()">Exit</button>
+    </div>
+  </div>
+
+  <div class="card" id="webMcqResults" style="display:none">
+    <div class="card-head green">📊 Your Results</div>
+    <div class="card-body" id="webMcqResultsBody"></div>
+  </div>
+
+  <!-- ── Existing oral/typed Practice Quiz ── -->
   <div class="card" id="quizSetup">
     <div class="card-head red">📝 Practice Quiz</div>
     <div class="card-body">
-      <label class="lbl-tag">Select Subject</label>
-      <select class="notes-subj-select" id="quizSubjSelect">
-        <option value="">— Choose subject —</option>
-      </select>
       <label class="lbl-tag">Select Chapter</label>
-      <select class="notes-unit-select" id="quizChSelect">
-        <option value="">— Select a Subject first —</option>
+      <select class="notes-unit-select" id="quizChSelect" onchange="enableQuizBtn()">
+        <option value="">— Choose chapter —</option>
       </select>
       <div class="lang-tabs">
         <button class="lang-tab active" onclick="setQuizLang('en',this)">English</button>
         <button class="lang-tab" onclick="setQuizLang('hi',this)">हिंदी</button>
         <button class="lang-tab" onclick="setQuizLang('kn',this)">ಕನ್ನಡ</button>
       </div>
-      <button class="btn btn-red btn-full" id="startQuizBtn" onclick="startQuiz()">▶ Start Quiz</button>
+      <button class="btn btn-red btn-full" id="startQuizBtn" disabled onclick="startQuiz()">▶ Start Quiz</button>
+      <p style="font-size:11px;color:var(--txt2);margin-top:10px">Generates 5 oral-answer questions for this chapter. Speak or type your answer — AI grades it instantly.</p>
+    </div>
+  </div>
+
+  <div class="card" id="quizContainer" style="display:none">
+    <div class="card-head red">📝 Quiz in Progress</div>
+    <div class="card-body">
+      <div id="quizProgress" style="font-size:11px;color:var(--txt2);margin-bottom:8px">Question 1 of 5</div>
+      <div id="quizGroundBadge" style="font-size:11px;margin-bottom:10px;font-weight:600"></div>
+      <div class="quiz-q" id="quizQuestionText">—</div>
+      <button class="mic-btn" id="micBtn" onclick="toggleMic()">🎤</button>
+      <textarea class="text-input" id="quizAnswerText" rows="2" placeholder="Or type your answer here…"></textarea>
+      <button class="btn btn-success btn-full" onclick="submitAnswer()">Submit Answer</button>
+      <div id="quizFeedback" style="display:none" class="feedback-box"></div>
+      <button class="btn btn-primary btn-full" id="nextQBtn" style="display:none;margin-top:10px" onclick="nextQuestion()">Next Question →</button>
+      <button class="btn btn-amber btn-full" id="exitQuizBtn" style="margin-top:10px" onclick="exitQuiz()">Exit Quiz</button>
     </div>
   </div>
 </div>
@@ -362,12 +439,13 @@ body {
   </div>
 
   <div id="ref-formula-section">
-    <div id="formula-list" style="font-size:13px;line-height:1.6;color:var(--txt)">
-      <p style="font-weight:700;margin-bottom:6px">Essential Formulas:</p>
-      • Quadratic Equation: x = [-b ± √(b² - 4ac)] / 2a<br>
-      • Ohm's Law: V = I × R<br>
-      • Distance Formula: d = √[(x₂ - x₁)² + (y₂ - y₁)²]<br>
-      • Lens Formula: 1/f = 1/v - 1/u
+    <div class="seg-tabs" id="ref-filter-tabs">
+      <button class="seg-tab active" onclick="loadFormulaBank('all')">All</button>
+      <button class="seg-tab" onclick="loadFormulaBank('Mathematics')">Math</button>
+      <button class="seg-tab" onclick="loadFormulaBank('Science')">Science</button>
+    </div>
+    <div id="formula-list">
+      <div class="loader"><div class="spinner"></div><div class="loader-txt">Loading reference...</div></div>
     </div>
   </div>
 
@@ -376,14 +454,22 @@ body {
       <div class="card-head purple">📅 Previous Year Questions</div>
       <div class="card-body">
         <label class="lbl-tag">Select Subject</label>
-        <select class="notes-subj-select" id="pyq-subj">
+        <select class="notes-subj-select" id="pyq-subj" onchange="loadPyqUnits()">
           <option value="">— Choose subject —</option>
         </select>
         <label class="lbl-tag">Select Chapter</label>
         <select class="notes-unit-select" id="pyq-unit">
-          <option value="">— Select a Subject first —</option>
+          <option value="">— Choose chapter —</option>
         </select>
         <button class="btn btn-purple btn-full" onclick="loadPYQs()">Load PYQs</button>
+      </div>
+    </div>
+
+    <div class="card" id="pyqContainer" style="display:none">
+      <div class="card-head purple">📅 PYQ Practice</div>
+      <div class="card-body">
+        <div id="pyqList"></div>
+        <button class="btn btn-amber btn-full" style="margin-top:10px" onclick="exitPYQ()">Exit PYQs</button>
       </div>
     </div>
   </div>
@@ -393,13 +479,22 @@ body {
       <div class="card-head green">📓 My Notes</div>
       <div class="card-body">
         <label class="lbl-tag">Select Subject</label>
-        <select class="notes-subj-select" id="notes-subj">
+        <select class="notes-subj-select" id="notes-subj" onchange="loadNotesUnits()">
           <option value="">— Choose subject —</option>
         </select>
         <label class="lbl-tag">Select Chapter</label>
-        <select class="notes-unit-select" id="notes-unit">
-          <option value="">— Select a Subject first —</option>
+        <select class="notes-unit-select" id="notes-unit" onchange="loadNotesGallery()">
+          <option value="">— Choose chapter —</option>
         </select>
+
+        <div id="notes-actions" style="display:none">
+          <input type="file" id="notePhotoInput" accept="image/*" capture="environment" style="display:none" onchange="handleNotePhoto(event)">
+          <button class="btn btn-success btn-full" onclick="document.getElementById('notePhotoInput').click()">📸 Add Note Photo</button>
+          <div id="notes-upload-status" style="display:none;margin-top:8px;font-size:12px;color:var(--txt2)"></div>
+
+          <div id="notes-gallery" style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
+          <p id="notes-empty" style="display:none;font-size:12px;color:var(--txt2);text-align:center;padding:16px 0">No notes for this chapter yet — tap "Add Note Photo" to add the first one.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -409,12 +504,20 @@ body {
       <div class="card-head navy">📄 Past Papers</div>
       <div class="card-body">
         <p style="font-size:12px;color:var(--txt2);margin-bottom:10px">
-          Real board papers and mock tests for full practice.
+          Real board papers/mock papers, stored as-is for full-length practice — not chapter-tagged or AI-processed.
         </p>
-        <label class="lbl-tag">Subject</label>
+        <label class="lbl-tag">Year</label>
+        <select class="notes-subj-select" id="papers-year-select" onchange="loadPastPapersGallery()"></select>
+        <label class="lbl-tag">Subject <span>(optional, for your own labeling)</span></label>
         <select class="notes-subj-select" id="papers-subject-select">
           <option value="">— All Subjects —</option>
         </select>
+
+        <input type="file" id="pastPaperInput" accept="application/pdf,image/*" style="display:none" onchange="handlePastPaperFile(event)">
+        <button class="btn btn-primary btn-full" onclick="document.getElementById('pastPaperInput').click()">📄 Add Paper (PDF or Photo)</button>
+        <div id="papers-upload-status" style="display:none;margin-top:8px;font-size:12px;color:var(--txt2)"></div>
+
+        <div id="papers-list" style="margin-top:14px"></div>
       </div>
     </div>
   </div>
@@ -430,9 +533,28 @@ body {
     <div class="card-body collapsed" id="more-system-body">
       <div style="font-size:13px;line-height:1.8;color:var(--txt2)">
         <b style="color:var(--txt)">Class:</b> Class X — CBSE Board | 2026-27<br>
-        <b style="color:var(--txt)">Subjects:</b> English, Mathematics, Science, History, Civics, Geography, Economics, Hindi, Kannada, Sanskrit, Information Technology<br>
+        <b style="color:var(--txt)">Subjects:</b> English, Mathematics, Science, Civics, Economics, Geography, History, Sanskrit<br>
         <b style="color:var(--txt)">Languages:</b> English, Hindi (हिंदी), Kannada (ಕನ್ನಡ)<br>
       </div>
+    </div>
+  </div>
+
+  <div class="card" id="more-automation">
+    <div class="card-head green collapsible" onclick="toggleMoreCard('more-automation')">
+      <span>⚡ Automation Schedule</span>
+      <span class="chevron-white" id="more-automation-chevron">▼</span>
+    </div>
+    <div class="card-body collapsed" id="more-automation-body">
+      <div style="font-size:13px;line-height:2;color:var(--txt2)">
+        <b style="color:var(--txt)">2:00 AM</b> — Nightly content caching + translation<br>
+        <b style="color:var(--txt)">7:00 AM</b> — Current affairs sync<br>
+        <b style="color:var(--txt)">Sun 8:00 AM</b> — Weekly parent progress digest email<br>
+      </div>
+      <p style="font-size:12px;color:var(--txt2);margin:10px 0">
+        Get a free weekly email (no app-checking needed) summarizing chapter progress and any quiz scores under 60%. Want to see one right now instead of waiting for Sunday?
+      </p>
+      <button class="btn btn-success btn-full" onclick="sendDigestNow()">📧 Send Digest Now</button>
+      <div id="digest-msg" style="display:none;margin-top:8px;font-size:12px"></div>
     </div>
   </div>
 
@@ -442,257 +564,1971 @@ body {
       <span class="chevron-white" id="more-manual-chevron">▼</span>
     </div>
     <div class="card-body collapsed" id="more-manual-body">
-      <label class="lbl-tag">Select Subject</label>
-      <select class="notes-subj-select" id="manual-subj-select">
-        <option value="">— Choose subject —</option>
+      <select class="notes-unit-select" id="manualChSelect">
+        <option value="">— Choose chapter —</option>
       </select>
-      <label class="lbl-tag">Select Chapter</label>
-      <select class="notes-unit-select" id="manual-unit-select">
-        <option value="">— Select a Subject first —</option>
-      </select>
-      <textarea class="text-input" rows="4" placeholder="Enter chapter summary..."></textarea>
-      <button class="btn btn-amber btn-full" onclick="alert('Summary saved successfully!')">Save Summary</button>
+      <label class="lbl-tag">English Summary</label>
+      <textarea class="text-input" id="manualEn" rows="3" style="resize:vertical"></textarea>
+      <div id="manualOptionalFields" style="display:none">
+        <label class="lbl-tag">Hindi Summary <span>(optional — auto-translated nightly if left blank)</span></label>
+        <textarea class="text-input" id="manualHi" rows="2" style="resize:vertical"></textarea>
+        <label class="lbl-tag">Kannada Summary <span>(optional)</span></label>
+        <textarea class="text-input" id="manualKn" rows="2" style="resize:vertical"></textarea>
+      </div>
+      <button class="btn btn-amber btn-sm" onclick="toggleOptionalFields()" style="margin-bottom:10px">+ Add Hindi/Kannada</button>
+      <button class="btn btn-success btn-full" onclick="submitManualSummary()">💾 Save Summary</button>
+      <div id="manual-msg" style="display:none;margin-top:8px;font-size:12px"></div>
+    </div>
+  </div>
+
+  <div class="card" id="more-translate">
+    <div class="card-head purple collapsible" onclick="toggleMoreCard('more-translate')">
+      <span>🌍 Translation Tools</span>
+      <span class="chevron-white" id="more-translate-chevron">▼</span>
+    </div>
+    <div class="card-body collapsed" id="more-translate-body">
+      <p style="font-size:12px;color:var(--txt2);margin-bottom:10px">
+        Run this if you've added English summaries manually and want Hindi/Kannada filled in immediately.
+      </p>
+      <button class="btn btn-purple btn-full" onclick="runTranslateMissing()">🌍 Translate Missing Now</button>
+      <div id="translate-msg" style="display:none;margin-top:8px;font-size:12px"></div>
+
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+        <p style="font-size:12px;color:var(--txt2);margin-bottom:10px">
+          If a chapter's Hindi/Kannada shows the wrong or "no summary yet" text even though English is filled in, use this to clean it up and refill it correctly.
+        </p>
+        <button class="btn btn-primary btn-full" onclick="runFixStaleTranslations()">🧹 Fix Mismatched Translations</button>
+        <div id="fix-stale-msg" style="display:none;margin-top:8px;font-size:12px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="more-bulk">
+    <div class="card-head red collapsible" onclick="toggleMoreCard('more-bulk')">
+      <span>⚡ Bulk Content Generator</span>
+      <span class="chevron-white" id="more-bulk-chevron">▼</span>
+    </div>
+    <div class="card-body collapsed" id="more-bulk-body">
+      <p style="font-size:12px;color:var(--txt2);margin-bottom:10px">
+        Fills in missing chapter summaries and practice question sets (PYQ) using AI. Safe to click repeatedly; already-completed chapters are skipped automatically. Runs on <span id="bulk-provider" style="font-weight:600">—</span>.
+      </p>
+      <div id="bulk-progress" style="margin-bottom:10px">
+        <div class="prog-label"><span id="bulk-progress-label">Loading status…</span></div>
+        <div class="prog-track"><div class="prog-fill" id="bulk-progress-fill" style="width:0%"></div></div>
+      </div>
+
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt);margin-bottom:10px;cursor:pointer">
+        <input type="checkbox" id="usePdfToggle">
+        Ground in actual chapter PDF from Drive (reduces AI guessing — requires one-time setup, see below)
+      </label>
+      <div id="pdf-setup-status" style="font-size:11px;color:var(--txt2);margin-bottom:10px"></div>
+
+      <button class="btn btn-red btn-full" id="bulkGenBtn" onclick="bulkGenerateBatch()">⚡ Generate Next 5 Chapters</button>
+
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+        <label class="lbl-tag">Or generate one specific chapter</label>
+        <select class="notes-subj-select" id="bulk-single-subj" onchange="loadBulkSingleUnits()">
+          <option value="">— Choose subject —</option>
+        </select>
+        <select class="notes-unit-select" id="bulk-single-unit">
+          <option value="">— Choose chapter —</option>
+        </select>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt);margin-bottom:10px;cursor:pointer">
+          <input type="checkbox" id="overwriteManualToggle">
+          Overwrite even if a hand-typed summary already exists (off by default — protects manual work)
+        </label>
+        <button class="btn btn-amber btn-full" id="bulkSingleBtn" onclick="generateSingleChapterUI()">Generate This Chapter</button>
+      </div>
+
+      <div id="bulk-log" style="margin-top:10px;font-size:11px;color:var(--txt2);max-height:160px;overflow-y:auto"></div>
+      <p style="font-size:10px;color:var(--txt2);margin-top:10px">
+        Note: PYQ entries generated here are AI-produced practice questions in the CBSE style — not verified past-year board papers. They're labeled "AI Generated" / "AI Practice Set" in the sheet so you can tell them apart from any real PYQs you add manually.
+      </p>
+    </div>
+  </div>
+
+  <div class="card" id="more-relink">
+    <div class="card-head navy collapsible" onclick="toggleMoreCard('more-relink')">
+      <span>🔗 Relink Chapter PDFs</span>
+      <span class="chevron-white" id="more-relink-chevron">▼</span>
+    </div>
+    <div class="card-body collapsed" id="more-relink-body">
+      <p style="font-size:12px;color:var(--txt2);margin-bottom:10px">
+        Scans your Drive book folders and writes a fresh, working hyperlink into each STUDY TRACKER chapter title — fixes broken links (e.g. from files that were deleted and re-uploaded) and fills in links for chapters that never had one. Safe to re-run anytime.
+      </p>
+      <button class="btn btn-primary btn-full" id="relinkBtn" onclick="relinkChapterPdfsUI()">🔗 Relink All Chapter PDFs</button>
+      <div id="relink-result" style="margin-top:10px;font-size:12px;color:var(--txt2)"></div>
+    </div>
+  </div>
+
+  <div class="card" id="more-setup">
+    <div class="card-head red collapsible" onclick="toggleMoreCard('more-setup')">
+      <span>🚀 Setup Checklist</span>
+      <span class="chevron-white" id="more-setup-chevron">▼</span>
+    </div>
+    <div class="card-body collapsed" id="more-setup-body">
+      <div style="font-size:13px;line-height:2;color:var(--txt2)">
+        ☐ Extensions → Apps Script → paste Code.gs<br>
+        ☐ Create Index.html file → paste this file<br>
+        ☐ Project Settings → Script Properties → add GROQ_API_KEY, PARENT_EMAIL, CHILD_EMAIL<br>
+        ☐ Run <code style="background:var(--bg);padding:1px 5px;border-radius:4px">setupSystem()</code> → triggers + confirmation email<br>
+        ☐ Deploy → New deployment → Web app → Execute as Me, Access Anyone<br>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ── BOTTOM NAVIGATION BAR ───────────────────────────── -->
-<div class="bottom-nav">
-  <button class="nav-btn active" onclick="showPage('home', this)"><span class="icon">🏠</span><span>Home</span></button>
-  <button class="nav-btn" onclick="showPage('listen', this)"><span class="icon">🎧</span><span>Listen</span></button>
-  <button class="nav-btn" onclick="showPage('progress', this)"><span class="icon">📊</span><span>Progress</span></button>
-  <button class="nav-btn" onclick="showPage('ask', this)"><span class="icon">🤖</span><span>Ask AI</span></button>
-  <button class="nav-btn" onclick="showPage('quiz', this)"><span class="icon">📝</span><span>Quiz</span></button>
-  <button class="nav-btn" onclick="showPage('ref', this)"><span class="icon">📚</span><span>Ref</span></button>
-  <button class="nav-btn" onclick="showPage('more', this)"><span class="icon">⚙️</span><span>More</span></button>
-</div>
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-home"     onclick="showPage('home')"><span class="icon">🏠</span>Home</button>
+  <button class="nav-btn" id="nav-listen"   onclick="showPage('listen')"><span class="icon">🎧</span>Listen</button>
+  <button class="nav-btn" id="nav-progress" onclick="showPage('progress')"><span class="icon">📈</span>Progress</button>
+  <button class="nav-btn" id="nav-ask"      onclick="showPage('ask')"><span class="icon">🤖</span>Ask</button>
+  <button class="nav-btn" id="nav-quiz"     onclick="showPage('quiz')"><span class="icon">📝</span>Quiz</button>
+  <button class="nav-btn" id="nav-ref"      onclick="showPage('ref')"><span class="icon">📐</span>Ref</button>
+  <button class="nav-btn" id="nav-more"     onclick="showPage('more')"><span class="icon">⋯</span>More</button>
+</nav>
 
 <div class="toast" id="toast"></div>
-
-<!-- ── MAIN SCRIPT & CONTROLLER ──────────────────────────── -->
 <script>
-// Complete Class X Syllabus Database
-const courseData = {
-  "Mathematics": [
-    "Real Numbers", "Polynomials", "Pair of Linear Equations in Two Variables", 
-    "Quadratic Equations", "Arithmetic Progressions", "Triangles", 
-    "Coordinate Geometry", "Introduction to Trigonometry", "Some Applications of Trigonometry", 
-    "Circles", "Areas Related to Circles", "Surface Areas and Volumes", "Statistics", "Probability"
-  ],
-  "Science": [
-    "Chemical Reactions and Equations", "Acids, Bases and Salts", "Metals and Non-metals", 
-    "Carbon and its Compounds", "Life Processes", "Control and Coordination", 
-    "How do Organisms Reproduce?", "Heredity", "Light – Reflection and Refraction", 
-    "Human Eye and Colourful World", "Electricity", "Magnetic Effects of Electric Current", "Our Environment"
-  ],
-  "History": [
-    "The Rise of Nationalism in Europe", "Nationalism in India", "The Making of a Global World", 
-    "The Age of Industrialisation", "Print Culture and the Modern World"
-  ],
-  "Civics (Democratic Politics)": [
-    "Power Sharing", "Federalism", "Gender, Religion and Caste", 
-    "Political Parties", "Outcomes of Democracy"
-  ],
-  "Geography (Contemporary India)": [
-    "Resources and Development", "Forest and Wildlife Resources", "Water Resources", 
-    "Agriculture", "Minerals and Energy Resources", "Manufacturing Industries", "Lifelines of National Economy"
-  ],
-  "Economics": [
-    "Development", "Sectors of the Indian Economy", "Money and Credit", 
-    "Globalisation and the Indian Economy", "Consumer Rights"
-  ],
-  "English": [
-    "A Letter to God", "Nelson Mandela: Long Walk to Freedom", "Two Stories About Flying", 
-    "From the Diary of Anne Frank", "Glimpses of India", "Mijbil the Otter", "Madam Rides the Bus", 
-    "The Sermon at Benares", "The Proposal", "A Triumph of Surgery", "The Thief's Story", 
-    "Footprints without Feet", "The Making of a Scientist", "The Necklace", "Bholi"
-  ],
-  "Hindi (हिंदी)": [
-    "पद (Surdas)", "राम-लक्ष्मण-परशुराम संवाद", "नेताजी का चश्मा", "बालगोबिन भगत", 
-    "लखनवी अंदाज़", "माता का आँचल", "साना-साना हाथ जोड़ि...", "साखी (Kabir)"
-  ],
-  "Kannada (ಕನ್ನಡ)": [
-    "ಸಂಕಲ್ಪ ಗೀತೆ (Sankalpa Geethe)", "ಹಸೂರು (Hasuru)", "ಎದೆಗೆ ಬಿದ್ದ ಅಕ್ಷರ (Edege Bidda Akshara)", 
-    "ಶಬರಿ (Shabari)", "ಭಾಗ್ಯಶಿಲ್ಪಿಗಳು (Bhagyashilpigalu)", "ವೃಕ್ಷಸಾಕ್ಷಿ (Vrukshasakshi)"
-  ],
-  "Sanskrit (संस्कृतम्)": [
-    "शुचिपर्यावरणम्", "बुद्धिर्बलवती सदा", "शिशुललनम्", "जननी तुल्यवत्सला", 
-    "सुभाषितानि", "सौहार्दं प्रकृतेः शोभा", "विचित्रः साक्षी"
-  ],
-  "Information Technology (IT 402)": [
-    "Digital Documentation (Advanced)", "Electronic Spreadsheet (Advanced)", 
-    "Database Management System (DBMS)", "Web Applications and Security"
-  ]
-};
+// ── GLOBALS ───────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+// GAS-RUN POLYFILL — paste this as the very first thing inside your
+// existing <script> tag in Index.html (before "let appData = null;").
+// Do NOT change anything else in Index.html — every existing
+// google.script.run.withSuccessHandler(...).withFailureHandler(...).xxx(...)
+// call site keeps working exactly as before, because this recreates that
+// same chainable API using fetch() instead of the real Apps Script bridge.
+// ═══════════════════════════════════════════════════════════════════════
 
-// Navigation controller
-function showPage(pageId, btn) {
+// 1) YOUR DEPLOYED WEB APP URL (Stage 1 — already live)
+const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbw1Dmkob-yDehj381CqWPJiK9k8-fqM6jOkckWZiBAd8sT5spXEIl7zBTEBSTawrrS8sQ/exec';
+
+// 2) PIN — asked once when the page loads, then reused on every call.
+//    (Only used if you've set APP_PIN in Script Properties. If you haven't,
+//    leave the prompt blank and it'll be ignored.)
+let GAS_PIN = sessionStorage.getItem('gas_pin') || '';
+if (!GAS_PIN) {
+  GAS_PIN = window.prompt('Enter your app PIN (leave blank if none):') || '';
+  sessionStorage.setItem('gas_pin', GAS_PIN);
+}
+
+// 3) Core network call — every google.script.run.xxx() ends up here.
+//    Note: deliberately NOT setting a Content-Type header. Setting one
+//    (e.g. 'application/json') makes the browser send a CORS preflight
+//    OPTIONS request first, which Apps Script Web Apps do not handle,
+//    and the whole call would silently fail. Leaving it default (text/plain)
+//    avoids the preflight — the backend doPost() still parses it fine via
+//    JSON.parse(e.postData.contents).
+async function gasApiCall_(action, args) {
+  const res = await fetch(GAS_API_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action, params: args, pin: GAS_PIN })
+  });
+  const json = await res.json();
+  if (!json.success) {
+    if (json.error === 'Invalid PIN') {
+      sessionStorage.removeItem('gas_pin');
+      alert('Wrong PIN — reloading so you can re-enter it.');
+      location.reload();
+    }
+    throw new Error(json.error || 'Unknown API error');
+  }
+  return json.result;
+}
+
+// 4) The chainable proxy that mimics google.script.run's real API.
+//    Any property accessed that isn't withSuccessHandler/withFailureHandler
+//    is treated as the backend function name to call.
+function gasRunProxy_(successFn, failureFn) {
+  return new Proxy({}, {
+    get(_target, prop) {
+      if (prop === 'withSuccessHandler') return (fn) => gasRunProxy_(fn, failureFn);
+      if (prop === 'withFailureHandler') return (fn) => gasRunProxy_(successFn, fn);
+      // Anything else = the actual function name, e.g. .getChapterOnDemand(...)
+      return (...args) => {
+        gasApiCall_(String(prop), args)
+          .then(result => { if (successFn) successFn(result); })
+          .catch(err => { if (failureFn) failureFn(err); else console.error(err); });
+      };
+    }
+  });
+}
+
+// 5) Install the fake google.script.run — everything below this line in
+//    your existing Index.html script works completely unchanged.
+window.google = { script: { run: gasRunProxy_(null, null) } };
+let appData = null;
+let synth = window.speechSynthesis;
+let voiceStopBtn = null;  // Track the manual stop button
+let speech = null, isPlaying = false, spRate = 0.8;
+let currentLang = 'en', askLang = 'en', quizLang = 'en';
+let currentListenFilter = 'all', currentProgressFilter = 'all';
+let voiceAutoPlay = false;
+
+const STATUS_OPTIONS = ['Not Started','In Progress','Completed'];
+const SUBJECTS_ORDER = ['English','Mathematics','Science','Social Science','Sanskrit'];
+const SOCIAL_SCIENCE_SUBJECTS = ['Civics','Economics','Geography','History'];
+const SUBJECT_GROUP_MAP = { 'Civics': 'Social Science', 'Economics': 'Social Science', 'Geography': 'Social Science', 'History': 'Social Science' };
+
+// ── NAV ───────────────────────────────────────────────────
+function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
   
-  const target = document.getElementById('page-' + pageId);
-  if (target) target.classList.add('active');
-  if (btn) btn.classList.add('active');
+  if (name === 'ref' && document.getElementById('formula-list').innerHTML.includes('Loading reference...')) {
+    loadFormulaBank('all');
+  }
+  if (name === 'more') {
+    refreshBulkStatus();
+  }
 }
 
-// Collapsible Cards
-function toggleHomeCard(cardId) {
-  const body = document.getElementById(cardId + '-list') || document.getElementById('current-affairs-home') || document.getElementById('mcq-scores-home');
-  const chevron = document.getElementById(cardId + '-chevron');
-  if (body) body.classList.toggle('collapsed');
-  if (chevron) chevron.classList.toggle('open');
-}
-
-function toggleMoreCard(cardId) {
-  const body = document.getElementById(cardId + '-body');
-  const chevron = document.getElementById(cardId + '-chevron');
-  if (body) body.classList.toggle('collapsed');
-  if (chevron) chevron.classList.toggle('open');
-}
-
-// Reference Tabs Switcher
 function showRefMode(mode) {
-  document.querySelectorAll('#ref-mode-tabs .seg-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('ref-mode-' + mode).classList.add('active');
-
   document.getElementById('ref-formula-section').style.display = mode === 'formula' ? 'block' : 'none';
   document.getElementById('ref-pyq-section').style.display = mode === 'pyq' ? 'block' : 'none';
   document.getElementById('ref-notes-section').style.display = mode === 'notes' ? 'block' : 'none';
   document.getElementById('ref-papers-section').style.display = mode === 'papers' ? 'block' : 'none';
+  document.getElementById('ref-mode-formula').classList.toggle('active', mode === 'formula');
+  document.getElementById('ref-mode-pyq').classList.toggle('active', mode === 'pyq');
+  document.getElementById('ref-mode-notes').classList.toggle('active', mode === 'notes');
+  document.getElementById('ref-mode-papers').classList.toggle('active', mode === 'papers');
+  if (mode === 'notes' && appData) populateNotesDropdowns(appData.trackerChapters);
+  if (mode === 'papers') initPastPapersUI();
 }
 
-// Toast Notifications
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  if (!t) return;
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+function toast(msg, dur=2200) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), dur);
 }
 
-// Audio controls
-let isPlaying = false;
-function togglePlay() {
-  const btn = document.getElementById('audio-play-btn');
-  isPlaying = !isPlaying;
-  if (btn) {
-    btn.textContent = isPlaying ? '⏹ Stop' : '▶ Play';
-    btn.classList.toggle('stop', isPlaying);
+// ── LOAD ALL DATA ─────────────────────────────────────────
+function loadDashboardData() {
+  google.script.run
+    .withSuccessHandler(raw => {
+      const data = JSON.parse(raw);
+      appData = data;
+      document.getElementById('last-refresh').textContent = data.lastRefresh || '--:--';
+      renderHome(data);
+      renderProgress(data.trackerChapters);
+      buildFilterBars(data.trackerChapters);
+      populateChapterDropdowns(data.trackerChapters);
+    })
+    .withFailureHandler(err => toast('Error: ' + err.message))
+    .getDashboardData();
+}
+
+// ── HOME PAGE ─────────────────────────────────────────────
+function renderHome(data) {
+  const stats = data.subjectStats || {};
+  let total = 0, done = 0;
+  Object.values(stats).forEach(s => { total += s.total; done += s.completed; });
+
+  document.getElementById('st-total').textContent = total;
+  document.getElementById('st-done').textContent = done;
+  document.getElementById('st-pct').textContent = total ? Math.round(done/total*100) + '%' : '0%';
+
+  const examDate = new Date(2027, 1, 15);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const daysLeft = Math.ceil((examDate - today) / (1000 * 60 * 60 * 24));
+  const countdownEl = document.getElementById('stat-row');
+  if (daysLeft > 0 && countdownEl) {
+    const countdownHTML = `<div class="countdown-banner" id="exam-countdown-banner" style="text-align:center;padding:10px;background:var(--redlt);border-radius:8px;margin-bottom:12px;font-weight:600;color:var(--red);font-size:14px">📅 Board Exam: ${daysLeft} days remaining (Feb 15, 2027)</div>`;
+    const existing = document.getElementById('exam-countdown-banner');
+    if (existing) existing.outerHTML = countdownHTML;
+    else countdownEl.insertAdjacentHTML('beforebegin', countdownHTML);
+  }
+
+  const spEl = document.getElementById('subj-progress-home');
+  const groupedStats = {};
+  Object.entries(stats).forEach(([subj, st]) => {
+    const group = SUBJECT_GROUP_MAP[subj] || subj;
+    if (!groupedStats[group]) groupedStats[group] = { total: 0, completed: 0 };
+    groupedStats[group].total += st.total; groupedStats[group].completed += st.completed;
+  });
+  
+  const orderedSubjects = SUBJECTS_ORDER.filter(s => groupedStats[s]);
+  if (orderedSubjects.length) {
+    spEl.innerHTML = orderedSubjects.map(s => {
+      const st = groupedStats[s];
+      const pct = st.total ? Math.round(st.completed/st.total*100) : 0;
+      const cls = pct>=80?'green': pct>=40?'':'amber';
+      return `<div class="prog-wrap">
+        <div class="prog-label"><span>${s}</span><span>${st.completed}/${st.total} (${pct}%)</span></div>
+        <div class="prog-track"><div class="prog-fill ${cls}" style="width:${pct}%"></div></div>
+      </div>`;
+    }).join('');
+  } else spEl.innerHTML = '<p style="font-size:13px;color:var(--txt2)">No data found.</p>';
+
+  const behindEl = document.getElementById('behind-list');
+  const behindBadge = document.getElementById('behind-badge');
+  if (!data.behind || data.behind.length === 0) {
+    behindEl.innerHTML = '<p style="font-size:13px;color:var(--green)">✅ All subjects on pace.</p>';
+    if (behindBadge) behindBadge.textContent = '✅ On pace';
+  } else {
+    const groupedBehind = new Set();
+    let hasSocialScience = false;
+    data.behind.forEach(s => {
+      if (SOCIAL_SCIENCE_SUBJECTS.includes(s)) hasSocialScience = true;
+      else groupedBehind.add(s);
+    });
+    if (hasSocialScience) groupedBehind.add('Social Science');
+    behindEl.innerHTML = Array.from(groupedBehind).map(s => `<div style="font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)">⚠️ <b>${s}</b> — below 50% complete</div>`).join('');
+    if (behindBadge) behindBadge.textContent = groupedBehind.size;
+  }
+
+  const mcqEl = document.getElementById('mcq-scores-home');
+  const scoresBadge = document.getElementById('scores-badge');
+  if (!data.mcqScores || data.mcqScores.length === 0) {
+    mcqEl.innerHTML = '<p style="font-size:13px;color:var(--txt2)">No quiz attempts yet.</p>';
+    if (scoresBadge) scoresBadge.textContent = '—';
+  } else {
+    mcqEl.innerHTML = data.mcqScores.map(s => {
+      const pct = Number(s.percent) || 0;
+      const cls = pct>=80?'sc-good': pct>=60?'sc-mid':'sc-bad';
+      return `<div class="score-row"><div class="score-circle ${cls}">${pct}%</div><div><div style="font-size:12px;font-weight:600">${s.score}/${s.total} — ${s.date}</div><div style="font-size:11px;color:var(--txt2)">${s.formTitle||''}</div></div></div>`;
+    }).join('');
+    if (scoresBadge) scoresBadge.textContent = 'Last: ' + Math.round(Number(data.mcqScores[0].percent) || 0) + '%';
+  }
+
+  // Current affairs render
+  const caEl = document.getElementById('current-affairs-home');
+  const affairsBadge = document.getElementById('affairs-badge');
+  if (!data.currentAffairs || data.currentAffairs.length === 0) {
+    caEl.innerHTML = '<p style="font-size:13px;color:var(--txt2)">No news today.</p>';
+    if (affairsBadge) affairsBadge.textContent = '0';
+  } else {
+    caEl.innerHTML = data.currentAffairs.map(ca => `
+      <div style="padding:10px 0; border-bottom:1px solid var(--border)">
+        <div style="font-size:11px; color:var(--txt2); margin-bottom:4px"><span class="lbl-tag" style="display:inline">${ca.source}</span> • ${dateIST_format(ca.date)}</div>
+        <a href="${ca.url}" target="_blank" style="font-size:13px; font-weight:600; color:var(--navy); text-decoration:none">${ca.headline}</a>
+      </div>
+    `).join('');
+    if (affairsBadge) affairsBadge.textContent = data.currentAffairs.length;
   }
 }
 
-function setSpeed(spd, btn) {
-  document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  showToast(`Audio speed set to ${spd}x`);
+function toggleMoreCard(id) {
+  const body = document.getElementById(id + '-body');
+  const chev = document.getElementById(id + '-chevron');
+  if (body) body.classList.toggle('collapsed');
+  if (chev) chev.classList.toggle('open');
+}
+
+function toggleHomeCard(id) {
+  const bodyIds = { behind: 'behind-list', affairs: 'current-affairs-home', scores: 'mcq-scores-home' };
+  const body = document.getElementById(bodyIds[id]);
+  const chev = document.getElementById(id + '-chevron');
+  if (body) body.classList.toggle('collapsed');
+  if (chev) chev.classList.toggle('open');
+}
+
+function dateIST_format(d) { return new Date(d).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' }); }
+
+// ── FILTER BARS ───────────────────────────────────────────
+function buildFilterBars(chapters) {
+  const displaySubjects = SUBJECTS_ORDER.filter(s => {
+    if (s === 'Social Science') return SOCIAL_SCIENCE_SUBJECTS.some(ss => chapters.some(c => c.subject === ss));
+    return chapters.some(c => c.subject === s);
+  });
+
+  const listenBar = document.getElementById('listen-filter-tabs');
+  listenBar.innerHTML = `<button class="seg-tab active" onclick="filterListen('all',this)">All</button>` +
+    displaySubjects.map(s => `<button class="seg-tab" onclick="filterListen('${s}',this)">${s}</button>`).join('');
+
+  const progressBar = document.getElementById('subj-filter-tabs');
+  progressBar.innerHTML = `<button class="seg-tab active" onclick="filterSubject('all',this)">All</button>` +
+    displaySubjects.map(s => `<button class="seg-tab" onclick="filterSubject('${s}',this)">${s}</button>`).join('');
+}
+
+function filterListen(subj, btn) {
+  currentListenFilter = subj;
+  document.querySelectorAll('#listen-filter-tabs .seg-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  populateChapterDropdowns(appData ? appData.trackerChapters : []);
+}
+
+function filterSubject(subj, btn) {
+  currentProgressFilter = subj;
+  document.querySelectorAll('#subj-filter-tabs .seg-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (appData) renderProgress(appData.trackerChapters);
+}
+
+// ── PROGRESS PAGE ─────────────────────────────────────────
+function renderProgress(chapters) {
+  const list = document.getElementById('subject-list');
+  if (!chapters || chapters.length === 0) { list.innerHTML = '<p style="color:var(--txt2);font-size:13px;padding:20px;text-align:center">No data found.</p>'; return; }
+
+  const byGroup = {};
+  chapters.forEach(ch => {
+    const filterGroup = SUBJECT_GROUP_MAP[ch.subject] || ch.subject;
+    if (currentProgressFilter !== 'all' && filterGroup !== currentProgressFilter && ch.subject !== currentProgressFilter) return;
+    if (!byGroup[filterGroup]) byGroup[filterGroup] = [];
+    byGroup[filterGroup].push(ch);
+  });
+
+  const groups = SUBJECTS_ORDER.filter(s => byGroup[s]);
+  list.innerHTML = groups.map(groupName => {
+    const units = byGroup[groupName];
+    const done = units.filter(u => u.status === 'Completed').length;
+    const pct = Math.round(done / units.length * 100);
+    const pctColor = pct>=80?'green': pct>=40?'':'amber';
+
+    const rows = units.map(u => `
+      <div class="unit-row">
+        <div class="unit-num">${u.chNum}</div>
+        <div class="unit-title"><b>${u.subject}</b> — ${u.title}${u.book ? ' <span style=\"color:var(--txt2);font-size:10px\">(' + u.book + ')</span>' : ''}</div>
+        <select class="status-select" onchange="changeStatus(${u.rowIndex},this.value); loadDashboardData();">
+          ${STATUS_OPTIONS.map(opt => `<option value="${opt}" ${opt===u.status?'selected':''}>${opt}</option>`).join('')}
+        </select>
+      </div>`).join('');
+
+    return `<div class="subj-card" id="sc-${groupName.replace(/\s+/g,'_')}"><div class="subj-head" onclick="toggleSubj('${groupName.replace(/\s+/g,'_')}')"><div class="subj-head-left"><div class="subj-name">${groupName}</div><div class="prog-wrap" style="margin-top:6px"><div class="prog-track"><div class="prog-fill ${pctColor}" style="width:${pct}%"></div></div></div></div><span class="subj-pct">${pct}%</span><span class="chevron">▼</span></div><div class="subj-units">${rows}</div></div>`;
+  }).join('');
+}
+
+function toggleSubj(id) { document.getElementById('sc-' + id).classList.toggle('open'); }
+function changeStatus(rowIndex, newStatus) {
+  google.script.run
+    .withSuccessHandler(res => {
+      if (res.ok !== false && res.success !== false) {
+        toast('✅ Status updated: ' + newStatus);
+        if (appData) { const ch = appData.trackerChapters.find(c => c.rowIndex === rowIndex); if (ch) ch.status = newStatus; }
+      } else toast('⚠️ ' + (res.error || 'Update failed'));
+    })
+    .withFailureHandler(e => toast('Error: ' + e.message))
+    .updateChapterStatus(rowIndex, newStatus);
+}
+
+// ── DROPDOWNS ─────────────────────────────────────────────
+function populateChapterDropdowns(chapters) {
+  const listenSubj = document.getElementById('listen-subj');
+  const listenSubjects = SUBJECTS_ORDER.filter(s => {
+    if (s === 'Social Science') return SOCIAL_SCIENCE_SUBJECTS.some(ss => chapters.some(c => c.subject === ss));
+    return chapters.some(c => c.subject === s);
+  });
+  
+  listenSubj.innerHTML = '<option value="">— Choose subject —</option>' + listenSubjects.map(s => `<option value="${s}">${s}</option>`).join('');
+  document.getElementById('webmcq-subj').innerHTML = listenSubj.innerHTML;
+  document.getElementById('pyq-subj').innerHTML = listenSubj.innerHTML;
+
+  const flatOptions = chapters.map(ch => `<option value="${ch.subject}|${ch.chNum}|${escQ(ch.title)}|${escQ(ch.book)}">${ch.subject} | Ch ${ch.chNum} | ${ch.title}</option>`).join('');
+  document.getElementById('quizChSelect').innerHTML = '<option value="">— Choose chapter —</option>' + flatOptions;
+  document.getElementById('manualChSelect').innerHTML = '<option value="">— Choose chapter —</option>' + flatOptions;
+  document.getElementById('askChSelect').innerHTML = '<option value="">— Out of Syllabus / General Question —</option>' + flatOptions;
+}
+function escQ(s) { return String(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/\|/g,'%7C'); }
+
+function loadListenUnits() {
+  const subj = document.getElementById('listen-subj').value;
+  const sel = document.getElementById('listen-unit');
+  sel.innerHTML = '<option value="">— Choose chapter —</option>';
+  document.getElementById('listen-view').style.display = 'none';
+  if (!subj || !appData) return;
+  const relevantSubjects = (subj === 'Social Science') ? SOCIAL_SCIENCE_SUBJECTS : [subj];
+  appData.trackerChapters.filter(c => relevantSubjects.includes(c.subject)).forEach(ch => {
+    const opt = document.createElement('option');
+    opt.value = ch.subject + '|' + ch.chNum + '|' + ch.title + '|' + (ch.book || '');
+    opt.textContent = `${ch.subject} Ch ${ch.chNum}: ${ch.title}`;
+    sel.appendChild(opt);
+  });
+}
+
+// Translates the raw sheet source label into something a parent/student can
+// read at a glance, without needing to open the spreadsheet.
+function friendlySourceLabel_(rawSrc) {
+  if (!rawSrc) return { text: '⚠️ No summary yet', color: 'var(--amber)' };
+  if (rawSrc.startsWith('Placeholder')) return { text: '⚠️ No summary yet — add one in More', color: 'var(--amber)' };
+  if (rawSrc.startsWith('Manual')) return { text: '✍️ Hand-typed by you', color: 'var(--navy)' };
+  if (rawSrc.startsWith('AI Generated')) {
+    const grounded = rawSrc.includes('PDF-grounded');
+    const provider = rawSrc.includes('Gemini') ? 'Gemini' : rawSrc.includes('Groq') ? 'Groq' : 'AI';
+    return { text: '🤖 AI-generated (' + provider + (grounded ? ', from textbook PDF' : ', general knowledge') + ')', color: grounded ? 'var(--green)' : 'var(--amber)' };
+  }
+  return { text: rawSrc, color: 'var(--txt2)' };
+}
+
+// ── LISTEN PAGE ───────────────────────────────────────────
+let currentChapter = null;
+function loadChapterContent() {
+  const val = document.getElementById('listen-unit').value;
+  if (!val) { document.getElementById('listen-view').style.display = 'none'; return; }
+  const [subject, chNum, title, book] = val.split('|');
+  currentChapter = { subject, chNum, title, book };
+
+  document.getElementById('listen-view').style.display = 'block';
+  document.getElementById('listen-title').textContent = `Ch ${chNum}: ${title}`;
+  document.getElementById('listen-source-tag').textContent = '';
+  document.getElementById('summary-text').textContent = 'Loading content…';
+  document.getElementById('download-summary-btn').style.display = 'none';
+  exitTalkQuiz();
+  setLang('en', document.querySelector('.lang-tabs .lang-tab'));
+
+  google.script.run
+    .withSuccessHandler(res => {
+      currentChapter.en = res.en; currentChapter.hi = res.hi; currentChapter.kn = res.kn;
+      renderSummaryForLang();
+      const tagEl = document.getElementById('listen-source-tag');
+      const friendly = friendlySourceLabel_(res.enSrc);
+      tagEl.textContent = friendly.text;
+      tagEl.style.color = friendly.color;
+      if (voiceAutoPlay) { voiceAutoPlay = false; togglePlay(); }
+    })
+    .withFailureHandler(e => { document.getElementById('summary-text').textContent = 'Error: ' + e.message; })
+    .getChapterOnDemand(subject, chNum, title);
+}
+
+function exitTalkQuiz() {
+  if (synth) synth.cancel();
+  const setupEl = document.getElementById('talk-setup');
+  const containerEl = document.getElementById('talk-container');
+  if (setupEl) setupEl.style.display = 'block';
+  if (containerEl) containerEl.style.display = 'none';
+  talkQuestions = []; talkIndex = 0;
 }
 
 function setLang(lang, btn) {
-  if (btn) {
-    btn.parentNode.querySelectorAll('.lang-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  }
-  showToast(`Language switched to ${lang.toUpperCase()}`);
+  currentLang = lang;
+  document.querySelectorAll('.lang-tabs .lang-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderSummaryForLang();
 }
 
-function setAskLang(lang, btn) { setLang(lang, btn); }
-function setQuizLang(lang, btn) { setLang(lang, btn); }
-
-// Voice recognition mock
-function toggleVoiceCommand() {
-  const fb = document.getElementById('voiceFeedback');
-  if (fb) {
-    fb.style.display = fb.style.display === 'none' ? 'block' : 'none';
-  }
+function renderSummaryForLang() {
+  if (!currentChapter) return;
+  const text = currentChapter[currentLang] || '';
+  document.getElementById('summary-text').textContent = text || 'No summary available in this language yet.';
+  document.getElementById('download-summary-btn').style.display = text ? 'block' : 'none';
+  if (isPlaying) stopSpeech();
 }
 
-function toggleAskMic() { showToast('Listening for your question...'); }
-function askQuestion() {
-  const q = document.getElementById('ask-question').value;
+function downloadSummary() {
+  const title = document.getElementById('listen-title').textContent;
+  const text = document.getElementById('summary-text').textContent;
+  const blob = new Blob([text], {type: 'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = title + '.txt';
+  a.click();
+}
+
+// ── SHARED TTS ENGINE (Listen + Ask pages) ──────────────────
+let speechQueue = [];
+let ttsSourceId = 'summary-text', ttsBtnId = 'audio-play-btn', ttsLangCode = 'en-IN';
+function langCodeFor(l) { return l === 'hi' ? 'hi-IN' : l === 'kn' ? 'kn-IN' : 'en-IN'; }
+function togglePlay(sourceId, btnId, langCode) {
+  if (isPlaying) { stopSpeech(); return; }
+  sourceId = sourceId || 'summary-text'; btnId = btnId || 'audio-play-btn';
+  langCode = langCode || (currentLang === 'hi' ? 'hi-IN' : currentLang === 'kn' ? 'kn-IN' : 'en-IN');
+  const text = document.getElementById(sourceId).textContent;
+  if (!text || text.startsWith('No summary') || text === 'Thinking…' || text === 'Translating…') { toast('No content to play'); return; }
+  ttsSourceId = sourceId; ttsBtnId = btnId; ttsLangCode = langCode;
+  speechQueue = chunkText(text); isPlaying = true; updatePlayBtn(); speakNextChunk();
+  if (!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) startResumeWatchdog();
+}
+function chunkText(text) {
+  let chunks = text.match(/[^.!?।॥]+[.!?।॥]+|\S+$/g) || [text]; const out = [];
+  chunks.forEach(c => { if (c.length > 220) { for (let i = 0; i < c.length; i += 200) out.push(c.slice(i, i + 200)); } else out.push(c); });
+  return out;
+}
+function speakNextChunk() {
+  if (!speechQueue.length) { isPlaying = false; updatePlayBtn(); stopResumeWatchdog(); return; }
+  const chunk = speechQueue.shift();
+  speech = new SpeechSynthesisUtterance(chunk); speech.rate = spRate;
+  speech.lang = ttsLangCode;
+  const voices = synth.getVoices(); const preferred = voices.find(v => v.lang === speech.lang) || voices.find(v => v.lang.startsWith('en'));
+  if (preferred) speech.voice = preferred;
+  speech.onend = speakNextChunk; speech.onerror = (e) => { toast('Speech error: ' + e.error); speakNextChunk(); };
+  synth.speak(speech);
+}
+let resumeTimer = null;
+function startResumeWatchdog() { resumeTimer = setInterval(() => { if (isPlaying) { synth.pause(); synth.resume(); } }, 10000); }
+function stopResumeWatchdog() { clearInterval(resumeTimer); }
+function stopSpeech() { speechQueue = []; stopResumeWatchdog(); synth.cancel(); isPlaying = false; updatePlayBtn(); }
+function updatePlayBtn() { const btn = document.getElementById(ttsBtnId); if (!btn) return; btn.textContent = isPlaying ? '⏹ Stop' : '▶ Play'; btn.classList.toggle('stop', isPlaying); }
+function setSpeed(rate, btn) { spRate = rate; const scope = btn.closest('.audio-bar') || document; scope.querySelectorAll('.speed-btn').forEach(b => { if (!b.id || !b.id.startsWith('ask-lang-')) b.classList.remove('active'); }); btn.classList.add('active'); if (isPlaying) { stopSpeech(); togglePlay(ttsSourceId, ttsBtnId, ttsLangCode); } }
+
+// ── ASK AI PAGE ───────────────────────────────────────────
+let currentAskAnswer = { en: '', hi: '', kn: '' };
+let askDisplayLang = 'en';
+function setAskLang(lang, btn) { askLang = lang; document.querySelectorAll('#page-ask .lang-tab').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+function setAskAnswerLang(lang, btn) {
+  document.querySelectorAll('#ask-audio-bar .speed-btn').forEach(b => { if (b.id && b.id.startsWith('ask-lang-')) b.classList.remove('active'); });
+  btn.classList.add('active');
+  if (isPlaying) stopSpeech();
   const box = document.getElementById('ask-answer-box');
-  if (!q.trim()) { alert('Please enter or speak a question first.'); return; }
-  box.style.display = 'block';
-  box.textContent = `AI Answer for "${q}":\nKey CBSE points covered with detailed step-by-step explanations.`;
+  if (currentAskAnswer[lang]) { askDisplayLang = lang; box.textContent = currentAskAnswer[lang]; return; }
+
+  const sourceLang = currentAskAnswer.en ? 'en' : (currentAskAnswer.hi ? 'hi' : 'kn');
+  box.textContent = 'Translating…';
+  google.script.run
+    .withSuccessHandler(res => {
+      if (res.success) { currentAskAnswer[lang] = res.text; askDisplayLang = lang; box.textContent = res.text; }
+      else { box.textContent = currentAskAnswer[sourceLang]; toast('Translation failed, showing original'); }
+    })
+    .withFailureHandler(e => { box.textContent = currentAskAnswer[sourceLang]; toast('Translation error: ' + e.message); })
+    .translateAskAnswer(currentAskAnswer[sourceLang], sourceLang, lang);
+}
+function askQuestion() {
+  const q = document.getElementById('ask-question').value.trim();
+  if (!q) { toast('Type a question first'); return; }
+  const chVal = document.getElementById('askChSelect').value;
+  let subject = '', chNum = '', title = '', book = '';
+  if (chVal) { [subject, chNum, title, book] = chVal.split('|'); }
+  const box = document.getElementById('ask-answer-box'); box.style.display = 'block'; box.textContent = 'Thinking…';
+  document.getElementById('ask-audio-bar').style.display = 'none';
+  const sourceTag = document.getElementById('ask-source-tag');
+  if (sourceTag) sourceTag.style.display = 'none';
+  if (isPlaying) stopSpeech();
+
+  currentAskAnswer = { en: '', hi: '', kn: '' };
+  askDisplayLang = askLang;
+  document.querySelectorAll('#ask-audio-bar .speed-btn').forEach(b => { if (b.id && b.id.startsWith('ask-lang-')) b.classList.toggle('active', b.id === 'ask-lang-' + askLang); });
+
+  google.script.run
+    .withSuccessHandler(res => { 
+      if (!res.success) { box.textContent = res.answer; return; }
+      currentAskAnswer[askLang] = res.answer;
+      box.textContent = res.answer;
+      if (sourceTag) {
+        if (res.source) {
+          sourceTag.style.display = 'block';
+          sourceTag.style.color = 'var(--green)';
+          sourceTag.textContent = '📎 Grounded in ' + res.source;
+        } else if (chVal) {
+          sourceTag.style.display = 'block';
+          sourceTag.style.color = 'var(--amber)';
+          sourceTag.textContent = '⚠️ General knowledge (no saved summary/PDF/notes found for this chapter yet)';
+        } else {
+          sourceTag.style.display = 'none';
+        }
+      }
+      document.getElementById('ask-audio-bar').style.display = 'flex';
+      const langCode = langCodeFor(askLang);
+      const voices = synth.getVoices(); const hasVoice = voices.some(v => v.lang === langCode || v.lang.startsWith(langCode.split('-')[0]));
+      if (hasVoice) togglePlay('ask-answer-box', 'ask-audio-play-btn', langCode);
+      else toast('Voice not available on this device for this language');
+    })
+    .withFailureHandler(e => { box.textContent = 'Error: ' + e.message; })
+    .askAI(q, askLang, null, subject, chNum, title, book);
+}
+let askMicListening = false;
+function toggleAskMic() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) { toast('Voice input not supported on this browser'); return; }
+  if (synth) synth.cancel();  
+  const micBtn = document.getElementById('askMicBtn');
+  if (askMicListening) { if (window.askRecognition) window.askRecognition.stop(); return; }
+  window.askRecognition = new SpeechRecognition();
+  window.askRecognition.lang = askLang === 'hi' ? 'hi-IN' : askLang === 'kn' ? 'kn-IN' : 'en-IN';
+  window.askRecognition.onstart = () => { askMicListening = true; micBtn.classList.add('listening'); };
+  window.askRecognition.onend = () => { askMicListening = false; micBtn.classList.remove('listening'); };
+  window.askRecognition.onresult = (e) => { document.getElementById('ask-question').value = e.results[0][0].transcript; };
+  window.askRecognition.start();
+}
+// ── VOICE COMMANDS (Home page) ────────────────────────────
+let vcListening = false;
+function toggleVoiceCommand() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) { toast('Voice input not supported on this browser'); return; }
+  if (synth) synth.cancel();
+  const btn = document.getElementById('voiceCmdBtn');
+  
+  if (vcListening) { 
+    console.log('VOICE_STOP: User clicked stop button');
+    if (window.vcRecognition) window.vcRecognition.stop(); 
+    if (voiceStopBtn) voiceStopBtn.style.display = 'none';
+    return; 
+  }
+  
+  console.log('VOICE_START: Initializing speech recognition');
+  window.vcRecognition = new SpeechRecognition();
+  window.vcRecognition.lang = 'en-IN';
+  window.vcRecognition.continuous = true;
+  window.vcRecognition.interimResults = false;
+  window.vcRecognition.maxAlternatives = 1;
+  
+  window.vcRecognition.onstart = () => { 
+    console.log('VOICE_LISTENING: Recognition started');
+    vcListening = true; 
+    btn.classList.add('listening');
+    
+    if (!voiceStopBtn) {
+      voiceStopBtn = document.createElement('button');
+      voiceStopBtn.className = 'mic-btn';
+      voiceStopBtn.id = 'voiceStopBtn';
+      voiceStopBtn.textContent = '⏹️ Stop Listening';
+      voiceStopBtn.style.cssText = `
+        display: block;
+        margin: 10px auto;
+        font-size: 13px;
+        padding: 8px 14px;
+        background: var(--red, #ff4444);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      `;
+      voiceStopBtn.onclick = toggleVoiceCommand;
+      btn.parentElement.appendChild(voiceStopBtn);
+    } else {
+      voiceStopBtn.style.display = 'block';
+    }
+    
+    const feedbackEl = document.getElementById('voiceFeedback');
+    if (feedbackEl) feedbackEl.style.display = 'block';
+  };
+  
+  window.vcRecognition.onend = () => { 
+    console.log('VOICE_ENDED: Recognition ended');
+    vcListening = false; 
+    btn.classList.remove('listening');
+    if (voiceStopBtn) voiceStopBtn.style.display = 'none';
+    
+    const feedbackEl = document.getElementById('voiceFeedback');
+    if (feedbackEl) feedbackEl.style.display = 'none';
+  };
+  
+  window.vcRecognition.onerror = (e) => {
+    console.error('VOICE_ERROR:', e.error);
+    toast('Voice error: ' + e.error);
+    vcListening = false;
+    btn.classList.remove('listening');
+    if (voiceStopBtn) voiceStopBtn.style.display = 'none';
+  };
+  
+  window.vcRecognition.onresult = (e) => {
+    const results = e.results;
+    const lastResult = results[results.length - 1];
+    
+    if (lastResult.isFinal) {
+      const transcript = lastResult[0].transcript;
+      const confidence = lastResult[0].confidence;
+      console.log('VOICE_HEARD:', transcript, '(confidence: ' + (confidence*100).toFixed(0) + '%)');
+      
+      window.vcRecognition.stop();
+      handleVoiceCommand(transcript);
+    }
+  };
+  
+  window.vcRecognition.start();
 }
 
-function startWebMCQ() {
-  const sub = document.getElementById('webmcq-subj').value;
-  if (!sub) { alert('Please select a subject first.'); return; }
-  showToast(`Starting MCQ Quiz for ${sub}...`);
+function speakVC_(text) {
+  if (!synth) return;
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-IN';
+  synth.speak(u);
 }
 
-function launchMockExam() {
-  showToast('Starting 10-Minute Timed Mock Test...');
+function handleVoiceCommand(transcript) {
+  if (!appData || !appData.trackerChapters) { 
+    console.error('VOICE_FAIL: Data not loaded');
+    toast('Data not loaded yet, try again'); 
+    return; 
+  }
+  
+  const t = transcript.toLowerCase();
+  console.log('VOICE_PROCESSING:', {input: transcript, lowercase: t});
+
+  let intent = null;
+  if (/\b(practice|oral|answer|spoken)\b/.test(t)) {
+    intent = 'practicequiz';
+    console.log('  Intent: PRACTICE QUIZ');
+  } else if (/\b(quiz|test|mcq|multiple)\b/.test(t)) {
+    intent = 'quiz';
+    console.log('  Intent: DAILY MCQ QUIZ');
+  } else if (/\b(read|listen|summary|explain)\b/.test(t)) {
+    intent = 'listen';
+    console.log('  Intent: LISTEN/READ CHAPTER');
+  } else {
+    console.warn('  Intent: NONE DETECTED');
+  }
+
+  const chMatch = t.match(/chapter\s*(\d+)|ch\s*(\d+)|chapter\s+(\w+)/);
+  const chNum = chMatch ? Number(chMatch[1] || chMatch[2]) : null;
+  console.log('  Chapter:', chNum || 'not found');
+
+  const subjectNames = ['english','mathematics','maths','science','civics','economics','geography','history','sanskrit','social science'];
+  let subject = subjectNames.find(s => t.includes(s));
+  if (subject === 'maths') subject = 'mathematics';
+  console.log('  Subject:', subject || 'not found');
+
+  if (!intent || !chNum || !subject) {
+    const msg = 'Sorry, please say something like: read Science chapter 3, or quiz me on History chapter 2.';
+    console.warn('VOICE_INCOMPLETE:', {intent, chNum, subject});
+    speakVC_(msg);
+    toast('Could not understand — try: "read Science chapter 3"');
+    return;
+  }
+
+  const relevantSubjects = (subject === 'social science') ? SOCIAL_SCIENCE_SUBJECTS : [subject];
+  const match = appData.trackerChapters.find(ch =>
+    relevantSubjects.some(rs => ch.subject.toLowerCase() === rs.toLowerCase()) &&
+    Number(ch.chNum) === chNum
+  );
+
+  if (!match) {
+    console.warn('VOICE_NOT_FOUND: Chapter', subject, chNum, 'not in tracker');
+    speakVC_("I couldn't find that chapter.");
+    toast('Chapter not found — check subject/chapter number');
+    return;
+  }
+
+  console.log('VOICE_MATCH_FOUND:', {subject: match.subject, chNum: match.chNum, title: match.title});
+  const dropdownSubject = SOCIAL_SCIENCE_SUBJECTS.includes(match.subject) ? 'Social Science' : match.subject;
+
+  if (intent === 'listen') {
+    console.log('VOICE_ACTION: Loading Listen page');
+    showPage('listen');
+    document.getElementById('listen-subj').value = dropdownSubject;
+    loadListenUnits();
+    document.getElementById('listen-unit').value = match.subject + '|' + match.chNum + '|' + match.title + '|' + (match.book || '');
+    voiceAutoPlay = true;
+    loadChapterContent();
+    
+  } else if (intent === 'quiz') {
+    console.log('VOICE_ACTION: Loading Daily MCQ Quiz page');
+    showPage('quiz');
+    document.getElementById('webmcq-subj').value = dropdownSubject;
+    loadWebMcqUnits();
+    document.getElementById('webmcq-unit').value = match.subject + '|' + match.chNum + '|' + match.title;
+    console.log('VOICE_ACTION: Calling startWebMCQ()');
+    startWebMCQ();
+    
+  } else if (intent === 'practicequiz') {
+    console.log('VOICE_ACTION: Loading Practice Quiz page');
+    showPage('quiz');
+    const qOption = match.subject + '|' + match.chNum + '|' + match.title + '|' + (match.book || '');
+    console.log('  Setting quizChSelect to:', qOption);
+    document.getElementById('quizChSelect').value = qOption;
+    enableQuizBtn();
+    console.log('VOICE_ACTION: Calling startQuiz()');
+    startQuiz();
+  }
+}
+// ── PRACTICE QUIZ (oral / typed answer, AI graded) ─────────
+// NOTE: this whole block was missing from the uploaded file, which is why
+// "Select Chapter" never enabled the Start Quiz button — the onchange/onclick
+// handlers in the HTML had nothing to call. Restored below, unchanged from the
+// last known-working version, just pointed at the current askAI(...,maxTokens) signature.
+let quizQuestions = [], quizIndex = 0, quizChapter = null;
+let talkQuestions = [], talkIndex = 0;
+
+function enableQuizBtn() {
+  document.getElementById('startQuizBtn').disabled = !document.getElementById('quizChSelect').value;
+}
+
+function setQuizLang(lang, btn) {
+  quizLang = lang;
+  document.querySelectorAll('#quizSetup .lang-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
 }
 
 function startQuiz() {
-  const sub = document.getElementById('quizSubjSelect').value;
-  if (!sub) { alert('Please select a subject first.'); return; }
-  showToast(`Starting Practice Quiz for ${sub}...`);
+  const val = document.getElementById('quizChSelect').value;
+  if (!val) {
+    console.error('QUIZ_FAIL: No chapter selected');
+    toast('Select a chapter first');
+    return;
+  }
+  
+  const [subject, chNum, title, book] = val.split('|');
+  quizChapter = { subject, chNum, title };
+  console.log('QUIZ_START: Practice Quiz', {subject, chNum, title});
+
+  const startBtn = document.getElementById('startQuizBtn');
+  startBtn.disabled = true;
+  startBtn.textContent = '⏳ Checking question bank…';
+
+  // Tier -1 (Session 3): check the pre-generated bank BEFORE calling the AI.
+  // If this chapter's bank exists, the quiz loads instantly at zero API cost.
+  google.script.run
+    .withSuccessHandler(bankRes => {
+      if (bankRes.success && bankRes.questions.length >= 5) {
+        console.log('QUIZ_FROM_BANK:', bankRes.questions.length + ' questions (0 API calls)');
+        startBtn.disabled = false;
+        startBtn.textContent = '▶ Start Quiz';
+        quizQuestions = bankRes.questions;
+        quizIndex = 0;
+        document.getElementById('quizSetup').style.display = 'none';
+        document.getElementById('quizContainer').style.display = 'block';
+        const badge = document.getElementById('quizGroundBadge');
+        if (badge) { badge.textContent = '📚 ' + bankRes.source; badge.style.color = 'var(--green)'; }
+        showQuestion();
+        return;
+      }
+      // Not in the bank yet — fall back to live AI generation, exactly as before.
+      startQuizViaAI_(subject, chNum, title, book, startBtn);
+    })
+    .withFailureHandler(() => startQuizViaAI_(subject, chNum, title, book, startBtn))
+    .getPracticeQuizBank(subject, Number(chNum), title);
 }
 
-function startTalkQuiz() { showToast('Starting interactive oral practice...'); }
-function loadPYQs() { showToast('Loading Previous Year Questions...'); }
+function startQuizViaAI_(subject, chNum, title, book, startBtn) {
+  startBtn.textContent = '⏳ Generating questions…';
 
-// Initialize and auto-link Subject & Chapter Dropdowns
-document.addEventListener('DOMContentLoaded', () => {
-  const subjectSelects = document.querySelectorAll('.notes-subj-select');
+  const instruction = 'Generate exactly 5 short-answer (not multiple choice) practice questions with their model answers for this chapter' +
+    '. Format strictly as:\nQ1: question\nA1: model answer\nQ2: question\nA2: model answer\n(continue through Q5/A5)';
 
-  subjectSelects.forEach(select => {
-    // Populate subjects
-    select.innerHTML = '<option value="">— Choose subject —</option>';
-    Object.keys(courseData).forEach(sub => {
-      const opt = document.createElement('option');
-      opt.value = sub;
-      opt.textContent = sub;
-      select.appendChild(opt);
-    });
+  const requestStartTime = Date.now();
+  
+  google.script.run
+    .withSuccessHandler(res => {
+      const elapsed = ((Date.now() - requestStartTime) / 1000).toFixed(1);
+      console.log('QUIZ_RESPONSE:', {elapsed_sec: elapsed, success: res.success});
+      
+      startBtn.disabled = false;
+      startBtn.textContent = '▶ Start Quiz';
+      
+      if (!res.success) {
+        console.error('QUIZ_GENERATION_FAILED:', res);
+        if (res.debug) console.error('  Backend debug:', res.debug);
+        toast('Could not generate questions. Check console for details.');
+        return;
+      }
+      
+      quizQuestions = parseGeneratedQuestions_(res.answer);
+      console.log('QUIZ_PARSED:', quizQuestions.length + ' questions');
+      
+      if (quizQuestions.length === 0) {
+        console.error('QUIZ_PARSE_FAILED: No questions extracted');
+        toast('No questions generated, try again');
+        return;
+      }
+      
+      quizIndex = 0;
+      document.getElementById('quizSetup').style.display = 'none';
+      document.getElementById('quizContainer').style.display = 'block';
+      
+      const badge = document.getElementById('quizGroundBadge');
+      if (badge) {
+        badge.textContent = res.source ? '📎 Grounded in ' + res.source : '⚠️ General knowledge (chapter not yet generated — for tighter accuracy, generate it in More first)';
+        badge.style.color = res.source ? 'var(--green)' : 'var(--amber)';
+      }
+      
+      console.log('QUIZ_READY:', quizQuestions.length + ' questions loaded');
+      showQuestion();
+    })
+    .withFailureHandler(e => {
+      console.error('QUIZ_API_ERROR:', e.message || e);
+      startBtn.disabled = false;
+      startBtn.textContent = '▶ Start Quiz';
+      toast('Error: ' + (e.message || 'Network error. Check console.'));
+    })
+    .askAI(instruction, quizLang, 1500, subject, chNum, title, book);
+}
 
-    // Auto-update chapter dropdown on subject selection
-    select.addEventListener('change', (e) => {
-      const selectedSubject = e.target.value;
-      const parent = select.closest('.card-body, .card, div') || document;
-      const chapterSelect = parent.querySelector('.notes-unit-select');
+function parseGeneratedQuestions_(text) {
+  const qs = [];
+  const re = /Q\d+:\s*(.+?)\s*A\d+:\s*(.+?)(?=Q\d+:|$)/gs;
+  let m;
+  while ((m = re.exec(text)) !== null && qs.length < 5) {
+    qs.push({ question: m[1].trim(), answer: m[2].trim() });
+  }
+  return qs;
+}
 
-      if (chapterSelect) {
-        chapterSelect.innerHTML = '<option value="">— Choose chapter —</option>';
-        if (selectedSubject && courseData[selectedSubject]) {
-          courseData[selectedSubject].forEach(chap => {
-            const opt = document.createElement('option');
-            opt.value = chap;
-            opt.textContent = chap;
-            chapterSelect.appendChild(opt);
-          });
-        } else {
-          chapterSelect.innerHTML = '<option value="">— Select a Subject first —</option>';
+function showQuestion() {
+  document.getElementById('quizProgress').textContent = `Question ${quizIndex+1} of ${quizQuestions.length}`;
+  const q = quizQuestions[quizIndex].question;
+  document.getElementById('quizQuestionText').textContent = q;
+  document.getElementById('quizAnswerText').value = '';
+  document.getElementById('quizFeedback').style.display = 'none';
+  document.getElementById('nextQBtn').style.display = 'none';
+
+  if (synth) {
+    synth.cancel();
+    const utterance = new SpeechSynthesisUtterance(q);
+    utterance.lang = langCodeFor(quizLang);
+    const voices = synth.getVoices();
+    const preferred = voices.find(v => v.lang === utterance.lang) || voices.find(v => v.lang.startsWith('en'));
+    if (preferred) utterance.voice = preferred;
+    synth.speak(utterance);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// SHARED GRADING PROGRESS HELPER (Session 2 fix — Issues #2 & #3)
+// Used by both submitAnswer() (Practice Quiz) and submitTalkAnswer()
+// (Talk About This Chapter) so the spinner/timeout/retry logic exists once.
+//   - Spinner + "Checking…" immediately
+//   - "Still checking… (10-30s on free tier)" after 5s
+//   - Timeout message + Retry button after 30s (request may still land late;
+//     if it does, the success/failure handler below still fires and updates
+//     the box, clearing the timers)
+//   - Elapsed time logged to console + shown as a title tooltip on the box
+// ═══════════════════════════════════════════════════════════════════════
+window.__gradeRetry = null;
+
+function gradeAndShow_(q, studentAnswer, lang, fb, nextBtn) {
+  const retryFn = () => gradeAndShow_(q, studentAnswer, lang, fb, nextBtn);
+
+  fb.style.display = 'block';
+  fb.className = 'feedback-box';
+  fb.innerHTML = '<span class="spinner-icon"></span>Checking your answer…';
+  nextBtn.style.display = 'none';
+  console.log('ANSWER_SUBMIT:', {q_text: q.question.substring(0, 40)});
+
+  const gradeStartTime = Date.now();
+
+  const stillTimer = setTimeout(() => {
+    fb.innerHTML = '<span class="spinner-icon"></span>Still checking… (free tier can take 10–30s)';
+  }, 5000);
+
+  const timeoutTimer = setTimeout(() => {
+    window.__gradeRetry = retryFn;
+    fb.className = 'feedback-box feedback-incorrect';
+    fb.innerHTML = 'Taking longer than expected (30s+). It may still complete — or tap retry.' +
+      '<br><button class="btn retry-btn" onclick="__gradeRetry && __gradeRetry()">🔄 Retry</button>';
+    console.warn('GRADE_TIMEOUT: no response after 30s');
+  }, 30000);
+
+  google.script.run
+    .withSuccessHandler(res => {
+      clearTimeout(stillTimer); clearTimeout(timeoutTimer);
+      const elapsed = ((Date.now() - gradeStartTime) / 1000).toFixed(1);
+      console.log('GRADE_RESPONSE:', {elapsed_sec: elapsed, success: res.success});
+
+      if (!res.success) {
+        window.__gradeRetry = retryFn;
+        fb.className = 'feedback-box feedback-incorrect';
+        fb.innerHTML = (res.answer || 'Could not grade. Try again.') +
+          '<br><button class="btn retry-btn" onclick="__gradeRetry && __gradeRetry()">🔄 Retry</button>';
+        return;
+      }
+
+      const isCorrect = res.answer.toUpperCase().startsWith('CORRECT');
+      fb.className = 'feedback-box ' + (isCorrect ? 'feedback-correct' : 'feedback-incorrect');
+      fb.textContent = res.answer;
+      fb.title = 'Graded in ' + elapsed + 's';
+      nextBtn.style.display = 'block';
+
+      if (synth) {
+        synth.cancel();
+        const utterance = new SpeechSynthesisUtterance(res.answer);
+        utterance.lang = langCodeFor(lang);
+        const voices = synth.getVoices();
+        const preferred = voices.find(v => v.lang === utterance.lang) || voices.find(v => v.lang.startsWith('en'));
+        if (preferred) utterance.voice = preferred;
+        synth.speak(utterance);
+      }
+    })
+    .withFailureHandler(e => {
+      clearTimeout(stillTimer); clearTimeout(timeoutTimer);
+      console.error('GRADE_ERROR:', e.message || e);
+      window.__gradeRetry = retryFn;
+      fb.className = 'feedback-box feedback-incorrect';
+      fb.innerHTML = 'Error: ' + (e.message || 'Network error') +
+        '<br><button class="btn retry-btn" onclick="__gradeRetry && __gradeRetry()">🔄 Retry</button>';
+    })
+    .checkOralAnswer(q.question, q.answer, studentAnswer, lang);
+}
+
+function submitAnswer() {
+  const studentAnswer = document.getElementById('quizAnswerText').value.trim();
+  if (!studentAnswer) { toast('Type or speak your answer first'); return; }
+  const q = quizQuestions[quizIndex];
+  gradeAndShow_(q, studentAnswer, quizLang,
+    document.getElementById('quizFeedback'), document.getElementById('nextQBtn'));
+}
+
+function nextQuestion() {
+  quizIndex++;
+  if (quizIndex >= quizQuestions.length) { toast('🎉 Quiz complete!'); exitQuiz(); return; }
+  showQuestion();
+}
+
+function exitQuiz() {
+  if (synth) synth.cancel();
+  document.getElementById('quizSetup').style.display = 'block';
+  document.getElementById('quizContainer').style.display = 'none';
+}
+
+let micListening = false;
+function toggleMic() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) { toast('Voice input not supported on this browser'); return; }
+  const micBtn = document.getElementById('micBtn');
+  if (micListening) { if (window.quizRecognition) window.quizRecognition.stop(); return; }
+  window.quizRecognition = new SpeechRecognition();
+  window.quizRecognition.lang = langCodeFor(quizLang);
+  window.quizRecognition.onstart = () => { micListening = true; micBtn.classList.add('listening'); };
+  window.quizRecognition.onend = () => { micListening = false; micBtn.classList.remove('listening'); };
+  window.quizRecognition.onresult = (e) => { document.getElementById('quizAnswerText').value = e.results[0][0].transcript; };
+  window.quizRecognition.start();
+}
+
+// ── TALK ABOUT THIS CHAPTER (Listen page inline oral quiz) ──
+// Replaces the old static "Dinner Table Questions" text block. Reuses the
+// exact same grounded generation (askAI) and marks-aware grading
+// (checkOralAnswer) engine as the standalone Practice Quiz — just embedded
+// inline under the summary so a child can use it right where they're
+// listening, without navigating to a separate tab. Fresh questions every time.
+let talkListening = false;
+
+function startTalkQuiz() {
+  if (!currentChapter) return;
+  const { subject, chNum, title, book } = currentChapter;
+  const btn = document.getElementById('talkStartBtn');
+  btn.disabled = true; btn.textContent = 'Checking question bank…';
+
+  // Tier -1 (Session 3): bank check before any AI call — same pattern as startQuiz().
+  google.script.run
+    .withSuccessHandler(bankRes => {
+      if (bankRes.success && bankRes.questions.length >= 5) {
+        console.log('TALK_FROM_BANK:', bankRes.questions.length + ' questions (0 API calls)');
+        btn.disabled = false; btn.textContent = '🎙️ Start';
+        talkQuestions = bankRes.questions;
+        talkIndex = 0;
+        document.getElementById('talk-setup').style.display = 'none';
+        document.getElementById('talk-container').style.display = 'block';
+        const badge = document.getElementById('talkGroundBadge');
+        badge.textContent = '📚 ' + bankRes.source;
+        badge.style.color = 'var(--green)';
+        showTalkQuestion();
+        return;
+      }
+      startTalkQuizViaAI_(subject, chNum, title, book, btn);
+    })
+    .withFailureHandler(() => startTalkQuizViaAI_(subject, chNum, title, book, btn))
+    .getPracticeQuizBank(subject, Number(chNum), title);
+}
+
+function startTalkQuizViaAI_(subject, chNum, title, book, btn) {
+  btn.textContent = 'Generating questions…';
+
+  const instruction = 'Generate exactly 5 short-answer (not multiple choice) practice questions with their model answers for this chapter' +
+    '. Format strictly as:\nQ1: question\nA1: model answer\nQ2: question\nA2: model answer\n(continue through Q5/A5)';
+
+  google.script.run
+    .withSuccessHandler(res => {
+      btn.disabled = false; btn.textContent = '🎙️ Start';
+      if (!res.success) { toast('Could not generate questions'); return; }
+      talkQuestions = parseGeneratedQuestions_(res.answer);
+      if (talkQuestions.length === 0) { toast('No questions generated, try again'); return; }
+      talkIndex = 0;
+      document.getElementById('talk-setup').style.display = 'none';
+      document.getElementById('talk-container').style.display = 'block';
+      const badge = document.getElementById('talkGroundBadge');
+      badge.textContent = res.source ? '📎 Grounded in ' + res.source : '⚠️ General knowledge (chapter not yet generated — for tighter accuracy, generate it in More first)';
+      badge.style.color = res.source ? 'var(--green)' : 'var(--amber)';
+      showTalkQuestion();
+    })
+    .withFailureHandler(e => {
+      btn.disabled = false; btn.textContent = '🎙️ Start';
+      toast('Error: ' + e.message);
+    })
+    .askAI(instruction, currentLang, 1500, subject, chNum, title, book);
+}
+
+function showTalkQuestion() {
+  document.getElementById('talkProgress').textContent = `Question ${talkIndex+1} of ${talkQuestions.length}`;
+  const q = talkQuestions[talkIndex].question;
+  document.getElementById('talkQuestionText').textContent = q;
+  document.getElementById('talkAnswerText').value = '';
+  document.getElementById('talkFeedback').style.display = 'none';
+  document.getElementById('talkNextBtn').style.display = 'none';
+
+  if (synth) {
+    synth.cancel();
+    const utterance = new SpeechSynthesisUtterance(q);
+    utterance.lang = langCodeFor(currentLang);
+    const voices = synth.getVoices();
+    const preferred = voices.find(v => v.lang === utterance.lang) || voices.find(v => v.lang.startsWith('en'));
+    if (preferred) utterance.voice = preferred;
+    synth.speak(utterance);
+  }
+}
+
+function submitTalkAnswer() {
+  const studentAnswer = document.getElementById('talkAnswerText').value.trim();
+  if (!studentAnswer) { toast('Type or speak your answer first'); return; }
+  const q = talkQuestions[talkIndex];
+  gradeAndShow_(q, studentAnswer, currentLang,
+    document.getElementById('talkFeedback'), document.getElementById('talkNextBtn'));
+}
+
+function nextTalkQuestion() {
+  talkIndex++;
+  if (talkIndex >= talkQuestions.length) { toast('🎉 All done for this chapter!'); exitTalkQuiz(); return; }
+  showTalkQuestion();
+}
+
+function toggleTalkMic() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) { toast('Voice input not supported on this browser'); return; }
+  if (synth) synth.cancel(); 
+  const micBtn = document.getElementById('talkMicBtn');
+  if (talkListening) { if (window.talkRecognition) window.talkRecognition.stop(); return; }
+  window.talkRecognition = new SpeechRecognition();
+  window.talkRecognition.lang = langCodeFor(currentLang);
+  window.talkRecognition.onstart = () => { talkListening = true; micBtn.classList.add('listening'); };
+  window.talkRecognition.onend = () => { talkListening = false; micBtn.classList.remove('listening'); };
+  window.talkRecognition.onresult = (e) => { document.getElementById('talkAnswerText').value = e.results[0][0].transcript; };
+  window.talkRecognition.start();
+}
+
+// ── PYQ BANK ─────────────────────────────────────────────
+function loadPyqUnits() {
+  const subj = document.getElementById('pyq-subj').value;
+  const sel = document.getElementById('pyq-unit');
+  sel.innerHTML = '<option value="">— Choose chapter —</option>';
+  if (!subj || !appData) return;
+  const relevantSubjects = (subj === 'Social Science') ? SOCIAL_SCIENCE_SUBJECTS : [subj];
+  appData.trackerChapters.filter(c => relevantSubjects.includes(c.subject)).forEach(ch => {
+    const opt = document.createElement('option');
+    opt.value = ch.subject + '|' + ch.chNum + '|' + ch.title;
+    opt.textContent = `${ch.subject} Ch ${ch.chNum}: ${ch.title}`;
+    sel.appendChild(opt);
+  });
+}
+
+function loadPYQs() {
+  const val = document.getElementById('pyq-unit').value;
+  if (!val) return toast('Select a chapter');
+  const [subject, chNum, title] = val.split('|');
+  const btn = document.querySelector('#pyqSetup button');
+  btn.textContent = 'Loading...'; btn.disabled = true;
+  
+  google.script.run
+    .withSuccessHandler(res => {
+      btn.textContent = 'Load PYQs'; btn.disabled = false;
+      if (res.length === 0) return toast('No PYQs found for this chapter');
+      renderPYQs(res, subject, chNum);
+    })
+    .withFailureHandler(e => { btn.textContent = 'Load PYQs'; btn.disabled = false; toast('Error: ' + e.message); })
+    .getPYQList(subject, chNum, title);
+}
+
+let pyqDataMap = {};
+function renderPYQs(pyqs, subj, chNum) {
+  document.getElementById('pyqSetup').style.display = 'none';
+  document.getElementById('pyqContainer').style.display = 'block';
+  pyqDataMap = {};
+  
+  const html = pyqs.map((q, i) => {
+    pyqDataMap[i] = q;
+    return `
+    <div style="margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid var(--border)">
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+        <span style="font-size:10px; background:var(--purplt); color:var(--purple); padding:2px 6px; border-radius:4px; font-weight:700">📅 ${q.source} • ${q.year}</span>
+        <span style="font-size:10px; background:var(--bg); color:var(--txt2); padding:2px 6px; border-radius:4px; font-weight:700">${q.marks} Marks</span>
+      </div>
+      <div class="quiz-q">${q.question}</div>
+      <textarea class="text-input" id="pyq-ans-${i}" rows="2" placeholder="Type your answer here..."></textarea>
+      <button class="btn btn-sm btn-success" id="pyq-btn-${i}" onclick="submitPYQ(${i})">Check Answer</button>
+      <div id="pyq-feedback-${i}" style="display:none; margin-top:10px" class="feedback-box"></div>
+    </div>`;
+  }).join('');
+  document.getElementById('pyqList').innerHTML = html;
+}
+
+function submitPYQ(idx) {
+  const ans = document.getElementById('pyq-ans-' + idx).value.trim();
+  if (!ans) return toast('Type an answer first');
+  const qData = pyqDataMap[idx];
+  const btn = document.getElementById('pyq-btn-' + idx);
+  btn.disabled = true; btn.textContent = 'Checking...';
+  
+  google.script.run
+    .withSuccessHandler(res => {
+      btn.disabled = false; btn.textContent = 'Check Answer';
+      const fBox = document.getElementById('pyq-feedback-' + idx);
+      fBox.style.display = 'block';
+      fBox.className = 'feedback-box ' + (res.answer.startsWith('CORRECT') ? 'feedback-correct' : 'feedback-incorrect');
+      fBox.innerHTML = res.answer + `<br><br><span style="color:var(--txt);font-weight:600">Model Answer:</span><br>${qData.answer}`;
+    })
+    .withFailureHandler(e => { btn.disabled = false; btn.textContent = 'Check Answer'; toast('Error: ' + e.message); })
+    .checkPYQAnswer(qData.question, qData.answer, ans, 'en');
+}
+
+function exitPYQ() {
+  document.getElementById('pyqSetup').style.display = 'block';
+  document.getElementById('pyqContainer').style.display = 'none';
+}
+
+// ── DAILY MCQ ─────────────────────────────────────────────
+let webMcqData = null;
+function loadWebMcqUnits() {
+  const subj = document.getElementById('webmcq-subj').value;
+  const sel = document.getElementById('webmcq-unit');
+  sel.innerHTML = '<option value="">— Choose chapter —</option>';
+  if (!subj || !appData) return;
+  const relevantSubjects = (subj === 'Social Science') ? SOCIAL_SCIENCE_SUBJECTS : [subj];
+  appData.trackerChapters.filter(c => relevantSubjects.includes(c.subject)).forEach(ch => {
+    const opt = document.createElement('option');
+    opt.value = ch.subject + '|' + ch.chNum + '|' + ch.title;
+    opt.textContent = `${ch.subject} Ch ${ch.chNum}: ${ch.title}`;
+    sel.appendChild(opt);
+  });
+}
+function startWebMCQ() {
+  const val = document.getElementById('webmcq-unit').value;
+  if (!val) {
+    console.error('WEBMCQ_FAIL: No chapter selected');
+    toast('Choose a chapter first');
+    return;
+  }
+  
+  const [subject, chNum, title] = val.split('|');
+  console.log('WEBMCQ_START: Web MCQ Quiz', {subject, chNum, title});
+  
+  const btn = document.getElementById('startWebMcqBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating…';
+  
+  const requestStartTime = Date.now();
+  const timeoutId = setTimeout(() => {
+    if (btn.disabled) {
+      console.warn('WEBMCQ_TIMEOUT: Request taking >5 seconds (normal for free tier)');
+      btn.textContent = '⏳ Still generating (can take 10-30s on free tier)…';
+    }
+  }, 5000);
+
+  google.script.run
+    .withSuccessHandler(res => {
+      clearTimeout(timeoutId);
+      const elapsed = ((Date.now() - requestStartTime) / 1000).toFixed(1);
+      console.log('WEBMCQ_RESPONSE:', {elapsed_sec: elapsed, success: res.success});
+      
+      btn.disabled = false;
+      btn.textContent = '▶ Start MCQ Quiz';
+      
+      if (!res.success) {
+        console.error('WEBMCQ_GENERATION_FAILED:', res);
+        if (res.debug) console.error('  Backend debug:', res.debug);
+        
+        let errMsg = res.error || 'Failed to generate';
+        if (errMsg.includes('429')) errMsg = 'API rate limit (try again in 30s)';
+        if (errMsg.includes('timeout')) errMsg = 'Request timeout (try again)';
+        
+        toast(errMsg + ' — check console for details');
+        return;
+      }
+      
+      console.log('WEBMCQ_LOADED:', res.questions.length + ' questions', 
+        '| grounded:', res.grounded ? 'YES' : 'NO');
+      
+      webMcqData = res;
+      renderWebMCQ();
+      document.getElementById('webMcqSetup').style.display = 'none';
+      document.getElementById('webMcqContainer').style.display = 'block';
+      document.getElementById('webMcqResults').style.display = 'none';
+    })
+    .withFailureHandler(e => {
+      clearTimeout(timeoutId);
+      console.error('WEBMCQ_API_ERROR:', e.message || e);
+      btn.disabled = false;
+      btn.textContent = '▶ Start MCQ Quiz';
+      toast('Error: ' + (e.message || 'Network error. Check console.'));
+    })
+    .generateWebMCQQuiz(subject, Number(chNum), title);
+}
+function renderWebMCQ() {
+  const badge = document.getElementById('webMcqGroundBadge');
+  if (badge) {
+    const n = webMcqData.questions.length;
+    const groundTxt = webMcqData.grounded ? '📖 Based on this chapter\'s saved content' : '⚠️ General knowledge (chapter not yet generated — for tighter accuracy, generate it in More first)';
+    // Question-quality badge (Session 2): surfaces if the AI returned fewer
+    // than 5 well-formed questions, instead of silently showing a short quiz.
+    const qualityTxt = n >= 5 ? ' · ✅ 5/5 questions valid' : ' · ⚠️ ' + n + '/5 valid (some skipped, check console)';
+    badge.textContent = groundTxt + qualityTxt;
+    badge.style.color = webMcqData.grounded && n >= 5 ? 'var(--green)' : 'var(--amber)';
+  }
+  document.getElementById('webMcqList').innerHTML = webMcqData.questions.map((q, i) => `
+    <div style="margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border)">
+      <div class="quiz-q" style="margin-bottom:8px">${i+1}. ${q.text}</div>
+      ${['A','B','C','D'].map(opt => `
+        <label style="display:flex;align-items:center;gap:8px;padding:8px;font-size:13px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px">
+          <input type="radio" name="wmcq-${i}" value="${opt}">
+          <span>${opt}) ${q['opt'+opt]}</span>
+        </label>`).join('')}
+    </div>`).join('');
+}
+function submitWebMCQ() {
+  const answers = webMcqData.questions.map((q,i) => {
+    const sel = document.querySelector(`input[name="wmcq-${i}"]:checked`);
+    return sel ? sel.value : '';
+  });
+  if (answers.some(a => !a)) { toast('Answer all questions first'); return; }
+  google.script.run
+    .withSuccessHandler(res => {
+      if (!res.success) { toast(res.error || 'Error grading'); return; }
+      res.grounded = webMcqData.grounded;
+      showWebMCQResults(res);
+      // Refresh Home (stats + Recent Quiz Scores) in the background so it's
+      // already up to date when the student goes back, instead of needing a
+      // manual page reload.
+      loadDashboardData();
+    })
+    .withFailureHandler(e => toast('Error: ' + e.message))
+    .submitWebMCQQuiz(webMcqData.quizId, webMcqData.subject, webMcqData.chNum, webMcqData.title, answers);
+}
+function showWebMCQResults(res) {
+  document.getElementById('webMcqContainer').style.display = 'none';
+  document.getElementById('webMcqResults').style.display = 'block';
+  const cls = res.percent>=80?'sc-good': res.percent>=50?'sc-mid':'sc-bad';
+  const groundLine = res.grounded
+    ? '<div style="font-size:11px;color:var(--green);font-weight:600;margin-bottom:10px">📖 These questions were based on this chapter\'s saved content</div>'
+    : '<div style="font-size:11px;color:var(--amber);font-weight:600;margin-bottom:10px">⚠️ General knowledge (chapter not yet generated)</div>';
+  document.getElementById('webMcqResultsBody').innerHTML = groundLine + `
+    <div class="score-row" style="border:none;margin-bottom:10px">
+      <div class="score-circle ${cls}" style="width:56px;height:56px;font-size:16px">${res.percent}%</div>
+      <div style="font-size:16px;font-weight:700">${res.score}/${res.total} correct</div>
+    </div>
+    ${res.results.map((r,i) => `
+      <div style="padding:10px 0;border-top:1px solid var(--border);font-size:13px">
+        <div style="font-weight:600;margin-bottom:4px">${i+1}. ${r.question}</div>
+        <div style="color:${r.isCorrect?'var(--green)':'var(--red)'}">Your answer: ${r.given ? r.given + ') ' + r.givenText : '—'} ${r.isCorrect ? '✅' : '❌'}</div>
+        ${!r.isCorrect ? `<div style="color:var(--green)">Correct: ${r.correctAnswer}</div>` : ''}
+      </div>`).join('')}
+    <button class="btn btn-primary btn-full" style="margin-top:14px" onclick="exitWebMCQ()">Done</button>`;
+}
+function exitWebMCQ() {
+  document.getElementById('webMcqSetup').style.display = 'block';
+  document.getElementById('webMcqContainer').style.display = 'none';
+  document.getElementById('webMcqResults').style.display = 'none';
+  document.getElementById('webmcq-unit').innerHTML = '<option value="">— Choose chapter —</option>';
+}
+
+// ── REFERENCE PAGE (FORMULAS) ────────────────────────────
+function loadFormulaBank(subjectFilter) {
+  document.querySelectorAll('#ref-filter-tabs .seg-tab').forEach(b => {
+     if (b.textContent.toLowerCase().includes(subjectFilter.substring(0,3).toLowerCase()) || (subjectFilter==='all' && b.textContent==='All')) {
+         b.classList.add('active');
+     } else {
+         b.classList.remove('active');
+     }
+  });
+  document.getElementById('formula-list').innerHTML = '<div class="loader"><div class="spinner"></div><div class="loader-txt">Loading...</div></div>';
+  
+  google.script.run
+    .withSuccessHandler(res => {
+      const list = document.getElementById('formula-list');
+      if(res.length === 0) {
+         list.innerHTML = '<p style="padding:20px; text-align:center; color:var(--txt2); font-size:13px">No formulas found.</p>';
+         return;
+      }
+      list.innerHTML = res.map(f => `
+        <div class="card">
+          <div class="card-head ${f.subject==='Science'?'green':'navy'}">${f.subject} — Ch ${f.chapter}: ${f.topic}</div>
+          <div class="card-body">
+            <div style="font-size:11px; color:var(--txt2); margin-bottom:8px">Type: ${f.type} | Source: ${f.source}</div>
+            <div style="font-size:14px; font-weight:600; color:var(--txt); margin-bottom:10px; white-space:pre-wrap">${f.content}</div>
+            ${f.imageUrl ? `<img src="${f.imageUrl}" style="max-width:100%; border-radius:8px; border:1px solid var(--border)">` : ''}
+          </div>
+        </div>
+      `).join('');
+    })
+    .withFailureHandler(e => toast('Error: ' + e.message))
+    .getFormulaBank(subjectFilter);
+}
+
+// Initialize on Load
+window.onload = () => { loadDashboardData(); }
+// ── MANUAL SUMMARY FUNCTIONS ─────────────────────────────────────────────
+function toggleOptionalFields() {
+  const el = document.getElementById('manualOptionalFields');
+  const btn = document.querySelector('button[onclick="toggleOptionalFields()"]');
+  if (el.style.display === 'none') {
+    el.style.display = 'block';
+    btn.textContent = '- Hide Hindi/Kannada';
+  } else {
+    el.style.display = 'none';
+    btn.textContent = '+ Add Hindi/Kannada';
+  }
+}
+
+function submitManualSummary() {
+  const val = document.getElementById('manualChSelect').value;
+  if (!val) { toast('Please choose a chapter first.'); return; }
+  
+  const [subject, chNum, title] = val.split('|');
+  const en = document.getElementById('manualEn').value.trim();
+  const hi = document.getElementById('manualHi').value.trim();
+  const kn = document.getElementById('manualKn').value.trim();
+
+  if (!en) { toast('English summary is required.'); return; }
+
+  const msgEl = document.getElementById('manual-msg');
+  msgEl.style.display = 'block';
+  msgEl.textContent = 'Saving...';
+  msgEl.style.color = 'var(--txt)';
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (res.success) {
+        msgEl.textContent = '✅ Saved successfully!';
+        msgEl.style.color = 'var(--green)';
+        toast('Summary saved successfully');
+        setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
+      } else {
+        msgEl.textContent = '❌ Error: ' + res.error;
+        msgEl.style.color = 'var(--red)';
+      }
+    })
+    .withFailureHandler(e => {
+      msgEl.textContent = '❌ Error: ' + e.message;
+      msgEl.style.color = 'var(--red)';
+    })
+    .saveManualSummary(subject, parseInt(chNum), title, en, hi, kn);
+}
+// Function called when clicking "Translate Missing Now" button
+function sendDigestNow() {
+  const msgEl = document.getElementById('digest-msg');
+  if (!msgEl) return;
+
+  msgEl.style.display = 'block';
+  msgEl.textContent = '⏳ Sending digest email...';
+  msgEl.style.color = 'var(--txt)';
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (!res.success) { msgEl.textContent = '❌ ' + (res.error || 'Failed'); msgEl.style.color = 'var(--red)'; return; }
+      msgEl.textContent = '✅ Sent! (' + res.weekScoreCount + ' quiz attempt(s) this week, ' + res.lowScoreCount + ' below 60%)';
+      msgEl.style.color = 'var(--green)';
+      toast('Digest email sent');
+    })
+    .withFailureHandler(err => {
+      msgEl.textContent = '❌ Error: ' + err.message;
+      msgEl.style.color = 'var(--red)';
+    })
+    .sendWeeklyParentDigest();
+}
+
+function runFixStaleTranslations() {
+  const msgEl = document.getElementById('fix-stale-msg');
+  if (!msgEl) return;
+
+  msgEl.style.display = 'block';
+  msgEl.textContent = '⏳ Scanning and fixing...';
+  msgEl.style.color = 'var(--txt)';
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (!res.success) { msgEl.textContent = '❌ ' + (res.error || 'Failed'); msgEl.style.color = 'var(--red)'; return; }
+      msgEl.textContent = `✅ Cleaned ${res.cleared} mismatched cell(s), refilled ${res.refilled} translation(s).`;
+      msgEl.style.color = 'var(--green)';
+      toast('Cleanup complete');
+    })
+    .withFailureHandler(err => {
+      msgEl.textContent = '❌ Error: ' + err.message;
+      msgEl.style.color = 'var(--red)';
+    })
+    .fixStalePlaceholderTranslations();
+}
+
+function runTranslateMissing() {
+  const msgEl = document.getElementById('translate-msg');
+  if (!msgEl) return;
+  
+  msgEl.style.display = 'block';
+  msgEl.textContent = '⏳ Translating missing fields... please wait...';
+  msgEl.style.color = 'var(--txt)';
+  
+  google.script.run
+    .withSuccessHandler(res => {
+      msgEl.textContent = '✅ Success! Translated ' + (res.translated || 0) + ' missing items.';
+      msgEl.style.color = 'var(--green)';
+      toast('Translation complete!');
+      setTimeout(() => { msgEl.style.display = 'none'; }, 5000);
+    })
+    .withFailureHandler(err => {
+      msgEl.textContent = '❌ Error: ' + err.message;
+      msgEl.style.color = 'var(--red)';
+    })
+    .runTranslateMissingBackend();
+}
+
+// ── BULK CONTENT GENERATOR ───────────────────────────────
+function renderBulkStatus(status) {
+  if (!status || status.error) {
+    document.getElementById('bulk-progress-label').textContent = status && status.error ? 'Error: ' + status.error : 'Status unavailable';
+    return;
+  }
+  document.getElementById('bulk-provider').textContent = status.provider;
+  const summaryPct = status.total ? Math.round(status.summaryDone / status.total * 100) : 0;
+  const pyqPct = status.total ? Math.round(status.pyqDone / status.total * 100) : 0;
+  document.getElementById('bulk-progress-label').textContent =
+    `Summaries: ${status.summaryDone}/${status.total} (${summaryPct}%)  •  PYQ sets: ${status.pyqDone}/${status.total} (${pyqPct}%)`;
+  document.getElementById('bulk-progress-fill').style.width = Math.min(summaryPct, pyqPct) + '%';
+
+  const btn = document.getElementById('bulkGenBtn');
+  if (status.summaryDone >= status.total && status.pyqDone >= status.total) {
+    btn.disabled = true;
+    btn.textContent = '✅ All chapters complete';
+  } else {
+    btn.disabled = false;
+    btn.textContent = '⚡ Generate Next 5 Chapters';
+  }
+}
+
+function refreshBulkStatus() {
+  google.script.run
+    .withSuccessHandler(renderBulkStatus)
+    .withFailureHandler(e => { document.getElementById('bulk-progress-label').textContent = 'Error: ' + e.message; })
+    .bulkGenerateStatus();
+
+  google.script.run
+    .withSuccessHandler(res => {
+      const el = document.getElementById('pdf-setup-status');
+      if (!res || res.error) { el.textContent = 'PDF grounding: not set up yet.'; return; }
+      if (!res.driveApiEnabled) {
+        el.innerHTML = '⚠️ Drive API not enabled — see setup note below the checkbox before turning this on.';
+        return;
+      }
+      const configured = res.rows.filter(r => r.configured).length;
+      el.textContent = `PDF grounding: ${configured}/${res.rows.length} subject folders mapped in "📁 CHAPTER_PDF_FOLDERS" sheet.`;
+    })
+    .withFailureHandler(() => {})
+    .getPdfFolderSetupStatus();
+
+  if (appData && appData.trackerChapters) populateBulkSingleDropdowns(appData.trackerChapters);
+}
+
+function populateBulkSingleDropdowns(chapters) {
+  const subjSel = document.getElementById('bulk-single-subj');
+  if (!subjSel) return;
+  const listenSubjects = SUBJECTS_ORDER.filter(s => {
+    if (s === 'Social Science') return SOCIAL_SCIENCE_SUBJECTS.some(ss => chapters.some(c => c.subject === ss));
+    return chapters.some(c => c.subject === s);
+  });
+  subjSel.innerHTML = '<option value="">— Choose subject —</option>' + listenSubjects.map(s => `<option value="${s}">${s}</option>`).join('');
+}
+
+function loadBulkSingleUnits() {
+  const subj = document.getElementById('bulk-single-subj').value;
+  const sel = document.getElementById('bulk-single-unit');
+  sel.innerHTML = '<option value="">— Choose chapter —</option>';
+  if (!subj || !appData) return;
+  const relevantSubjects = (subj === 'Social Science') ? SOCIAL_SCIENCE_SUBJECTS : [subj];
+  appData.trackerChapters.filter(c => relevantSubjects.includes(c.subject) && c.chNum > 0).forEach(ch => {
+    const opt = document.createElement('option');
+    opt.value = ch.subject + '|' + ch.chNum + '|' + ch.title + '|' + (ch.book || '');
+    opt.textContent = `${ch.subject} Ch ${ch.chNum}: ${ch.title}${ch.book ? ' (' + ch.book + ')' : ''}`;
+    sel.appendChild(opt);
+  });
+}
+
+function generateSingleChapterUI() {
+  const val = document.getElementById('bulk-single-unit').value;
+  if (!val) { toast('Choose a chapter first'); return; }
+  const [subject, chNum, title, book] = val.split('|');
+  const usePdf = document.getElementById('usePdfToggle').checked;
+  const forceOverwrite = document.getElementById('overwriteManualToggle').checked;
+  const btn = document.getElementById('bulkSingleBtn');
+  const logEl = document.getElementById('bulk-log');
+  btn.disabled = true; btn.textContent = 'Generating…';
+
+  google.script.run
+    .withSuccessHandler(res => {
+      btn.disabled = false; btn.textContent = 'Generate This Chapter';
+      if (!res.success) { toast(res.error || 'Failed'); return; }
+      let line;
+      if (res.skippedExisting) {
+        line = `<div>⏭️ ${subject} Ch${chNum}: skipped — ${res.pdfNote}</div>`;
+      } else {
+        line = `<div>✅ ${subject} Ch${chNum}: ${res.summarySaved ? 'summary saved via ' + (res.provider || '?') : 'summary failed'}, ` +
+          `${res.pyqCount} PYQs saved${res.formulaCount ? ', ' + res.formulaCount + ' formula(s) added to Formula Bank' : ''}. ${res.pdfNote || ''}</div>`;
+      }
+      logEl.innerHTML = line + logEl.innerHTML;
+      refreshBulkStatus();
+      toast(res.skippedExisting ? 'Skipped — hand-typed summary protected' : 'Chapter generated');
+    })
+    .withFailureHandler(e => {
+      btn.disabled = false; btn.textContent = 'Generate This Chapter';
+      toast('Error: ' + e.message);
+    })
+    .generateSingleChapter(subject, Number(chNum), title, usePdf, book, forceOverwrite);
+}
+
+function bulkGenerateBatch() {
+  const btn = document.getElementById('bulkGenBtn');
+  const logEl = document.getElementById('bulk-log');
+  const usePdf = document.getElementById('usePdfToggle').checked;
+  btn.disabled = true; btn.textContent = 'Generating… (this can take ~30–60s)';
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (!res.success) {
+        btn.disabled = false; btn.textContent = '⚡ Generate Next 5 Chapters';
+        toast(res.error || 'Batch failed');
+        return;
+      }
+      renderBulkStatus(res.status);
+      if (res.log && res.log.length) {
+        const entries = res.log.map(l => `<div>${l}</div>`).join('');
+        logEl.innerHTML = entries + logEl.innerHTML;
+      } else if (res.processed === 0) {
+        logEl.innerHTML = '<div>Nothing left to generate — all chapters complete.</div>' + logEl.innerHTML;
+      }
+      toast(`Processed ${res.processed} chapter(s)`);
+    })
+    .withFailureHandler(e => {
+      btn.disabled = false; btn.textContent = '⚡ Generate Next 5 Chapters';
+      toast('Error: ' + e.message + ' — if this mentions rate limits, wait a minute and try again.');
+    })
+    .bulkGenerateNextBatch(5, usePdf);
+}
+
+// ── SCHOOL NOTES (photo capture) ─────────────────────────
+let currentNotesChapter = null;
+
+function populateNotesDropdowns(chapters) {
+  const subjSel = document.getElementById('notes-subj');
+  if (!subjSel) return;
+  const listenSubjects = SUBJECTS_ORDER.filter(s => {
+    if (s === 'Social Science') return SOCIAL_SCIENCE_SUBJECTS.some(ss => chapters.some(c => c.subject === ss));
+    return chapters.some(c => c.subject === s);
+  });
+  subjSel.innerHTML = '<option value="">— Choose subject —</option>' + listenSubjects.map(s => `<option value="${s}">${s}</option>`).join('');
+}
+
+function loadNotesUnits() {
+  const subj = document.getElementById('notes-subj').value;
+  const sel = document.getElementById('notes-unit');
+  sel.innerHTML = '<option value="">— Choose chapter —</option>';
+  document.getElementById('notes-actions').style.display = 'none';
+  if (!subj || !appData) return;
+  const relevantSubjects = (subj === 'Social Science') ? SOCIAL_SCIENCE_SUBJECTS : [subj];
+  appData.trackerChapters.filter(c => relevantSubjects.includes(c.subject)).forEach(ch => {
+    const opt = document.createElement('option');
+    opt.value = ch.subject + '|' + ch.chNum + '|' + ch.title;
+    opt.textContent = `${ch.subject} Ch ${ch.chNum}: ${ch.title}`;
+    sel.appendChild(opt);
+  });
+}
+
+function loadNotesGallery() {
+  const val = document.getElementById('notes-unit').value;
+  if (!val) { document.getElementById('notes-actions').style.display = 'none'; return; }
+  const [subject, chNum, title] = val.split('|');
+  currentNotesChapter = { subject, chNum, title };
+  document.getElementById('notes-actions').style.display = 'block';
+  refreshNotesGallery();
+}
+
+function refreshNotesGallery() {
+  if (!currentNotesChapter) return;
+  const galleryEl = document.getElementById('notes-gallery');
+  const emptyEl = document.getElementById('notes-empty');
+  galleryEl.innerHTML = '<div class="loader" style="grid-column:1/3;min-height:80px"><div class="spinner"></div></div>';
+  emptyEl.style.display = 'none';
+
+  google.script.run
+    .withSuccessHandler(notes => {
+      if (!notes || notes.length === 0) {
+        galleryEl.innerHTML = '';
+        emptyEl.style.display = 'block';
+        return;
+      }
+      galleryEl.innerHTML = notes.map(n => `
+        <div style="position:relative;border-radius:10px;overflow:hidden;box-shadow:var(--shadow)">
+          <a href="${n.url}" target="_blank">
+            <img src="https://drive.google.com/thumbnail?id=${n.fileId}&sz=w400" style="width:100%;height:120px;object-fit:cover;display:block;background:var(--bg)">
+          </a>
+          <div style="font-size:10px;color:var(--txt2);padding:4px 6px;background:var(--card)">${n.uploadedAt || ''}</div>
+          <button onclick="deleteNoteUI('${n.fileId}')" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:50%;width:24px;height:24px;font-size:13px;cursor:pointer">✕</button>
+        </div>
+      `).join('');
+    })
+    .withFailureHandler(e => { galleryEl.innerHTML = ''; toast('Error loading notes: ' + e.message); })
+    .getNotesForChapter(currentNotesChapter.subject, Number(currentNotesChapter.chNum));
+}
+
+function deleteNoteUI(fileId) {
+  google.script.run
+    .withSuccessHandler(res => { if (res.success) { toast('Note deleted'); refreshNotesGallery(); } else toast(res.error || 'Delete failed'); })
+    .withFailureHandler(e => toast('Error: ' + e.message))
+    .deleteNote(fileId);
+}
+
+// Compresses/resizes the photo client-side before upload (camera photos can be
+// several MB — this keeps uploads fast and reliable on mobile data).
+function readableTimestamp_() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`;
+}
+
+function handleNotePhoto(event) {
+  const file = event.target.files[0];
+  if (!file || !currentNotesChapter) return;
+  const statusEl = document.getElementById('notes-upload-status');
+  statusEl.style.display = 'block';
+  statusEl.textContent = 'Preparing photo…';
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const maxDim = 1600;
+      let { width, height } = img;
+      if (width > height && width > maxDim) { height = height * (maxDim / width); width = maxDim; }
+      else if (height > maxDim) { width = width * (maxDim / height); height = maxDim; }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+      const base64 = dataUrl.split(',')[1];
+
+      statusEl.textContent = 'Uploading…';
+      google.script.run
+        .withSuccessHandler(res => {
+          statusEl.style.display = 'none';
+          event.target.value = '';
+          if (!res.success) { toast(res.error || 'Upload failed'); return; }
+          toast('Note saved');
+          refreshNotesGallery();
+        })
+        .withFailureHandler(e => {
+          statusEl.style.display = 'none';
+          event.target.value = '';
+          toast('Error: ' + e.message);
+        })
+        .uploadNoteImage(currentNotesChapter.subject, Number(currentNotesChapter.chNum), currentNotesChapter.title, base64, 'image/jpeg', 'note_' + readableTimestamp_() + '.jpg');
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── RELINK CHAPTER PDFs ───────────────────────────────────
+function relinkChapterPdfsUI() {
+  const btn = document.getElementById('relinkBtn');
+  const resultEl = document.getElementById('relink-result');
+  btn.disabled = true; btn.textContent = 'Scanning Drive folders… (may take a minute for 128 chapters)';
+  resultEl.textContent = '';
+
+  google.script.run
+    .withSuccessHandler(res => {
+      btn.disabled = false; btn.textContent = '🔗 Relink All Chapter PDFs';
+      if (!res.success) { toast(res.error || 'Relink failed'); resultEl.textContent = 'Error: ' + res.error; return; }
+      let html = `Linked ${res.linked} of ${res.total} chapters.`;
+      if (res.notFound > 0) {
+        html += ` ${res.notFound} not found — check filenames match chapter number/title.`;
+        if (res.misses && res.misses.length) {
+          html += '<div style="margin-top:6px;font-size:11px">' + res.misses.map(m => '⚠️ ' + m).join('<br>') + '</div>';
         }
       }
+      resultEl.innerHTML = html;
+      toast(`Relinked ${res.linked} chapters`);
+    })
+    .withFailureHandler(e => {
+      btn.disabled = false; btn.textContent = '🔗 Relink All Chapter PDFs';
+      toast('Error: ' + e.message);
+      resultEl.textContent = 'Error: ' + e.message;
+    })
+    .relinkAllChapterPdfs();
+}
 
-      // Handle Listen page direct title update
-      if (select.id === 'listen-subj') {
-        const titleEl = document.getElementById('listen-title');
-        if (titleEl) titleEl.textContent = selectedSubject ? `${selectedSubject} Chapters` : 'Select a Subject & Chapter above';
-      }
-    });
-  });
+// ── PAST PAPERS ───────────────────────────────────────────
+let pastPapersInited = false;
+function initPastPapersUI() {
+  if (!pastPapersInited) {
+    const yearSel = document.getElementById('papers-year-select');
+    const currentYear = new Date().getFullYear();
+    let opts = '';
+    for (let y = currentYear; y >= currentYear - 8; y--) opts += `<option value="${y}">${y}</option>`;
+    opts += `<option value="Sample Paper">Sample Paper</option>`;
+    yearSel.innerHTML = opts;
 
-  // Render Progress Page Subjects
-  const progContainer = document.getElementById('progress-subjects-container');
-  if (progContainer) {
-    progContainer.innerHTML = '';
-    Object.keys(courseData).forEach((sub, idx) => {
-      const pct = [80, 75, 68, 60, 55, 50, 45, 70, 65, 40, 85][idx % 11];
-      const item = document.createElement('div');
-      item.innerHTML = `
-        <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:4px;color:var(--txt)">
-          <span>${sub} (${courseData[sub].length} Ch)</span><span>${pct}%</span>
-        </div>
-        <div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div>
-      `;
-      progContainer.appendChild(item);
-    });
+    const subjSel = document.getElementById('papers-subject-select');
+    subjSel.innerHTML = '<option value="">— All Subjects —</option>' + SUBJECTS_ORDER.map(s => `<option value="${s}">${s}</option>`).join('');
+    pastPapersInited = true;
   }
-});
+  loadPastPapersGallery();
+}
+
+function loadPastPapersGallery() {
+  const year = document.getElementById('papers-year-select').value;
+  const listEl = document.getElementById('papers-list');
+  listEl.innerHTML = '<div class="loader" style="min-height:60px"><div class="spinner"></div></div>';
+
+  google.script.run
+    .withSuccessHandler(papers => {
+      if (!papers || papers.length === 0) {
+        listEl.innerHTML = '<p style="font-size:12px;color:var(--txt2);text-align:center;padding:16px 0">No papers for this year yet.</p>';
+        return;
+      }
+      listEl.innerHTML = papers.map(p => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 4px;border-bottom:1px solid var(--border)">
+          <a href="${p.url}" target="_blank" style="font-size:13px;color:var(--navy);text-decoration:none;flex:1">
+            📄 ${p.subject ? p.subject + ' — ' : ''}${p.name}
+          </a>
+          <button onclick="deletePastPaperUI('${p.fileId}')" style="background:none;border:none;color:var(--red);font-size:16px;cursor:pointer;padding:4px 8px">✕</button>
+        </div>
+      `).join('');
+    })
+    .withFailureHandler(e => { listEl.innerHTML = ''; toast('Error: ' + e.message); })
+    .getPastPapers(year);
+}
+
+function deletePastPaperUI(fileId) {
+  google.script.run
+    .withSuccessHandler(res => { if (res.success) { toast('Paper deleted'); loadPastPapersGallery(); } else toast(res.error || 'Delete failed'); })
+    .withFailureHandler(e => toast('Error: ' + e.message))
+    .deletePastPaper(fileId);
+}
+
+function handlePastPaperFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const year = document.getElementById('papers-year-select').value;
+  const subject = document.getElementById('papers-subject-select').value;
+  const statusEl = document.getElementById('papers-upload-status');
+  statusEl.style.display = 'block';
+  statusEl.textContent = 'Uploading…';
+
+  const finishUpload = (base64, mimeType, fileName) => {
+    google.script.run
+      .withSuccessHandler(res => {
+        statusEl.style.display = 'none';
+        event.target.value = '';
+        if (!res.success) { toast(res.error || 'Upload failed'); return; }
+        toast('Paper saved');
+        loadPastPapersGallery();
+      })
+      .withFailureHandler(e => {
+        statusEl.style.display = 'none';
+        event.target.value = '';
+        toast('Error: ' + e.message);
+      })
+      .uploadPastPaper(year, subject, base64, mimeType, fileName);
+  };
+
+  if (file.type === 'application/pdf') {
+    // PDFs go up as-is — no compression possible/needed for a document format.
+    const reader = new FileReader();
+    reader.onload = e => finishUpload(e.target.result.split(',')[1], 'application/pdf', file.name);
+    reader.readAsDataURL(file);
+  } else {
+    // Photo of a paper — compress like Notes photos to keep upload fast.
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const maxDim = 1600;
+        let { width, height } = img;
+        if (width > height && width > maxDim) { height = height * (maxDim / width); width = maxDim; }
+        else if (height > maxDim) { width = width * (maxDim / height); height = maxDim; }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        finishUpload(dataUrl.split(',')[1], 'image/jpeg', 'paper_' + Date.now() + '.jpg');
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+}
 </script>
 </body>
 </html>
