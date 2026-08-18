@@ -137,9 +137,8 @@ body {
 .feedback-correct { background: var(--greenlt); color: var(--green); }
 .feedback-incorrect { background: var(--redlt); color: var(--red); }
 #more-system, #more-automation, #more-setup { display: none !important; }
-@media (min-width: 600px) { body { max-width: 1100px; margin: 0 auto; } .stat-row { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 600px) { body { max-width: 640px; margin: 0 auto; } .stat-row { grid-template-columns: repeat(4, 1fr); } }
 
-/* ── VOICE FEEDBACK ANIMATIONS ── */
 /* ── VOICE FEEDBACK ANIMATIONS ── */
 @keyframes pulse-anim {
   0%, 100% { opacity: 0.7; }
@@ -378,16 +377,6 @@ body {
       </select>
       <button class="btn btn-amber btn-full" id="startWebMcqBtn" onclick="startWebMCQ()">▶ Start MCQ Quiz</button>
       <p style="font-size:11px;color:var(--txt2);margin-top:10px">5 MCQs for the chapter you pick. Tick your answers and submit — graded instantly, scores saved automatically.</p>
-   <!-- Timed Mock Test Button & Timer -->
-<div style="margin-top: 15px; text-align: center;">
-  <button id="btnStartMockExam" onclick="launchMockExam()" style="background-color: #d9534f; color: white; padding: 12px 20px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; width: 100%;">
-    ⏱️ Start 10-Min Timed Mock Test
-  </button>
-</div>
-
-<div id="mockTimerDisplay" style="display: none; background: #fff3cd; color: #856404; padding: 10px; font-weight: bold; text-align: center; font-size: 1.1em; border-radius: 5px; margin-top: 10px;">
-  ⏱️ Time Left: 10:00
-</div>
     </div>
   </div>
 
@@ -576,51 +565,130 @@ body {
     </div>
     <div class="card-body collapsed" id="more-manual-body">
       <select class="notes-unit-select" id="manualChSelect">
-       <option value="">— Choose chapter —</option>
+        <option value="">— Choose chapter —</option>
       </select>
-      <label class="lbl-tag">Summary Content</label>
-      <textarea class="text-input" id="manualSummaryText" rows="4" placeholder="Type or paste chapter summary here..."></textarea>
-      <button class="btn btn-amber btn-full" onclick="saveManualSummary()">💾 Save Summary</button>
+      <label class="lbl-tag">English Summary</label>
+      <textarea class="text-input" id="manualEn" rows="3" style="resize:vertical"></textarea>
+      <div id="manualOptionalFields" style="display:none">
+        <label class="lbl-tag">Hindi Summary <span>(optional — auto-translated nightly if left blank)</span></label>
+        <textarea class="text-input" id="manualHi" rows="2" style="resize:vertical"></textarea>
+        <label class="lbl-tag">Kannada Summary <span>(optional)</span></label>
+        <textarea class="text-input" id="manualKn" rows="2" style="resize:vertical"></textarea>
+      </div>
+      <button class="btn btn-amber btn-sm" onclick="toggleOptionalFields()" style="margin-bottom:10px">+ Add Hindi/Kannada</button>
+      <button class="btn btn-success btn-full" onclick="submitManualSummary()">💾 Save Summary</button>
+      <div id="manual-msg" style="display:none;margin-top:8px;font-size:12px"></div>
+    </div>
+  </div>
+
+  <div class="card" id="more-translate">
+    <div class="card-head purple collapsible" onclick="toggleMoreCard('more-translate')">
+      <span>🌍 Translation Tools</span>
+      <span class="chevron-white" id="more-translate-chevron">▼</span>
+    </div>
+    <div class="card-body collapsed" id="more-translate-body">
+      <p style="font-size:12px;color:var(--txt2);margin-bottom:10px">
+        Run this if you've added English summaries manually and want Hindi/Kannada filled in immediately.
+      </p>
+      <button class="btn btn-purple btn-full" onclick="runTranslateMissing()">🌍 Translate Missing Now</button>
+      <div id="translate-msg" style="display:none;margin-top:8px;font-size:12px"></div>
+
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+        <p style="font-size:12px;color:var(--txt2);margin-bottom:10px">
+          If a chapter's Hindi/Kannada shows the wrong or "no summary yet" text even though English is filled in, use this to clean it up and refill it correctly.
+        </p>
+        <button class="btn btn-primary btn-full" onclick="runFixStaleTranslations()">🧹 Fix Mismatched Translations</button>
+        <div id="fix-stale-msg" style="display:none;margin-top:8px;font-size:12px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="more-bulk">
+    <div class="card-head red collapsible" onclick="toggleMoreCard('more-bulk')">
+      <span>⚡ Bulk Content Generator</span>
+      <span class="chevron-white" id="more-bulk-chevron">▼</span>
+    </div>
+    <div class="card-body collapsed" id="more-bulk-body">
+      <p style="font-size:12px;color:var(--txt2);margin-bottom:10px">
+        Fills in missing chapter summaries and practice question sets (PYQ) using AI. Safe to click repeatedly; already-completed chapters are skipped automatically. Runs on <span id="bulk-provider" style="font-weight:600">—</span>.
+      </p>
+      <div id="bulk-progress" style="margin-bottom:10px">
+        <div class="prog-label"><span id="bulk-progress-label">Loading status…</span></div>
+        <div class="prog-track"><div class="prog-fill" id="bulk-progress-fill" style="width:0%"></div></div>
+      </div>
+
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt);margin-bottom:10px;cursor:pointer">
+        <input type="checkbox" id="usePdfToggle">
+        Ground in actual chapter PDF from Drive (reduces AI guessing — requires one-time setup, see below)
+      </label>
+      <div id="pdf-setup-status" style="font-size:11px;color:var(--txt2);margin-bottom:10px"></div>
+
+      <button class="btn btn-red btn-full" id="bulkGenBtn" onclick="bulkGenerateBatch()">⚡ Generate Next 5 Chapters</button>
+
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+        <label class="lbl-tag">Or generate one specific chapter</label>
+        <select class="notes-subj-select" id="bulk-single-subj" onchange="loadBulkSingleUnits()">
+          <option value="">— Choose subject —</option>
+        </select>
+        <select class="notes-unit-select" id="bulk-single-unit">
+          <option value="">— Choose chapter —</option>
+        </select>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt);margin-bottom:10px;cursor:pointer">
+          <input type="checkbox" id="overwriteManualToggle">
+          Overwrite even if a hand-typed summary already exists (off by default — protects manual work)
+        </label>
+        <button class="btn btn-amber btn-full" id="bulkSingleBtn" onclick="generateSingleChapterUI()">Generate This Chapter</button>
+      </div>
+
+      <div id="bulk-log" style="margin-top:10px;font-size:11px;color:var(--txt2);max-height:160px;overflow-y:auto"></div>
+      <p style="font-size:10px;color:var(--txt2);margin-top:10px">
+        Note: PYQ entries generated here are AI-produced practice questions in the CBSE style — not verified past-year board papers. They're labeled "AI Generated" / "AI Practice Set" in the sheet so you can tell them apart from any real PYQs you add manually.
+      </p>
+    </div>
+  </div>
+
+  <div class="card" id="more-relink">
+    <div class="card-head navy collapsible" onclick="toggleMoreCard('more-relink')">
+      <span>🔗 Relink Chapter PDFs</span>
+      <span class="chevron-white" id="more-relink-chevron">▼</span>
+    </div>
+    <div class="card-body collapsed" id="more-relink-body">
+      <p style="font-size:12px;color:var(--txt2);margin-bottom:10px">
+        Scans your Drive book folders and writes a fresh, working hyperlink into each STUDY TRACKER chapter title — fixes broken links (e.g. from files that were deleted and re-uploaded) and fills in links for chapters that never had one. Safe to re-run anytime.
+      </p>
+      <button class="btn btn-primary btn-full" id="relinkBtn" onclick="relinkChapterPdfsUI()">🔗 Relink All Chapter PDFs</button>
+      <div id="relink-result" style="margin-top:10px;font-size:12px;color:var(--txt2)"></div>
+    </div>
+  </div>
+
+  <div class="card" id="more-setup">
+    <div class="card-head red collapsible" onclick="toggleMoreCard('more-setup')">
+      <span>🚀 Setup Checklist</span>
+      <span class="chevron-white" id="more-setup-chevron">▼</span>
+    </div>
+    <div class="card-body collapsed" id="more-setup-body">
+      <div style="font-size:13px;line-height:2;color:var(--txt2)">
+        ☐ Extensions → Apps Script → paste Code.gs<br>
+        ☐ Create Index.html file → paste this file<br>
+        ☐ Project Settings → Script Properties → add GROQ_API_KEY, PARENT_EMAIL, CHILD_EMAIL<br>
+        ☐ Run <code style="background:var(--bg);padding:1px 5px;border-radius:4px">setupSystem()</code> → triggers + confirmation email<br>
+        ☐ Deploy → New deployment → Web app → Execute as Me, Access Anyone<br>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ── BOTTOM NAVIGATION ────────────────────────────────── -->
 <nav class="bottom-nav">
-  <button class="nav-btn active" onclick="showPage('home', this)">
-    <span class="icon">🏠</span>
-    <span>Home</span>
-  </button>
-  <button class="nav-btn" onclick="showPage('listen', this)">
-    <span class="icon">🎧</span>
-    <span>Listen</span>
-  </button>
-  <button class="nav-btn" onclick="showPage('progress', this)">
-    <span class="icon">📊</span>
-    <span>Progress</span>
-  </button>
-  <button class="nav-btn" onclick="showPage('ask', this)">
-    <span class="icon">🤖</span>
-    <span>Ask AI</span>
-  </button>
-  <button class="nav-btn" onclick="showPage('quiz', this)">
-    <span class="icon">📝</span>
-    <span>Quiz</span>
-  </button>
-  <button class="nav-btn" onclick="showPage('ref', this)">
-    <span class="icon">📚</span>
-    <span>Ref</span>
-  </button>
-  <button class="nav-btn" onclick="showPage('more', this)">
-    <span class="icon">⚙️</span>
-    <span>More</span>
-  </button>
+  <button class="nav-btn active" id="nav-home"     onclick="showPage('home')"><span class="icon">🏠</span>Home</button>
+  <button class="nav-btn" id="nav-listen"   onclick="showPage('listen')"><span class="icon">🎧</span>Listen</button>
+  <button class="nav-btn" id="nav-progress" onclick="showPage('progress')"><span class="icon">📈</span>Progress</button>
+  <button class="nav-btn" id="nav-ask"      onclick="showPage('ask')"><span class="icon">🤖</span>Ask</button>
+  <button class="nav-btn" id="nav-quiz"     onclick="showPage('quiz')"><span class="icon">📝</span>Quiz</button>
+  <button class="nav-btn" id="nav-ref"      onclick="showPage('ref')"><span class="icon">📐</span>Ref</button>
+  <button class="nav-btn" id="nav-more"     onclick="showPage('more')"><span class="icon">⋯</span>More</button>
 </nav>
 
 <div class="toast" id="toast"></div>
-
-</body>
-</html>
 <script>
 // ── GLOBALS ───────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════
@@ -1260,66 +1328,45 @@ function speakVC_(text) {
 
 function handleVoiceCommand(transcript) {
   if (!appData || !appData.trackerChapters) { 
+    console.error('VOICE_FAIL: Data not loaded');
     toast('Data not loaded yet, try again'); 
     return; 
   }
   
-  let t = transcript.toLowerCase();
-  console.log('VOICE_INPUT_RAW:', transcript);
+  const t = transcript.toLowerCase();
+  console.log('VOICE_PROCESSING:', {input: transcript, lowercase: t});
 
-  // 1. Convert Spoken Number Words to Digits ("three" -> "3")
-  const wordToNum = { 
-    'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 
-    'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
-    'eleven': 11, 'twelve': 12, 'thirteen': 13, 'fourteen': 14, 'fifteen': 15 
-  };
-  for (const [word, num] of Object.entries(wordToNum)) {
-    t = t.replace(new RegExp(`\\b${word}\\b`, 'g'), num);
-  }
-
-  // 2. Map Indian Subject Aliases & Sub-subjects to Official Names
-  let subject = null;
-  const aliasMap = {
-    'mathematics': ['math', 'maths', 'mathematics', 'ganit'],
-    'science': ['science', 'phy', 'physics', 'chem', 'chemistry', 'bio', 'biology', 'vigyan'],
-    'social science': ['social science', 'social', 'sst', 'civics', 'economics', 'geography', 'history', 'civ', 'eco', 'geo', 'hist', 'samajik'],
-    'english': ['english', 'eng'],
-    'sanskrit': ['sanskrit', 'skt']
-  };
-
-  for (const [officialSub, aliases] of Object.entries(aliasMap)) {
-    if (aliases.some(alias => t.includes(alias))) {
-      subject = officialSub;
-      break;
-    }
-  }
-
-  // 3. Robust Chapter Number Extractor (Handles "chapter 3", "ch 3", "lesson 3", or "3")
-  const chMatch = t.match(/(?:chapter|ch|lesson|unit|adhyay|part)?\s*(\d+)/i);
-  const chNum = chMatch ? Number(chMatch[1]) : null;
-
-  // 4. Flexible Intent Detection (English + Hinglish + Natural Verbs)
   let intent = null;
-  if (/\b(practice|oral|answer|spoken|test me|ask|pucho|suno)\b/.test(t)) {
+  if (/\b(practice|oral|answer|spoken)\b/.test(t)) {
     intent = 'practicequiz';
-  } else if (/\b(quiz|test|mcq|multiple|exam|paper)\b/.test(t)) {
+    console.log('  Intent: PRACTICE QUIZ');
+  } else if (/\b(quiz|test|mcq|multiple)\b/.test(t)) {
     intent = 'quiz';
-  } else if (/\b(read|listen|summary|explain|play|open|show|padhao|padhna|start|tell)\b/.test(t)) {
+    console.log('  Intent: DAILY MCQ QUIZ');
+  } else if (/\b(read|listen|summary|explain)\b/.test(t)) {
     intent = 'listen';
+    console.log('  Intent: LISTEN/READ CHAPTER');
   } else {
-    // DEFAULT SMART FALLBACK: If user names subject + chapter without verb, default to "Listen"
-    if (subject && chNum) intent = 'listen';
+    console.warn('  Intent: NONE DETECTED');
   }
 
-  // 5. Validation Check
+  const chMatch = t.match(/chapter\s*(\d+)|ch\s*(\d+)|chapter\s+(\w+)/);
+  const chNum = chMatch ? Number(chMatch[1] || chMatch[2]) : null;
+  console.log('  Chapter:', chNum || 'not found');
+
+  const subjectNames = ['english','mathematics','maths','science','civics','economics','geography','history','sanskrit','social science'];
+  let subject = subjectNames.find(s => t.includes(s));
+  if (subject === 'maths') subject = 'mathematics';
+  console.log('  Subject:', subject || 'not found');
+
   if (!intent || !chNum || !subject) {
-    const msg = 'Could not catch chapter or subject. Try: "Science chapter 3" or "SST ch 2 quiz".';
+    const msg = 'Sorry, please say something like: read Science chapter 3, or quiz me on History chapter 2.';
+    console.warn('VOICE_INCOMPLETE:', {intent, chNum, subject});
     speakVC_(msg);
-    toast('Try saying: "Science chapter 3" or "SST ch 2 quiz"');
+    toast('Could not understand — try: "read Science chapter 3"');
     return;
   }
 
-  // 6. Match Chapter in Tracker
   const relevantSubjects = (subject === 'social science') ? SOCIAL_SCIENCE_SUBJECTS : [subject];
   const match = appData.trackerChapters.find(ch =>
     relevantSubjects.some(rs => ch.subject.toLowerCase() === rs.toLowerCase()) &&
@@ -1327,15 +1374,17 @@ function handleVoiceCommand(transcript) {
   );
 
   if (!match) {
-    speakVC_("Chapter not found.");
-    toast('Chapter not found in tracker');
+    console.warn('VOICE_NOT_FOUND: Chapter', subject, chNum, 'not in tracker');
+    speakVC_("I couldn't find that chapter.");
+    toast('Chapter not found — check subject/chapter number');
     return;
   }
 
-  // 7. Route to Requested Page
+  console.log('VOICE_MATCH_FOUND:', {subject: match.subject, chNum: match.chNum, title: match.title});
   const dropdownSubject = SOCIAL_SCIENCE_SUBJECTS.includes(match.subject) ? 'Social Science' : match.subject;
 
   if (intent === 'listen') {
+    console.log('VOICE_ACTION: Loading Listen page');
     showPage('listen');
     document.getElementById('listen-subj').value = dropdownSubject;
     loadListenUnits();
@@ -1344,17 +1393,22 @@ function handleVoiceCommand(transcript) {
     loadChapterContent();
     
   } else if (intent === 'quiz') {
+    console.log('VOICE_ACTION: Loading Daily MCQ Quiz page');
     showPage('quiz');
     document.getElementById('webmcq-subj').value = dropdownSubject;
     loadWebMcqUnits();
     document.getElementById('webmcq-unit').value = match.subject + '|' + match.chNum + '|' + match.title;
+    console.log('VOICE_ACTION: Calling startWebMCQ()');
     startWebMCQ();
     
   } else if (intent === 'practicequiz') {
+    console.log('VOICE_ACTION: Loading Practice Quiz page');
     showPage('quiz');
     const qOption = match.subject + '|' + match.chNum + '|' + match.title + '|' + (match.book || '');
+    console.log('  Setting quizChSelect to:', qOption);
     document.getElementById('quizChSelect').value = qOption;
     enableQuizBtn();
+    console.log('VOICE_ACTION: Calling startQuiz()');
     startQuiz();
   }
 }
@@ -1428,20 +1482,20 @@ function startQuizViaAI_(subject, chNum, title, book, startBtn) {
     .withSuccessHandler(res => {
       const elapsed = ((Date.now() - requestStartTime) / 1000).toFixed(1);
       console.log('QUIZ_RESPONSE:', {elapsed_sec: elapsed, success: res.success});
-
+      
       startBtn.disabled = false;
       startBtn.textContent = '▶ Start Quiz';
-
+      
       if (!res.success) {
         console.error('QUIZ_GENERATION_FAILED:', res);
         if (res.debug) console.error('  Backend debug:', res.debug);
         toast('Could not generate questions. Check console for details.');
         return;
       }
-
+      
       quizQuestions = parseGeneratedQuestions_(res.answer);
       console.log('QUIZ_PARSED:', quizQuestions.length + ' questions');
-
+      
       if (quizQuestions.length === 0) {
         console.error('QUIZ_PARSE_FAILED: No questions extracted');
         toast('No questions generated, try again');
@@ -2475,81 +2529,6 @@ function handlePastPaperFile(event) {
     reader.readAsDataURL(file);
   }
 }
-  function renderBehindList(weakList) {
-  const container = document.getElementById('behind-list');
-  const badge = document.getElementById('behind-badge');
-
-  if (!container) return;
-
-  if (!weakList || weakList.length === 0) {
-    if (badge) {
-      badge.textContent = 'All Clear! 🎉';
-      badge.style.background = 'var(--green)';
-    }
-    container.innerHTML = '<p style="font-size:12px;color:var(--txt2);text-align:center;padding:10px;">Great job! No chapters need revision right now.</p>';
-    return;
-  }
-
-  if (badge) {
-    badge.textContent = weakList.length + ' Needs Review';
-    badge.style.background = 'var(--red)';
-  }
-
-  let html = '';
-  weakList.forEach(item => {
-    html += `
-      <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border);">
-        <div>
-          <div style="font-size:13px; font-weight:700; color:var(--txt);">${item.title}</div>
-          <div style="font-size:11px; color:var(--red); font-weight:600;">Last Score: ${item.score}% (${item.date})</div>
-        </div>
-        <button class="btn btn-sm btn-amber" onclick="switchPage('quiz');">
-          🎯 Re-Quiz
-        </button>
-      </div>
-    `;
-  });
-
-  container.innerHTML = html;
-}
-  let mockTimerInterval = null;
-let mockTimeRemaining = 600;
-
-function startMockExamTimer() {
-  clearInterval(mockTimerInterval);
-  mockTimeRemaining = 600;
-
-  const timerDisplay = document.getElementById('mockTimerDisplay');
-  mockTimerInterval = setInterval(() => {
-    mockTimeRemaining--;
-    const mins = Math.floor(mockTimeRemaining / 60);
-    const secs = mockTimeRemaining % 60;
-    
-    if (timerDisplay) {
-      timerDisplay.textContent = `⏱️ Time Left: ${mins}:${secs < 10 ? '0' : ''}${secs}`;
-    }
-
-    if (mockTimeRemaining <= 0) {
-      clearInterval(mockTimerInterval);
-      toast('Time up! Submitting your exam automatically...');
-      submitMockExam();
-    }
-  }, 1000);
-}
-
-function stopMockExamTimer() {
-  clearInterval(mockTimerInterval);
-}
-  <!-- Timed Mock Test Button & Timer -->
-<div style="margin-top: 15px; text-align: center;">
-  <button id="btnStartMockExam" onclick="launchMockExam()" style="background-color: #d9534f; color: white; padding: 12px 20px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; width: 100%;">
-    ⏱️ Start 10-Min Timed Mock Test
-  </button>
-</div>
-
-<div id="mockTimerDisplay" style="display: none; background: #fff3cd; color: #856404; padding: 10px; font-weight: bold; text-align: center; font-size: 1.1em; border-radius: 5px; margin-top: 10px;">
-  ⏱️ Time Left: 10:00
-</div>
 </script>
 </body>
 </html>
